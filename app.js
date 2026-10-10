@@ -91,18 +91,24 @@ async function loadUnits() {
   }
 }
 
+// Browse the actual Nightfront rarity tiers. Character portraits appear when
+// an image-backed unit for that rarity exists in the shared Supabase table.
 function renderCategories() {
   const grid = $("categories");
-  grid.innerHTML = CATEGORIES.map((category) => {
-    const matching = state.units.filter((unit) => categoryOf(unit) === category.name);
-    const representative = matching.find((unit) => validImage(unit.image_url));
-    return '<button type="button" class="category-tile" data-category="' + escapeHtml(category.name) + '">' +
-      '<span class="category-art" style="--accent:' + category.accent + ';--glow:' + category.glow + '">' +
-      (representative ? imageHtml(representative) :
-        '<span class="category-symbol" aria-hidden="true">' + category.symbol + '</span>' +
-        '<span class="category-art-note">ART COMING SOON</span>') +
-      '</span><span class="category-name">' + escapeHtml(category.name) + '</span>' +
-      '<span class="category-count">' + matching.length + ' UNIT' + (matching.length === 1 ? '' : 'S') + '</span></button>';
+  const names = RARITIES;
+  grid.innerHTML = names.map((rarity) => {
+    const unitsInRarity = state.units.filter((unit) => unit.rarity === rarity);
+    const featured = unitsInRarity.find((unit) => validImage(unit.image_url));
+    const slug = rarity.toLowerCase();
+    const media = featured
+      ? '<span class="gallery-portrait">' + imageHtml(featured) + '</span>'
+      : '<span class="gallery-lettering" aria-hidden="true">' + escapeHtml(rarity) + '</span>';
+    return '<button type="button" class="gallery-tile" data-gallery-rarity="' +
+      escapeHtml(rarity) + '" aria-label="Browse ' + escapeHtml(rarity) + ' units">' +
+      '<span class="gallery-media gallery-' + slug + '">' + media + '</span>' +
+      '<span class="gallery-caption"><span class="gallery-rarity-label rarity-' +
+      slug + '">' + escapeHtml(rarity) + '</span>' +
+      '</span></button>';
   }).join("");
 }
 
@@ -410,6 +416,15 @@ document.addEventListener("click", (event) => {
     return;
   }
   if (!event.target.closest("#categoryDropdown")) closeCategoryDropdown();
+  const galleryButton = event.target.closest("[data-gallery-rarity]");
+  if (galleryButton) {
+    state.rarity = galleryButton.dataset.galleryRarity;
+    state.category = "";
+    state.search = "";
+    if (location.hash === "#units") renderUnits();
+    else { location.hash = "#units"; route(); }
+    return;
+  }
   const categoryButton = event.target.closest("[data-category]");
   if (categoryButton) {
     state.category = categoryButton.dataset.category;
