@@ -13,6 +13,22 @@ const CATEGORIES = [
   { name: "Items", symbol: "⚔", accent: "#d28bff", glow: "#612a86" }
 ];
 
+// Rarities are separate from the homepage categories.
+const RARITIES = ["Common", "Uncommon", "Rare", "Epic", "Mythic", "Secret", "Glitched"];
+const rarityClass = (rarity) => RARITIES.includes(rarity) ? "rarity-" + rarity.toLowerCase() : "rarity-unknown";
+const rarityBadge = (rarity) =>
+  '<span class="rarity-badge ' + rarityClass(rarity) + '">' + escapeHtml(rarity || "Unknown") + '</span>';
+
+function renderRarityLegend() {
+  const container = $("rarityLegend");
+  if (!container) return;
+  container.innerHTML = RARITIES.map((rarity) =>
+    '<button type="button" class="rarity-badge rarity-filter ' + rarityClass(rarity) +
+    '" data-rarity-filter="' + rarity + '" aria-pressed="' +
+    (state.rarity === rarity) + '">' + rarity + '</button>'
+  ).join("");
+}
+
 const state = {
   units: [], loading: true, error: "", category: "", search: "",
   rarity: "", sort: "name", shinyCards: new Set(),
@@ -98,13 +114,15 @@ function renderFeatured() {
     '<a href="#units" class="spotlight-card" data-spotlight-id="' + escapeHtml(unit.id) + '">' +
       '<span class="spotlight-art">' + imageHtml(unit) + '</span>' +
       '<span class="spotlight-details"><strong>' + escapeHtml(unit.name) + '</strong>' +
-      '<small>' + escapeHtml(unit.rarity) + ' · ' + escapeHtml(unit.demand || "Unknown") + ' demand</small>' +
+      '<span class="spotlight-meta">' + rarityBadge(unit.rarity) +
+      '<small>' + escapeHtml(unit.demand || "Unknown") + ' demand</small></span>' +
       '<b>' + (hasValue(unit.value) ? fmt(unit.value) : "Not listed") + ' tickets</b></span></a>'
   )).join("");
 }
 
 function renderUnits() {
   if (!$("unitsGrid")) return;
+  renderRarityLegend();
   const grid = $("unitsGrid");
   $("search").value = state.search;
   $("rarity").value = state.rarity;
@@ -145,7 +163,7 @@ function renderUnits() {
       (shinyAvailable ? '' : ' disabled') +
       '>★</button></div><div class="unit-details"><h3>' +
       escapeHtml(unit.name) + '</h3><div class="unit-sub">' +
-      escapeHtml(unit.rarity) + ' · ' + escapeHtml(categoryOf(unit)) + '</div><div class="unit-value">' +
+      rarityBadge(unit.rarity) + '<span class="unit-category">' + escapeHtml(categoryOf(unit)) + '</span></div><div class="unit-value">' +
       (hasValue(value) ? fmt(value) : 'Not listed') +
       ' <small>' + (shiny ? 'shiny tickets' : 'tickets') + '</small></div><div class="unit-demand">Demand: <b>' +
       escapeHtml(unit.demand || "Unknown") + '</b></div></div></article>';
@@ -228,6 +246,12 @@ document.addEventListener("click", (event) => {
       state.category = "";
       state.rarity = "";
     }
+  }
+  const rarityFilterButton = event.target.closest("[data-rarity-filter]");
+  if (rarityFilterButton) {
+    const chosen = rarityFilterButton.dataset.rarityFilter;
+    state.rarity = state.rarity === chosen ? "" : chosen;
+    renderUnits();
   }
   const categoryButton = event.target.closest("[data-category]");
   if (categoryButton) {
