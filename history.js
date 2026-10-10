@@ -163,6 +163,8 @@
     state.loading = true;
     $("historyRefresh").disabled = true;
     $("historyStatus").textContent = "Loading history from Supabase…";
+    $("historyStatus").classList.add("is-loading");
+    if (!state.loaded) $("historyTimeline").innerHTML = '<div class="history-entry-skeleton" aria-hidden="true"></div><div class="history-entry-skeleton" aria-hidden="true"></div><div class="history-entry-skeleton" aria-hidden="true"></div>';
     try {
       const response = await fetch(SUPABASE_URL +
         "/rest/v1/unit_value_history?select=id,unit_id,unit_name,rarity,event_type,old_value,new_value,old_shiny_value,new_shiny_value,old_demand,new_demand,changed_at" +
@@ -183,6 +185,7 @@
     } finally {
       state.loading = false;
       $("historyRefresh").disabled = false;
+      $("historyStatus").classList.remove("is-loading");
     }
   }
   function openUnit(id) {
