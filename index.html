@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nightfront TD Values</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #0b0d14;
+  color: #f4f5fb;
+  font-family: Arial, sans-serif;
+}
+header {
+  padding: 24px 7%;
+  background: #111522;
+  border-bottom: 1px solid #292e40;
+}
+.logo { font-size: 25px; font-weight: 800; }
+.logo span { color: #9b87ff; }
+nav { margin-top: 18px; display: flex; gap: 20px; flex-wrap: wrap; }
+nav a { color: #b7bdd0; text-decoration: none; }
+main { max-width: 1100px; margin: auto; padding: 35px 20px; }
+.hero {
+  padding: 35px;
+  border: 1px solid #34304f;
+  border-radius: 18px;
+  background: linear-gradient(135deg,#19172e,#111522);
+}
+h1 { font-size: 36px; margin: 0 0 12px; }
+p { color: #aab1c6; line-height: 1.6; }
+input, select, button {
+  padding: 12px;
+  border: 1px solid #34394c;
+  border-radius: 9px;
+  background: #151a28;
+  color: white;
+  font: inherit;
+}
+input { width: 100%; margin: 12px 0; }
+button { cursor: pointer; background: #7560df; border: 0; }
+button:hover { opacity: .85; }
+.section-title { margin-top: 32px; }
+.filters { display: flex; gap: 10px; flex-wrap: wrap; }
+.filters select { flex: 1; min-width: 150px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
+  gap: 15px;
+  margin-top: 18px;
+}
+.card, .panel {
+  background: #131725;
+  border: 1px solid #292f42;
+  border-radius: 13px;
+  padding: 18px;
+}
+.card h3 { margin: 10px 0; }
+.rarity { color: #b9a7ff; font-size: 12px; text-transform: uppercase; }
+.value { font-size: 22px; font-weight: bold; margin-top: 15px; }
+.small { font-size: 13px; color: #aab1c6; }
+.panel { margin-top: 18px; }
+.panel input { width: 100%; }
+.result { font-weight: bold; margin-top: 14px; }
+footer { text-align: center; color: #858ca3; padding: 30px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">NIGHTFRONT <span>VALUES</span></div>
+  <nav>
+    <a href="#units">Units</a>
+    <a href="#calculator">Value Calculator</a>
+    <a href="#admin">Admin</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Nightfront TD Values</h1>
+    <p>Your community trading value list. Find units, compare trades, and check values in one place.</p>
+    <p>UNIT VALUES COMING SOON</p>
+  </section>
+
+  <section id="units">
+    <h2 class="section-title">Unit Value List</h2>
+    <input id="search" placeholder="Search units..." />
+    <div class="filters">
+      <select id="rarity">
+        <option value="">All rarities</option>
+        <option>Common</option>
+        <option>Rare</option>
+        <option>Epic</option>
+        <option>Legendary</option>
+        <option>Mythic</option>
+      </select>
+      <select id="sort">
+        <option value="name">Sort by name</option>
+        <option value="value">Highest value</option>
+      </select>
+    </div>
+    <div id="unitsGrid" class="grid"></div>
+  </section>
+
+  <section id="calculator">
+    <h2 class="section-title">Trade Calculator</h2>
+    <div class="panel">
+      <p>Add up the values of both sides of a trade.</p>
+      <label>Your side</label>
+      <input id="yourTrade" type="number" min="0" placeholder="Your total value" />
+      <label>Their side</label>
+      <input id="theirTrade" type="number" min="0" placeholder="Their total value" />
+      <button id="checkTrade">Check Trade</button>
+      <div id="tradeResult" class="result"></div>
+      <p class="small">Trade results are estimates based on the values entered.</p>
+    </div>
+  </section>
+
+  <section id="admin">
+    <h2 class="section-title">Admin Panel</h2>
+    <div class="panel">
+      <p>Add a unit to your local test list.</p>
+      <input id="unitName" placeholder="Unit name" />
+      <select id="unitRarity">
+        <option>Common</option>
+        <option>Rare</option>
+        <option>Epic</option>
+        <option>Legendary</option>
+        <option>Mythic</option>
+      </select>
+      <input id="unitValue" type="number" min="0" placeholder="Value (0 for now)" />
+      <input id="unitDemand" placeholder="Demand (e.g. Medium)" />
+      <button id="addUnit">Add Unit</button>
+      <p class="small">Demo only. This is not a secure admin panel and changes are stored only in this browser.</p>
+    </div>
+  </section>
+</main>
+
+<footer>Nightfront TD Values · Community project</footer>
+
+<script>
+const starterUnits = [];
+let units = JSON.parse(localStorage.getItem("nightfrontUnits") || "null") || starterUnits;
+
+const grid = document.getElementById("unitsGrid");
+const search = document.getElementById("search");
+const rarity = document.getElementById("rarity");
+const sort = document.getElementById("sort");
+
+function save() {
+  localStorage.setItem("nightfrontUnits", JSON.stringify(units));
+}
+
+function renderUnits() {
+  const query = search.value.toLowerCase().trim();
+  let filtered = units.filter(unit =>
+    unit.name.toLowerCase().includes(query) &&
+    (!rarity.value || unit.rarity === rarity.value)
+  );
+
+  if (sort.value === "value") {
+    filtered.sort((a, b) => b.value - a.value);
+  } else {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  grid.innerHTML = "";
+
+  if (!filtered.length) {
+    grid.innerHTML = '<p>No units found. Add units in the demo admin panel.</p>';
+    return;
+  }
+
+  filtered.forEach(unit => {
+    const card = document.createElement("article");
+    card.className = "card";
+
+    const title = document.createElement("h3");
+    title.textContent = unit.name;
+
+    const rarityLabel = document.createElement("div");
+    rarityLabel.className = "rarity";
+    rarityLabel.textContent = unit.rarity;
+
+    const value = document.createElement("div");
+    value.className = "value";
+    value.textContent = Number(unit.value).toLocaleString() + " value";
+
+    const demand = document.createElement("p");
+    demand.className = "small";
+    demand.textContent = "Demand: " + (unit.demand || "Unknown");
+
+    card.append(title, rarityLabel, value, demand);
+    grid.appendChild(card);
+  });
+}
+
+search.addEventListener("input", renderUnits);
+rarity.addEventListener("change", renderUnits);
+sort.addEventListener("change", renderUnits);
+
+document.getElementById("addUnit").addEventListener("click", () => {
+  const name = document.getElementById("unitName").value.trim();
+  const unitRarity = document.getElementById("unitRarity").value;
+  const value = Number(document.getElementById("unitValue").value);
+  const demand = document.getElementById("unitDemand").value.trim();
+
+  if (!name || document.getElementById("unitValue").value === "" ||
+      !Number.isFinite(value) || value < 0) {
+    alert("Enter a unit name and a valid value.");
+    return;
+  }
+
+  if (units.some(unit => unit.name.toLowerCase() === name.toLowerCase())) {
+    alert("That unit already exists.");
+    return;
+  }
+
+  units.push({ name, rarity: unitRarity, value, demand });
+  save();
+  renderUnits();
+
+  document.getElementById("unitName").value = "";
+  document.getElementById("unitValue").value = "";
+  document.getElementById("unitDemand").value = "";
+});
+
+document.getElementById("checkTrade").addEventListener("click", () => {
+  const yourText = document.getElementById("yourTrade").value;
+  const theirText = document.getElementById("theirTrade").value;
+  const result = document.getElementById("tradeResult");
+
+  if (yourText === "" || theirText === "") {
+    result.textContent = "Enter both trade values first.";
+    return;
+  }
+
+  const yours = Number(yourText);
+  const theirs = Number(theirText);
+
+  if (!Number.isFinite(yours) || !Number.isFinite(theirs) ||
+      yours < 0 || theirs < 0) {
+    result.textContent = "Enter valid non-negative values.";
+    return;
+  }
+
+  if (yours === theirs) {
+    result.textContent = "Fair trade by listed value.";
+  } else if (yours < theirs) {
+    result.textContent = "W for you by listed value.";
+  } else {
+    result.textContent = "L for you by listed value.";
+  }
+});
+
+renderUnits();
+</script>
+</body>
+</html>
