@@ -1203,3 +1203,64 @@ body.picker-open{overflow:hidden}
   .history-controls label{flex-basis:100%}
   .history-refresh{width:100%}
 }
+
+/* NIGHTFRONT DEMAND & VALUE TRENDS */
+.trends-page{max-width:1190px;padding-bottom:95px}
+.trends-heading{text-align:center;padding:28px 0 8px}
+.trends-heading h1{font:900 clamp(26px,4vw,44px)/1.2 'Courier New',monospace;color:#c6daff;letter-spacing:.04em;text-shadow:0 0 20px #6d4aff55}
+.trends-heading p{color:#adbed7;max-width:800px;margin:10px auto}
+.trends-heading .trends-explainer{font-size:12px;color:#d5b97f}
+.trends-toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:28px 0 14px}
+.trends-toolbar label{flex:1 1 175px;min-width:0;color:#a1bce6;font:900 11px 'Courier New',monospace;display:flex;flex-direction:column;gap:8px}
+.trends-toolbar input,.trends-toolbar select{margin:0;width:100%;min-height:45px;background:#111727;border:1px solid #425477;border-radius:8px;color:#eaf3ff;padding:9px 11px;font:inherit}
+.trends-toolbar input{min-width:130px}
+.trends-refresh{min-height:45px;padding:10px 14px;border:1px solid #5388b6;border-radius:8px;background:#1a3347;color:#c7edff;font:900 11px 'Courier New',monospace;cursor:pointer}
+.trends-refresh:hover:not(:disabled){background:#235477;color:#fff}
+.trends-refresh:disabled{opacity:.45;cursor:wait}
+.trends-status{color:#a5bada;font-size:12px;min-height:20px;margin:9px 0 19px}
+.trends-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:29px}
+.trends-stat{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;min-height:110px;padding:14px 8px;border:1px solid #34405b;border-radius:11px;background:#0d1421;text-align:center}
+.trends-stat>span{font:900 19px 'Courier New',monospace}
+.trends-stat strong{font:900 clamp(24px,3vw,32px) 'Courier New',monospace;color:#f7faff}
+.trends-stat small{font-size:11px;color:#a4b6d5}
+.trends-stat.up>span{color:#63efb0}
+.trends-stat.down>span{color:#ff758e}
+.trends-stat.stable>span{color:#f4cc78}
+.trends-stat.unknown>span{color:#9eaeca}
+.trends-list-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-bottom:13px;margin-bottom:18px;border-bottom:1px solid #303d56}
+.trends-list-heading h2{font:900 21px 'Courier New',monospace;letter-spacing:.03em;color:#c4d3fc;margin:0}
+.trends-list-heading span{color:#8faed4;font:800 12px 'Courier New',monospace}
+.trends-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:16px}
+.trends-unit-card{display:flex;flex-direction:column;gap:15px;border:1px solid #334263;border-radius:12px;background:linear-gradient(150deg,#131726,#0a0d18);padding:17px;min-width:0}
+.trends-unit-head{display:flex;gap:13px;align-items:center}
+.trends-portrait{display:grid;place-items:center;width:69px;height:69px;flex:0 0 69px;overflow:hidden;border:1px solid #394b69;border-radius:9px;background:#060a14;color:#819bc6;font-size:29px}
+.trends-portrait img{width:100%;height:100%;object-fit:contain}
+.trends-unit-title{display:flex;flex-direction:column;gap:7px;min-width:0}
+.trends-unit-title strong{font:900 16px/1.35 'Courier New',monospace;color:#f4f7ff;overflow-wrap:anywhere}
+.trends-unit-title small{font:800 11px 'Courier New',monospace;text-transform:uppercase;color:#91abd0}
+.trends-ticket-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.trends-ticket-values>div{padding:10px 9px;border:1px solid #283950;background:#101a2b;border-radius:7px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.trends-ticket-values small{font:800 10px 'Courier New',monospace;color:#9fb2d7;text-transform:uppercase}
+.trends-ticket-values strong{font:800 13px 'Courier New',monospace;color:#e7efff;overflow-wrap:anywhere}
+.trends-demand-info>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.trends-demand-info span{font:900 11px 'Courier New',monospace;color:#9eb6d4}
+.trends-demand-info strong{font:900 12px 'Courier New',monospace;color:#e7efff}
+.trends-demand-meter{height:7px;overflow:hidden;background:#20283d;border-radius:7px;margin:9px 0 0}
+.trends-demand-meter span{display:block;height:100%;background:linear-gradient(90deg,#237dc8,#75f0b0);border-radius:7px}
+.trends-badges,.unit-market-badges{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.market-trend{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:5px 8px;border:1px solid transparent;max-width:100%;font:900 10px/1.4 'Courier New',monospace;overflow-wrap:anywhere}
+.market-trend.up{color:#6fffd2;background:#102f29;border-color:#2b8f71}
+.market-trend.down{color:#ff9ab3;background:#331a25;border-color:#9f3e59}
+.market-trend.stable{color:#ffdc8b;background:#362917;border-color:#997337}
+.market-trend.unknown{color:#a8b9d6;background:#151d2c;border-color:#34445f}
+.trends-card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:13px;border-top:1px solid #2d3a52}
+.trends-card-footer small{font-size:10px;color:#94a7c6}
+.trends-card-footer button{border:1px solid #456995;background:#162742;color:#b7deff;border-radius:6px;font:800 11px 'Courier New',monospace;padding:8px 10px;cursor:pointer}
+.trends-card-footer button:hover{color:#fff;border-color:#83c9ff;background:#23456b}
+.trends-empty{grid-column:1/-1;text-align:center;padding:40px;border:1px dashed #445171;border-radius:12px;color:#abc0db}
+.trends-more{grid-column:1/-1;text-align:center;font-size:12px;color:#aec4e7}
+.trends-footer-note{margin:28px auto;color:#9badc9;text-align:center;font-size:12px;max-width:730px}
+.unit-market-badges{margin-top:11px;gap:6px}
+.unit-market-badges .market-trend{font-size:9px;padding:4px 7px}
+@media(max-width:790px){.trends-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.trends-toolbar label{flex:1 1 40%}}
+@media(max-width:470px){.trends-toolbar label{flex-basis:100%}.trends-refresh{width:100%}.trends-stats{gap:9px}.trends-stat{min-height:95px}.trends-grid{grid-template-columns:1fr}.trends-heading h1{font-size:28px}}
