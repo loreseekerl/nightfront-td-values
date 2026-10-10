@@ -39,16 +39,23 @@
   };
   const classify = delta => delta > 0 ? "up" : delta < 0 ? "down" : "stable";
 
-  function calculateTrend(events,kind,now) {
+  function calculateTrend(events,kind,now,currentValue) {
     const cutoff = now - days * 86400000;
-    // Updates have both an old and a new snapshot. Starting/creation snapshots
-    // cannot prove direction, and must never be counted as "Stable".
+    // Start new units at Stable as an initial display status, not as a claimed
+    // historical price movement. Genuine recorded updates override that label.
+    const hasStartingRecord = events.some(event =>
+      event.event_type === "baseline" || event.event_type === "created");
+    const validCurrent = kind === "demand" ?
+      demandScore(currentValue) !== null : numeric(currentValue) !== null;
+    const startingStatus = hasStartingRecord && validCurrent ?
+      {status:"stable",delta:0,lastChanged:null,defaultStable:true} :
+      {status:"unknown",delta:null,lastChanged:null};
     const updates = events.filter(event =>
       event.event_type === "updated" &&
       Number.isFinite(Date.parse(event.changed_at)) &&
       Date.parse(event.changed_at) >= cutoff &&
       Date.parse(event.changed_at) <= now);
-    if (!updates.length) return {status:"unknown",delta:null,lastChanged:null};
+    if (!updates.length) return startingStatus;
     let delta=0,observed=false,lastChanged=null;
     for(const entry of updates) {
       const oldValue = kind==="demand" ? demandScore(entry.old_demand) :
@@ -60,8 +67,8 @@
       delta+=newValue-oldValue;
       if (oldValue!==newValue && (!lastChanged || entry.changed_at>lastChanged)) lastChanged=entry.changed_at;
     }
-    return observed ? {status:classify(delta),delta,lastChanged} :
-      {status:"unknown",delta:null,lastChanged:null};
+    return observed ? {status:classify(delta),delta,lastChanged,defaultStable:false} :
+      startingStatus;
   }
   function compute() {
     const now=Date.now();
@@ -76,9 +83,9 @@
     for(const unit of state.units) {
       const events=eventsById.get(String(unit.id)) || [];
       trends.set(String(unit.id),{
-        normal:calculateTrend(events,"normal",now),
-        shiny:calculateTrend(events,"shiny",now),
-        demand:calculateTrend(events,"demand",now),
+        normal:calculateTrend(events,"normal",now,unit.value),
+        shiny:calculateTrend(events,"shiny",now,unit.shiny_value),
+        demand:calculateTrend(events,"demand",now,unit.demand),
         rating:demandScore(unit.demand),
         latest:events.length ? events[0]?.changed_at : null
       });
@@ -91,8 +98,10 @@
     const delta=trend?.delta;
     const changes=delta === null || !Number.isFinite(delta) ? "" :
       (delta===0 ? "" : " " + (delta>0?"+":"") + fmt(delta) + (kind==="demand"?"/10":""));
-    const tooltip=(display.text==="Not enough history" ?
-      "Not enough recorded updates to determine a trend" :
+    const tooltip=(trend?.defaultStable ?
+      "Starting status: Stable until a recorded change establishes movement" :
+      display.text==="Not enough history" ?
+      "No usable starting value or recorded history yet" :
       "Net recorded change over the last 30 days") + (changes ? " ("+changes+")":"");
     return '<span class="market-trend '+display.className+'" title="'+esc(tooltip)+'">' +
       '<span aria-hidden="true">'+display.icon+'</span> ' +
