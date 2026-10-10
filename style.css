@@ -1134,3 +1134,72 @@ body.picker-open{overflow:hidden}
   .picker-chosen .picker-extended-total{text-align:left}
 }
 @media(prefers-reduced-motion:reduce){.trade-compare-bar{transition:none}}
+
+
+/* NIGHTFRONT PUBLIC UNIT VALUE HISTORY */
+.history-page{max-width:1150px;padding-bottom:90px}
+.history-heading{text-align:center;padding:28px 0 8px}
+.history-heading h1{font:900 clamp(30px,4vw,44px)/1.2 'Courier New',monospace;color:#86c5ff;letter-spacing:.04em;text-shadow:0 0 16px #317ac24d}
+.history-heading p{max-width:740px;margin:10px auto;color:#b7c3db}
+.history-heading .history-disclaimer{color:#eabf89;font-size:12px}
+.history-controls{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin:23px 0 14px}
+.history-controls label{display:flex;flex:1 1 180px;flex-direction:column;gap:9px;min-width:0;color:#9fb8ed;font:900 12px 'Courier New',monospace}
+.history-controls select{width:100%;min-height:45px;background:#101625;color:#f2f4ff;border:1px solid #3e4b69;border-radius:8px;padding:10px;cursor:pointer}
+.history-refresh{background:#19334b;border:1px solid #53799a;border-radius:8px;color:#e0f1ff;min-height:45px;padding:8px 16px;font:900 12px 'Courier New',monospace;cursor:pointer}
+.history-refresh:hover:not(:disabled){background:#275473}
+.history-refresh:disabled{opacity:.55;cursor:wait}
+.history-status{font-size:12px;color:#99b7db;min-height:23px;margin:7px 0 17px}
+.history-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:15px 0 24px}
+.history-stat{background:#101522;border:1px solid #31415d;border-radius:10px;padding:18px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px}
+.history-stat strong{color:#fafcff;font:900 clamp(22px,3vw,32px) 'Courier New',monospace}
+.history-stat small{font-size:12px;color:#9baecc}
+.history-graph-panel{padding:20px 20px 14px;background:#0b101c;border:1px solid #354967;border-radius:12px;margin:22px 0}
+.history-chart-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.history-chart-heading h2{margin:0;color:#e5f0ff;font:900 clamp(14px,2vw,19px) 'Courier New',monospace}
+.history-chart-legend{display:flex;align-items:center;gap:16px;font:700 12px 'Courier New',monospace}
+.history-chart-legend span::before{content:"";display:inline-block;width:11px;height:11px;margin-right:7px;border-radius:50%;vertical-align:-1px}
+.history-legend-normal{color:#a6eaff}.history-legend-shiny{color:#e2bbff}
+.history-legend-normal::before{background:#4dd7ff}.history-legend-shiny::before{background:#c788ff}
+.history-chart{margin-top:17px;min-height:170px;overflow-x:auto}
+.history-chart svg{width:100%;height:auto;display:block;min-width:350px}
+.history-graph-note{font-size:11px;color:#889bb9;margin:10px 0 0}
+.history-list-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:25px 0 16px;border-bottom:1px solid #28384e;padding-bottom:13px}
+.history-list-heading h2{font:900 22px 'Courier New',monospace;letter-spacing:.05em;margin:0;color:#b3c3ff}
+.history-list-heading span{font-size:12px;color:#9aadd0}
+.history-timeline{display:flex;flex-direction:column;gap:13px}
+.history-entry{border:1px solid #30425e;border-left:3px solid #7489ff;border-radius:10px;background:linear-gradient(130deg,#121825,#090c15);padding:17px 20px}
+.history-entry-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.history-entry-header>div{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.history-unit-name{font:900 18px 'Courier New',monospace;color:#fff;background:none;border:0;padding:0;cursor:pointer}
+.history-unit-name:hover{color:#68d4ff;text-decoration:underline}
+.history-rarity{color:#adbbd8;border:1px solid #49516a;border-radius:5px;padding:3px 8px;font:800 10px 'Courier New',monospace;text-transform:uppercase}
+.history-entry time{font-size:12px;color:#9aaed1}
+.history-event-type{font:900 11px 'Courier New',monospace;color:#63e3cb;letter-spacing:.08em;margin:12px 0 11px}
+.history-event-type.is-baseline{color:#f5c980}
+.history-changes{display:flex;flex-direction:column;gap:9px}
+.history-change-row{display:grid;grid-template-columns:minmax(100px,160px) minmax(0,1fr);gap:10px;align-items:center;font-size:13px;border-top:1px solid #273149;padding-top:9px}
+.history-change-row>span{color:#a8bbdb;font-weight:700}
+.history-change-row>div{display:flex;align-items:center;flex-wrap:wrap;gap:8px;overflow-wrap:anywhere;color:#f7faff}
+.history-before{color:#a1a8b6}.history-arrow{color:#8da3ce}
+.history-current-value{color:#d6e8ff;font-weight:800}
+.history-up{color:#56ffc3;font-weight:900}
+.history-down{color:#ff7892;font-weight:900}
+.history-neutral{color:#adb9d2}
+.history-baseline-note{margin:12px 0 0;font-size:11px;color:#c6ac82}
+.history-empty{border:1px dashed #3b4862;border-radius:12px;padding:40px;text-align:center;color:#a7b5ce;background:#0e1420}
+.unit-history-link{margin-top:12px;display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:33px;padding:7px 10px;color:#9cceff;background:#151f33;border:1px solid #3c5979;border-radius:6px;font:900 11px 'Courier New',monospace;cursor:pointer}
+.unit-history-link:hover{color:#fff;background:#224369;border-color:#88beff}
+@media(max-width:700px){
+  .history-stats{gap:8px}
+  .history-stat{padding:13px 8px}
+  .history-entry{padding:13px}
+  .history-change-row{grid-template-columns:1fr;gap:5px}
+  .history-entry-header time{flex-basis:100%}
+}
+@media(max-width:440px){
+  .history-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .history-stat small{font-size:10px}
+  .history-entry-header button{font-size:16px}
+  .history-controls label{flex-basis:100%}
+  .history-refresh{width:100%}
+}
