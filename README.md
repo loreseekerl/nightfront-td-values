@@ -92,6 +92,24 @@ Use transparent PNG or WebP where possible. Keep files reasonably small to impro
 - Leave `shiny_value` and `shiny_image_url` blank until you know the actual shiny value and/or have an image. Don't put enchant names, icons or effects in these fields: enchantments will get a separate system later.
 - Rotating effects apply only to the shiny variant; they do not alter the original character's stored image.
 
+## Automatic Value History
+
+**Value History** is a public page under **MORE → Value History** at `#history`. Individual unit cards also have a **Value history** button that opens that unit's timeline and normal/shiny ticket graph.
+
+Supabase table `public.unit_value_history` is filled automatically by an AFTER INSERT/UPDATE trigger on `public.units` (including edits made directly in the Supabase Table Editor or the owner dashboard). It records:
+
+- Timestamp, unit name and rarity snapshot
+- Old and new normal ticket values
+- Old and new shiny ticket values (when shiny values exist)
+- Old and new demand
+- A special event type for initial tracking, new units, or actual changes
+
+**Honest starting point:** Tracking was enabled on October 10, 2026. Existing units received a snapshot marked **TRACKING STARTED** on that date, not a made-up backdated change. A new unit gets **UNIT ADDED**; changing ticket values, shiny values or demand gets **VALUE UPDATED** automatically. Renaming or changing artwork alone doesn't create a misleading value-change record.
+
+The public site reads only the **newest 400 entries** for fast loading. Filtering and graphing operate on those fetched entries; older history is still in Supabase and is not deleted by the website. If a unit is deleted, its history rows are preserved and retain the last recorded unit name.
+
+**Security:** RLS permits anonymous and logged-in visitors to SELECT historical entries, but neither may INSERT/UPDATE/DELETE this history directly. The trigger writes entries as a privileged database function whenever a permitted owner edit or authorized database edit changes `public.units`. Visitors cannot fake history events through the public website.
+
 ## Trade calculator
 
 The Nightfront-style calculator is at `#calculator`:
