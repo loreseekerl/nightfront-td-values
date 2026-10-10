@@ -1264,3 +1264,154 @@ body.picker-open{overflow:hidden}
 .unit-market-badges .market-trend{font-size:9px;padding:4px 7px}
 @media(max-width:790px){.trends-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.trends-toolbar label{flex:1 1 40%}}
 @media(max-width:470px){.trends-toolbar label{flex-basis:100%}.trends-refresh{width:100%}.trends-stats{gap:9px}.trends-stat{min-height:95px}.trends-grid{grid-template-columns:1fr}.trends-heading h1{font-size:28px}}
+
+/* NIGHTFRONT HOMEPAGE ARTWORK V2 — existing game assets only */
+.home-feature-hero{
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);
+  position:relative;isolation:isolate;overflow:hidden;
+  min-height:350px;border:1px solid #44516f;border-radius:14px;
+  background:#0b1223;box-shadow:0 18px 38px #0006;
+}
+.home-feature-hero::before{
+  content:"";position:absolute;inset:0;z-index:-2;
+  background:linear-gradient(95deg,#080d1af5 0%,#090f1de8 44%,#0b102388 100%),
+    url("./assets/nightfront-header-sharp.webp") center 45% / cover no-repeat;
+}
+.home-feature-hero::after{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(120deg,#0000 48%,#568bff12),radial-gradient(ellipse at 72% 49%,#655dff39,transparent 49%);
+}
+.home-feature-copy{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(25px,4vw,51px)}
+.home-feature-kicker{
+  display:inline-flex;align-items:center;gap:9px;color:#96c9ff;
+  font:900 11px/1.35 'Courier New',monospace;letter-spacing:.075em;
+}
+.home-feature-live-dot{flex:0 0 8px;width:8px;height:8px;border-radius:50%;background:#75ffcb;box-shadow:0 0 12px #6dffc8}
+.home-feature-copy h1{
+  margin:16px 0 12px;font:900 clamp(30px,4.6vw,57px)/1.08 'Courier New',monospace;
+  letter-spacing:-.03em;color:#fff;text-shadow:0 4px 13px #000c;
+}
+.home-feature-copy h1 span{color:#a9b2ff;text-shadow:0 0 18px #6670fa72}
+.home-feature-copy>p{margin:0;color:#c3cee7;font:900 clamp(11px,1.45vw,15px)/1.55 'Courier New',monospace;letter-spacing:.05em}
+.home-feature-metrics{display:flex;gap:22px;flex-wrap:wrap;margin:24px 0}
+.home-feature-metrics>span{display:flex;gap:6px;align-items:center;padding-right:20px;border-right:1px solid #364868}
+.home-feature-metrics>span:last-child{border:0}
+.home-feature-metrics strong{font:900 29px/1 'Courier New',monospace;color:#eaf1ff}
+.home-feature-metrics small{max-width:82px;font:900 9px/1.5 'Courier New',monospace;color:#90add0}
+.home-feature-buttons{display:flex;gap:10px;flex-wrap:wrap}
+.home-feature-buttons a{
+  display:inline-flex;align-items:center;justify-content:center;text-align:center;
+  min-height:43px;padding:12px 15px;border-radius:7px;
+  font:900 11px 'Courier New',monospace;text-decoration:none;
+  transition:transform .15s,background .15s;
+}
+.home-feature-buttons a:hover{transform:translateY(-2px)}
+.home-feature-primary{background:#7965f2;border:1px solid #af9cfe;color:#fff}
+.home-feature-primary:hover{background:#927cff}
+.home-feature-secondary{background:#111a2d;border:1px solid #57749e;color:#d3e8ff}
+.home-feature-secondary:hover{background:#213554}
+.home-feature-art{
+  position:relative;isolation:isolate;min-width:0;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:18px 23px 35px;
+}
+.home-feature-art::before{
+  content:"";position:absolute;inset:8% 7%;z-index:-1;
+  border:1px solid #7489dc38;border-radius:50%;
+  background:radial-gradient(ellipse,#3c47bb4d 0%,#14225d32 43%,transparent 72%);
+}
+.home-feature-art::after{
+  content:"✧";position:absolute;z-index:0;right:13%;top:6%;
+  color:#a5baff78;font-size:36px;pointer-events:none;
+}
+.home-feature-unit{
+  position:relative;z-index:1;display:grid;place-items:center;
+  width:min(100%,370px);height:290px;
+}
+.home-feature-unit img{
+  display:block;width:100%;height:100%;max-width:100%;max-height:100%;
+  object-fit:contain;object-position:center;filter:none;
+}
+.home-feature-unit-tag{
+  position:relative;z-index:2;max-width:100%;padding:8px 11px;
+  color:#dfe7ff;background:#090d1fdc;border:1px solid #7c81cb75;
+  border-radius:6px;text-align:center;overflow-wrap:anywhere;
+  font:900 11px/1.5 'Courier New',monospace;
+}
+.home-gallery-description{margin:25px auto 0;color:#a6b7d5}
+.gallery-art-hint{font-size:12px;color:#9eadd0;margin:9px 0 0}
+.rarity-gallery .gallery-media{border-radius:9px;box-shadow:inset 0 0 28px #02040ac0}
+.rarity-gallery .gallery-media::after{
+  background:linear-gradient(180deg,#04070c8a 0%,transparent 21%,transparent 72%,#040710e8 100%);
+}
+.rarity-gallery .gallery-art-top,.rarity-gallery .gallery-art-bottom{
+  position:absolute;z-index:3;left:11px;right:11px;pointer-events:none;
+  font:900 9px 'Courier New',monospace;letter-spacing:.055em;color:#c4cfe7;
+}
+.rarity-gallery .gallery-art-top{top:12px;text-align:left}
+.rarity-gallery .gallery-art-bottom{bottom:12px;text-align:right;color:#e9edff}
+.rarity-gallery .gallery-portrait img{
+  padding:20px 10px 15px;object-fit:contain;object-position:center;
+  image-rendering:auto;filter:none;
+}
+.rarity-gallery .gallery-empty-mark{
+  position:absolute;z-index:1;top:20%;left:50%;transform:translateX(-50%);
+  width:116px;height:116px;display:grid;place-items:center;
+  border:1px solid color-mix(in srgb,var(--stage-color) 65%,transparent);
+  border-radius:32%;font-size:62px;color:var(--stage-color);
+  text-shadow:0 0 16px color-mix(in srgb,var(--stage-color) 35%,transparent);
+  background:linear-gradient(135deg,#060814ab,#10172980);
+  box-shadow:inset 0 0 26px color-mix(in srgb,var(--stage-color) 15%,transparent),0 0 28px #0008;
+}
+.rarity-gallery .gallery-lettering{
+  position:absolute;z-index:1;left:6px;right:6px;bottom:43px;
+  font-size:clamp(16px,2vw,23px);
+}
+.rarity-gallery .gallery-caption{display:flex;align-items:center;justify-content:space-between;gap:10px;border-color:#4d5975;background:#111828}
+.rarity-gallery .gallery-caption-arrow{font-size:17px;color:#9cb9e5}
+.rarity-gallery .gallery-tile:hover .gallery-caption-arrow{color:#fff;transform:translate(2px,-2px)}
+.rarity-gallery .gallery-caption-arrow{transition:transform .15s}
+.admin-home-art-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:19px}
+.admin-home-art-row{
+  display:flex;flex-direction:column;gap:13px;min-width:0;
+  padding:17px;background:#0d1526;border:1px solid #34435d;border-radius:10px;
+}
+.admin-home-art-top{display:flex;align-items:start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.admin-home-art-top h3{margin:0;color:#eaf1ff;font:900 16px 'Courier New',monospace}
+.admin-home-art-top small{color:#93b8e8;font:800 10px 'Courier New',monospace}
+.admin-home-art-preview{
+  display:grid;place-items:center;height:175px;border:1px dashed #526a94;border-radius:8px;
+  color:#879bbb;background:radial-gradient(circle,#243252,#060a12);overflow:hidden;
+  font:900 11px 'Courier New',monospace;
+}
+.admin-home-art-preview img{display:block;width:100%;height:100%;object-fit:contain;filter:none}
+.admin-home-art-row label{display:flex;flex-direction:column;gap:7px;color:#b8cde7;font-size:12px;font-weight:700}
+.admin-home-art-row input{width:100%;margin:0;min-width:0}
+.admin-home-art-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+@media(max-width:800px){
+ .home-feature-hero{grid-template-columns:1fr minmax(180px,.65fr)}
+ .home-feature-copy{padding:24px}
+ .home-feature-unit{height:240px}
+ .home-feature-metrics{margin:15px 0}
+ .admin-home-art-list{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+ .home-feature-hero{grid-template-columns:1fr}
+ .home-feature-copy{padding:27px 24px 6px}
+ .home-feature-copy h1{font-size:35px}
+ .home-feature-art{padding:0 22px 25px}
+ .home-feature-unit{height:210px;width:min(100%,250px)}
+ .home-feature-unit-tag{font-size:10px}
+ .rarity-gallery .gallery-empty-mark{width:93px;height:93px;font-size:45px}
+ .rarity-gallery .gallery-lettering{font-size:16px;bottom:39px}
+ .rarity-gallery .gallery-art-top,.rarity-gallery .gallery-art-bottom{font-size:8px}
+}
+@media(max-width:390px){
+ .home-feature-copy h1{font-size:29px}
+ .home-feature-buttons a{flex:1 1 100%}
+ .home-feature-metrics{gap:10px}
+ .home-feature-metrics strong{font-size:23px}
+ .rarity-gallery .gallery-empty-mark{width:70px;height:70px;font-size:35px;top:23%}
+ .rarity-gallery .gallery-lettering{font-size:13px;bottom:32px}
+ .rarity-gallery .gallery-art-top{font-size:7px}
+}
