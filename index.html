@@ -43,12 +43,12 @@
     <div class="container home-top">
       <section class="home-feature-hero" aria-label="Nightfront TD featured artwork">
         <div class="home-feature-copy">
-          <span class="home-feature-kicker"><span class="home-feature-live-dot"></span> NIGHTFRONT TD · COMMUNITY VALUES</span>
+          <span class="home-feature-kicker"><span class="home-feature-live-dot"></span> NIGHTFRONT TD / FAN-MADE TRADING GUIDE</span>
           <h1>NIGHTFRONT <span>VALUES</span></h1>
-          <p>FIND THE VALUE. KNOW THE TRADE.</p>
+          <p>Unit values, demand, and trade checks.<span class="hero-note"> All in one place.</span></p>
           <div class="home-feature-metrics">
-            <span><strong id="homeTotalUnits">—</strong><small>LISTED UNITS</small></span>
-            <span><strong>7</strong><small>OFFICIAL RARITIES</small></span>
+            <span><strong id="homeTotalUnits">—</strong><small>UNITS LISTED</small></span>
+            <span><strong>7</strong><small>RARITIES</small></span>
           </div>
           <div class="home-feature-buttons">
             <a class="home-feature-primary" href="#units" data-all-units>EXPLORE UNITS →</a>
@@ -60,36 +60,31 @@
           <div id="homeFeaturedLabel" class="home-feature-unit-tag">OFFICIAL NIGHTFRONT ARTWORK</div>
         </div>
       </section>
-      <p class="hero-copy home-gallery-description">Browse the seven official Nightfront TD rarities below. Rarity covers use the real game artwork when available and can be customized by the site owner.</p>
-      <div class="gallery-intro"><span class="eyebrow">OFFICIAL RARITIES</span><h2>BROWSE BY RARITY</h2><p class="gallery-art-hint">Select a rarity to see its units. Covers appear as their official artwork becomes available.</p></div>
+      <p class="hero-copy home-gallery-description">Find the unit you're looking for. Pick a rarity below, then check its ticket value and demand.</p>
+      <div class="gallery-intro"><div class="section-index">01 <span>/</span> THE UNIT INDEX</div><h2>BROWSE BY RARITY</h2><p class="gallery-art-hint">Choose a rarity to see what's on the list. Artwork gets added as units arrive.</p></div>
       <div class="category-grid rarity-gallery" id="categories" aria-label="Browse by unit rarity"></div>
       <section id="spotlightSection" class="spotlight-section" aria-label="Recently added units" hidden>
         <div class="spotlight-heading">
           <div>
-            <span class="eyebrow">Live from the value list</span>
-            <h2>NEWLY ADDED UNITS</h2>
+            <span class="eyebrow">02 / RECENT ADDITIONS</span>
+            <h2>JUST ADDED</h2>
           </div>
           <a class="text-button" href="#units" data-all-units>View all units →</a>
         </div>
         <div id="spotlightGrid" class="spotlight-grid"></div>
       </section>
-      <div class="home-actions">
-        <a class="outline-btn" href="#calculator">VALUE CALCULATOR</a>
-        <a class="outline-btn" href="#units" data-all-units>VIEW ALL UNITS</a>
-      </div>
-      <hr class="feature-divider">
-      <div class="feature-band">
-        <div class="feature">
-          <h3>SEARCH ALL UNITS</h3>
-          <p>Look up individual units, normal and shiny values in tickets, demand, and rarity.</p>
-          <a class="outline-btn" href="#units" data-all-units>ALL UNITS →</a>
+      <section class="home-quicklinks" aria-label="Other things you can check">
+        <div class="home-quicklinks-heading">
+          <span class="section-index">03 <span>/</span> KEEP TRACK</span>
+          <h2>MORE THAN JUST VALUES</h2>
+          <p>Curious about a unit's past or where its demand is going?</p>
         </div>
-        <div class="feature">
-          <h3>CHECK A TRADE</h3>
-          <p>Build both sides with units from the live list to compare total values.</p>
-          <a class="outline-btn" href="#calculator">W/F/L CALCULATOR →</a>
+        <div class="home-quicklinks-grid">
+          <a href="#history"><span class="quicklink-number">01</span><strong>Value history</strong><small>See when a unit changed</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
+          <a href="#trends"><span class="quicklink-number">02</span><strong>Demand &amp; trends</strong><small>See what's rising or dropping</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
+          <a href="#qa"><span class="quicklink-number">03</span><strong>Developer Q&amp;A</strong><small>Answers from the team</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
         </div>
-      </div>
+      </section>
     </div>
   </section>
 
@@ -98,7 +93,7 @@
       <div class="page-heading">
         <div class="eyebrow">Community value list</div>
         <h1>ALL UNIT VALUES</h1>
-        <p>Find the latest units added to the Nightfront TD list. Click ★ on an available shiny unit to switch its look and ticket value. Shiny stars and rainbow effects rotate while the character artwork stays still.</p>
+        <p>Search the list by name or rarity. Tap ★ on a unit to see its shiny version when a shiny value is available.</p>
       </div>
       <div class="controls">
         <input id="search" class="field search-field" type="search" placeholder="Search units by name…" aria-label="Search units">
@@ -499,6 +494,6 @@
     </div>
   </section>
 </main>
-<footer class="footer">NIGHTFRONT TD VALUES · Community project · 1 ticket = 1 value · Trading values are estimates</footer>
+<footer class="footer"><span>NIGHTFRONT TD VALUES</span> <span>Fan-made value guide · Values are estimates, so check demand before trading.</span></footer>
 </body>
 </html>
