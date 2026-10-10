@@ -289,11 +289,14 @@ function renderCalculator() {
     const html = entries.map((entry) => {
       const unit = getEntryUnit(entry);
       if (!unit) return "";
-      const cost = Number(entry.shiny ? unit.shiny_value : unit.value) * entry.qty;
+      const cost = entryCost(entry);
+      const enchant = getEnchant(entry.enchantId);
       return '<li class="offer-item' + (entry.shiny ? ' offer-shiny' : '') + '">' +
         '<div class="offer-unit-art">' + imageHtml(unit, "★", entry.shiny) + shinyOverlay(entry.shiny) + '</div>' +
         '<div class="offer-unit-info"><strong>' + escapeHtml(unit.name) + (entry.shiny ? ' ★' : '') + '</strong>' +
         '<span>' + escapeHtml(unit.rarity) + ' · x' + entry.qty + '</span>' +
+        (enchant ? '<span class="offer-enchant">✧ ' + escapeHtml(enchant.name) +
+        ' (+' + fmt(enchant.bonus_tickets) + '/unit)</span>' : '') +
         '<small>' + fmt(cost) + ' tickets</small></div>' +
         '<button type="button" class="offer-remove" data-remove="' + entry.id +
         '" data-side="' + side + '" title="Remove unit" aria-label="Remove ' +
@@ -354,6 +357,9 @@ function renderLastUpdated() {
 function openPicker(side) {
   pickerSide = side;
   pickerUnitId = null;
+  pickerEnchantId = "";
+  $("enchantOptions").hidden = true;
+  $("enchantToggle").setAttribute("aria-expanded", "false");
   pickerReturnFocus = document.activeElement;
   $("pickerTitle").textContent = side === "yours" ? "ADD TO ME" : "ADD TO YOU";
   $("pickerSearch").value = "";
@@ -368,6 +374,7 @@ function openPicker(side) {
 function closePicker() {
   if ($("unitPickerModal").hidden) return;
   $("unitPickerModal").hidden = true;
+  $("enchantOptions").hidden = true;
   document.body.classList.remove("picker-open");
   pickerUnitId = null;
   if (pickerReturnFocus && typeof pickerReturnFocus.focus === "function") pickerReturnFocus.focus();
@@ -395,11 +402,15 @@ function renderPicker() {
   shiny.disabled = !availableShiny;
   if (!availableShiny) shiny.checked = false;
   $("pickerUnitName").textContent = unit ? unit.name : "Choose a unit above";
+  const bonus = enchantBonus(pickerEnchantId);
+  const base = unit ? Number(shiny.checked ? unit.shiny_value : unit.value) : 0;
   $("pickerUnitValue").textContent = unit ?
-    (shiny.checked ? fmt(unit.shiny_value) + " tickets each" :
-    fmt(unit.value) + " tickets each" + (availableShiny ? " · shiny available" : "")) :
+    (bonus > 0 ? fmt(base) + " base + " + fmt(bonus) + " enchant = " +
+      fmt(base + bonus) + " tickets each" :
+      fmt(base) + " tickets each" + (availableShiny ? " · shiny available" : "")) :
     "Select a unit to add it to your trade.";
-  $("pickerConfirm").disabled = !unit;
+  renderEnchantPicker();
+  $("pickerConfirm").disabled = !unit || state.enchantsLoading;
   $("pickerConfirm").textContent = "ADD TO " + (pickerSide === "yours" ? "ME" : "YOU");
 }
 function confirmPicker() {
@@ -412,7 +423,11 @@ function confirmPicker() {
     return alert("Enter an amount between 1 and 99.");
   }
   if (!hasValue(shiny ? unit.shiny_value : unit.value)) return alert("This value is not available yet.");
-  state.offers[pickerSide].push({id:state.nextItemId++,unitId:unit.id,qty:amount,shiny});
+  if (state.enchantsLoading) return alert("Wait for the enchantments to load.");
+  if (pickerEnchantId && !getEnchant(pickerEnchantId)) return alert("That enchantment is unavailable. Refresh values.");
+  state.offers[pickerSide].push({
+    id:state.nextItemId++, unitId:unit.id, qty:amount, shiny, enchantId:pickerEnchantId
+  });
   closePicker();
   renderCalculator();
 }
@@ -493,6 +508,20 @@ document.addEventListener("click", (event) => {
     else state.shinyCards.add(id);
     renderUnits(); return;
   }
+  const selectedEnchant = event.target.closest("[data-select-enchant]");
+  if (selectedEnchant) {
+    pickerEnchantId = selectedEnchant.dataset.selectEnchant;
+    $("enchantOptions").hidden = true;
+    $("enchantToggle").setAttribute("aria-expanded", "false");
+    renderPicker();
+    return;
+  }
+  if (event.target.closest("#enchantToggle")) {
+    const options = $("enchantOptions");
+    options.hidden = !options.hidden;
+    $("enchantToggle").setAttribute("aria-expanded", String(!options.hidden));
+    return;
+  }
   const remove = event.target.closest("[data-remove]");
   if (remove && ["yours","theirs"].includes(remove.dataset.side)) {
     state.offers[remove.dataset.side] = state.offers[remove.dataset.side].filter((entry) =>
@@ -509,7 +538,7 @@ $("sort").addEventListener("change", (e) => { state.sort = e.target.value; rende
 $("clearFilters").addEventListener("click", () => {
   state.search = ""; state.rarity = ""; state.sort = "name"; renderUnits();
 });
-$("refreshUnits").addEventListener("click", loadUnits);
+$("refreshUnits").addEventListener("click", () => { loadUnits(); loadEnchants(); });
 $("open-yours").addEventListener("click", () => openPicker("yours"));
 $("open-theirs").addEventListener("click", () => openPicker("theirs"));
 $("pickerSearch").addEventListener("input", renderPicker);
@@ -553,3 +582,4 @@ window.addEventListener("hashchange", route);
 renderCategories();
 route();
 loadUnits();
+loadEnchants();
