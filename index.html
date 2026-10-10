@@ -11,6 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
   <script src="./qa.js?v=otp-error-fix-1" defer></script>
   <script src="./admin.js?v=owner-admin-1" defer></script>
+  <script src="./history.js?v=value-history-1" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -28,6 +29,7 @@
         <button type="button" id="moreToggle" class="nav-more-toggle" aria-expanded="false" aria-controls="moreMenu">MORE <span aria-hidden="true">⌄</span></button>
         <div id="moreMenu" class="more-menu" hidden>
           <a href="#qa">Developer Q&A</a>
+          <a href="#history">Value History</a>
         </div>
       </div>
     </nav>
@@ -112,6 +114,43 @@
           <button id="refreshUnits" class="text-button" type="button">Refresh values</button></span>
       </div>
       <div class="units-grid" id="unitsGrid" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-history" aria-label="Unit value history" hidden>
+    <div class="container history-page">
+      <div class="page-heading history-heading">
+        <span class="eyebrow">NIGHTFRONT TD · VALUE TRACKER</span>
+        <h1>VALUE HISTORY</h1>
+        <p>Real recorded unit value and demand changes from Supabase. See when tickets rise, drop or stay the same.</p>
+        <p class="history-disclaimer">History starts when tracking was enabled. Older changes before that date cannot be recovered.</p>
+      </div>
+      <div class="history-controls">
+        <label>UNIT
+          <select id="historyUnitFilter" aria-label="Filter history by unit"><option value="">All units</option></select>
+        </label>
+        <label>TYPE
+          <select id="historyTypeFilter" aria-label="Filter history type">
+            <option value="">All changes</option>
+            <option value="normal">Normal tickets</option>
+            <option value="shiny">Shiny tickets</option>
+            <option value="demand">Demand</option>
+          </select>
+        </label>
+        <button type="button" class="history-refresh" id="historyRefresh">↻ Refresh history</button>
+      </div>
+      <div id="historyStatus" class="history-status" role="status" aria-live="polite">Loading recorded values…</div>
+      <div class="history-stats" id="historyStats"></div>
+      <section id="historyChartSection" class="history-graph-panel" aria-label="Recorded ticket value graph" hidden>
+        <div class="history-chart-heading">
+          <h2 id="historyChartTitle">TICKET VALUE TREND</h2>
+          <div class="history-chart-legend"><span class="history-legend-normal">Normal</span><span class="history-legend-shiny">Shiny</span></div>
+        </div>
+        <div id="historyChart" class="history-chart"></div>
+        <p class="history-graph-note">Each point is a recorded snapshot. Points are spaced by update, not elapsed time.</p>
+      </section>
+      <div class="history-list-heading"><h2>RECORDED UPDATES</h2><span id="historyResultCount">0 events</span></div>
+      <div id="historyTimeline" class="history-timeline" aria-live="polite"></div>
     </div>
   </section>
 
