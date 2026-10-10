@@ -113,7 +113,7 @@ function renderUnits() {
       escapeHtml(unit.name) + '</h3><div class="unit-sub">' +
       escapeHtml(unit.rarity) + ' · ' + escapeHtml(categoryOf(unit)) + '</div><div class="unit-value">' +
       (hasValue(value) ? fmt(value) : 'Not listed') +
-      ' <small>' + (shiny ? 'shiny value' : 'value') + '</small></div><div class="unit-demand">Demand: <b>' +
+      ' <small>' + (shiny ? 'shiny tickets' : 'tickets') + '</small></div><div class="unit-demand">Demand: <b>' +
       escapeHtml(unit.demand || "Unknown") + '</b></div></div></article>';
   }).join("");
 }
@@ -133,7 +133,7 @@ function renderCalculator() {
       if (!unit) return "";
       const value = Number(entry.shiny ? unit.shiny_value : unit.value) * entry.qty;
       return '<li class="trade-line"><div><strong>' + escapeHtml(unit.name) + (entry.shiny ? ' ★' : '') +
-        ' × ' + entry.qty + '</strong><small>' + fmt(value) + ' total value</small></div>' +
+        ' × ' + entry.qty + '</strong><small>' + fmt(value) + ' tickets</small></div>' +
         '<button type="button" class="remove-btn" data-remove="' + entry.id +
         '" data-side="' + side + '" aria-label="Remove ' + escapeHtml(unit.name) + '">Remove</button></li>';
     }).join("") : '<li style="color:#8791a5;font-size:13px;padding:18px 0">No units added yet.</li>';
@@ -147,9 +147,9 @@ function renderCalculator() {
     return;
   }
   const diff = Math.abs(theirs - yours);
-  const result = theirs > yours ? ["WIN", "win", "You gain " + fmt(diff) + " value."] :
-    theirs < yours ? ["LOSS", "loss", "You give " + fmt(diff) + " more value."] :
-    ["FAIR", "fair", "Both sides have the same listed value."];
+  const result = theirs > yours ? ["WIN", "win", "You gain " + fmt(diff) + " tickets."] :
+    theirs < yours ? ["LOSS", "loss", "You give " + fmt(diff) + " more tickets."] :
+    ["FAIR", "fair", "Both sides have the same ticket value."];
   panel.className = "trade-result " + result[1];
   panel.innerHTML = '<span class="eyebrow">Trade outcome</span><h2>' + result[0] +
     '</h2><p>' + escapeHtml(result[2]) + ' Values are estimates; demand matters too.</p>';
