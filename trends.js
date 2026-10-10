@@ -100,8 +100,8 @@
   }
   // App.js uses this only to display trend badges on unit cards.
   function cardBadges(unit,shiny=false) {
+    if(state.error && !state.loaded) return '<div class="unit-market-badges"><span class="market-trend unknown">· Trends unavailable</span></div>';
     if(!state.loaded) return '<div class="unit-market-badges"><span class="market-trend unknown">· Trends loading…</span></div>';
-    if(state.error) return '<div class="unit-market-badges"><span class="market-trend unknown">· Trends unavailable</span></div>';
     const data=state.map.get(String(unit.id));
     return '<div class="unit-market-badges">' +
       badge(shiny?"shiny":"value",shiny?data?.shiny:data?.normal) +
