@@ -92,6 +92,16 @@ Use transparent PNG or WebP where possible. Keep files reasonably small to impro
 - Leave `shiny_value` and `shiny_image_url` blank until you know the actual shiny value and/or have an image. Don't put enchant names, icons or effects in these fields: enchantments will get a separate system later.
 - Rotating effects apply only to the shiny variant; they do not alter the original character's stored image.
 
+## Demand & Value Trends
+
+The public **MORE → Demand & Trends** page is at `#trends`. Every unit card also shows separate normal/shiny ticket-value trend and demand trend badges. In the All Units list, clicking ★ switches the value trend badge to the shiny variant while keeping demand separate.
+
+**Meaning of the labels:** Trends are calculated from actual records in `public.unit_value_history` over the most recent **30 days**. For each unit, the site sums recorded differences between old and new values for normal tickets, shiny tickets and numeric demand ratings. The result is **Rising** when net movement is positive, **Dropping** when negative, and **Stable** when at least two recorded snapshots support zero net movement. A lone first snapshot (such as Freddy's initial 10-ticket record) means **Not enough history**, not Stable. Missing/invalid old or new shiny values cannot be used to manufacture a trend.
+
+Demand scores support the explicit `1/10` … `10/10` format; other text like `Medium` is still displayed but can't be converted into a numeric movement or demand bar. The user can filter by value and demand trends, sort by demand rating, unit price, name or largest net ticket gain, and open the detailed historical graph.
+
+The overview fetches live units and the newest **1,000** history entries. It shows this cap when reached. Trend labels are indicators of recorded ticket/demand movements, not market predictions, and don't alter any W/F/L calculation. Visitors only have read access; they cannot edit history or manually assign fake trends.
+
 ## Automatic Value History
 
 **Value History** is a public page under **MORE → Value History** at `#history`. Individual unit cards also have a **Value history** button that opens that unit's timeline and normal/shiny ticket graph.
