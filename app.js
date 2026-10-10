@@ -403,22 +403,29 @@ function renderLastUpdated() {
       rarityBadge(unit.rarity) + '<small>' + niceDate + '</small></span></button>';
   }).join("");
 }
-function openPicker(side) {
+function openPicker(side, editId=null) {
+  const editing = editId === null ? null :
+    state.offers[side].find((entry) => String(entry.id) === String(editId));
+  if (editId !== null && !editing) return;
   pickerSide = side;
-  pickerUnitId = null;
-  pickerEnchantId = "";
+  pickerEditingId = editing ? editing.id : null;
+  pickerUnitId = editing ? editing.unitId : null;
+  pickerEnchantId = editing?.enchantId || "";
   $("enchantOptions").hidden = true;
   $("enchantToggle").setAttribute("aria-expanded", "false");
   pickerReturnFocus = document.activeElement;
-  $("pickerTitle").textContent = side === "yours" ? "ADD TO ME" : "ADD TO YOU";
+  $("pickerModeLabel").textContent = editing ? "EDIT YOUR TRADE" : "SELECT UNITS";
+  $("pickerTitle").textContent = (editing ? "EDIT " : "ADD TO ") +
+    (side === "yours" ? "ME" : "YOU");
   $("pickerSearch").value = "";
   $("pickerRarity").value = "";
-  $("pickerQty").value = "1";
-  $("pickerShiny").checked = false;
+  $("pickerQty").value = editing ? String(editing.qty) : "1";
+  $("pickerShiny").checked = Boolean(editing?.shiny);
   $("unitPickerModal").hidden = false;
   document.body.classList.add("picker-open");
   renderPicker();
-  $("pickerSearch").focus();
+  if (editing) $("pickerQty").focus();
+  else $("pickerSearch").focus();
 }
 function closePicker() {
   if ($("unitPickerModal").hidden) return;
@@ -426,6 +433,7 @@ function closePicker() {
   $("enchantOptions").hidden = true;
   document.body.classList.remove("picker-open");
   pickerUnitId = null;
+  pickerEditingId = null;
   if (pickerReturnFocus && typeof pickerReturnFocus.focus === "function") pickerReturnFocus.focus();
 }
 function renderPicker() {
@@ -458,9 +466,15 @@ function renderPicker() {
       fmt(base + bonus) + " tickets each" :
       fmt(base) + " tickets each" + (availableShiny ? " · shiny available" : "")) :
     "Select a unit to add it to your trade.";
+  const quantity = Number($("pickerQty").value);
+  $("pickerExtendedTotal").textContent = unit && Number.isInteger(quantity) && quantity >= 1 && quantity <= 99 ?
+    "TOTAL: " + fmt((base + bonus) * quantity) + " tickets for x" + quantity :
+    (unit ? "Enter a quantity from 1 to 99." : "");
   renderEnchantPicker();
-  $("pickerConfirm").disabled = !unit || state.enchantsLoading;
-  $("pickerConfirm").textContent = "ADD TO " + (pickerSide === "yours" ? "ME" : "YOU");
+  $("pickerConfirm").disabled = !unit || state.enchantsLoading ||
+    !Number.isInteger(quantity) || quantity < 1 || quantity > 99;
+  $("pickerConfirm").textContent = pickerEditingId === null ? "ADD TO " +
+    (pickerSide === "yours" ? "ME" : "YOU") : "SAVE CHANGES";
 }
 function confirmPicker() {
   const unit = getUnit(pickerUnitId);
@@ -474,9 +488,16 @@ function confirmPicker() {
   if (!hasValue(shiny ? unit.shiny_value : unit.value)) return alert("This value is not available yet.");
   if (state.enchantsLoading) return alert("Wait for the enchantments to load.");
   if (pickerEnchantId && !getEnchant(pickerEnchantId)) return alert("That enchantment is unavailable. Refresh values.");
-  state.offers[pickerSide].push({
-    id:state.nextItemId++, unitId:unit.id, qty:amount, shiny, enchantId:pickerEnchantId
-  });
+  if (pickerEditingId !== null) {
+    const existing = state.offers[pickerSide].find((entry) =>
+      String(entry.id) === String(pickerEditingId));
+    if (!existing) return alert("That trade item no longer exists.");
+    Object.assign(existing,{unitId:unit.id, qty:amount, shiny, enchantId:pickerEnchantId});
+  } else {
+    state.offers[pickerSide].push({
+      id:state.nextItemId++, unitId:unit.id, qty:amount, shiny, enchantId:pickerEnchantId
+    });
+  }
   closePicker();
   renderCalculator();
 }
@@ -576,6 +597,11 @@ document.addEventListener("click", (event) => {
     $("enchantToggle").setAttribute("aria-expanded", String(!options.hidden));
     return;
   }
+  const editButton = event.target.closest("[data-edit]");
+  if (editButton && ["yours","theirs"].includes(editButton.dataset.side)) {
+    openPicker(editButton.dataset.side,editButton.dataset.edit);
+    return;
+  }
   const remove = event.target.closest("[data-remove]");
   if (remove && ["yours","theirs"].includes(remove.dataset.side)) {
     state.offers[remove.dataset.side] = state.offers[remove.dataset.side].filter((entry) =>
@@ -595,9 +621,28 @@ $("clearFilters").addEventListener("click", () => {
 $("refreshUnits").addEventListener("click", () => { loadUnits(); loadEnchants(); });
 $("open-yours").addEventListener("click", () => openPicker("yours"));
 $("open-theirs").addEventListener("click", () => openPicker("theirs"));
+for (const side of ["yours", "theirs"]) {
+  $("clear-" + side).addEventListener("click", () => {
+    if (!state.offers[side].length) return;
+    state.offers[side] = [];
+    renderCalculator();
+  });
+}
+$("resetTrade").addEventListener("click", () => {
+  state.offers.yours = [];
+  state.offers.theirs = [];
+  renderCalculator();
+});
+$("swapOffers").addEventListener("click", () => {
+  const oldYours = state.offers.yours;
+  state.offers.yours = state.offers.theirs;
+  state.offers.theirs = oldYours;
+  renderCalculator();
+});
 $("pickerSearch").addEventListener("input", renderPicker);
 $("pickerRarity").addEventListener("change", renderPicker);
 $("pickerShiny").addEventListener("change", renderPicker);
+$("pickerQty").addEventListener("input", renderPicker);
 $("pickerConfirm").addEventListener("click", confirmPicker);
 $("pickerQty").addEventListener("keydown", (e) => { if(e.key === "Enter") confirmPicker(); });
 $("copyTrade").addEventListener("click", async () => {
