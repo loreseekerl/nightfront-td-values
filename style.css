@@ -8,3 +8,53 @@
 @media(max-width:950px){.category-grid,.units-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.category-art{height:210px}.nav{gap:12px}.nav a{font-size:12px}}
 @media(max-width:700px){.header-inner{padding:10px 20px}.menu-toggle{display:block}.nav{display:none;position:absolute;top:100%;left:0;right:0;background:#080a0f;border-bottom:1px solid #31394a;padding:17px 22px;flex-direction:column;align-items:stretch}.nav.open{display:flex}.nav a{padding:8px 3px}.container{padding:0 18px}.category-grid,.units-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 13px}.category-art{height:185px}.category-symbol{font-size:83px}.feature-band,.calc-grid{grid-template-columns:1fr}.notice.white{padding:18px 12px}.home-top{padding-top:18px}.controls select{min-width:120px}.unit-art{height:165px}}
 @media(max-width:390px){.brand{font-size:12px}.brand-mark{width:38px;height:38px}.category-art{height:155px}.category-symbol{font-size:70px}.category-name{font-size:10px}.unit-art{height:140px}.unit-details{padding:11px}.unit-value{font-size:20px}.outline-btn{min-width:160px}}
+
+
+/* Unit card image containment: fixed media frame, separate opaque detail section. */
+.unit-card{display:flex;flex-direction:column;isolation:isolate}
+.unit-card .unit-art{
+  position:relative;
+  display:block;
+  width:100%;
+  height:190px;
+  min-height:190px;
+  flex:0 0 190px;
+  overflow:hidden;
+  contain:paint;
+}
+.unit-card .unit-art > img{
+  display:block;
+  position:absolute;
+  inset:0;
+  box-sizing:border-box;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:center;
+  padding:12px 18px 14px;
+  margin:0;
+}
+.unit-card .unit-art > .placeholder-art{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.unit-card .unit-details{
+  display:block;
+  position:relative;
+  flex:1 0 auto;
+  z-index:3;
+  background:#0e1119;
+}
+.unit-card .shiny-button{z-index:4}
+@media (max-width:700px){
+  .unit-card .unit-art{height:160px;min-height:160px;flex-basis:160px}
+  .unit-card .unit-art > img{padding:9px 8px 12px}
+}
+@media (max-width:390px){
+  .unit-card .unit-art{height:140px;min-height:140px;flex-basis:140px}
+}
