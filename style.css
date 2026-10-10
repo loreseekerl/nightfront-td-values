@@ -2279,3 +2279,37 @@ body{overflow-x:clip}
   .unit-card:not(.is-shiny):hover .unit-art > img{transform:none;transition:none}
   .picker-modal,.offer-add,.trade-compare-bar{transition:none!important}
 }
+
+
+/* Lightweight loading states for the rest of the public value tools. */
+.history-status.is-loading,.trends-status.is-loading,.updates-status.is-loading{
+  display:flex;align-items:center;gap:9px;color:#bdc7e5;
+}
+.history-status.is-loading::before,.trends-status.is-loading::before,.updates-status.is-loading::before{
+  content:"";display:inline-block;width:11px;height:11px;flex:0 0 11px;
+  border:2px solid #9aa9df;border-left-color:transparent;border-radius:50%;
+  animation:nf-loading-rotate .9s linear infinite;
+}
+.history-entry-skeleton,.trends-unit-skeleton,.updates-entry-skeleton{
+  border:1px solid #323949;border-radius:3px;
+  background:linear-gradient(110deg,#141824 4%,#232a39 22%,#141824 40%);
+  background-size:245% 100%;
+  animation:nf-skeleton-shift 2s ease-in-out infinite;
+}
+.history-entry-skeleton,.updates-entry-skeleton{height:132px;margin:0 0 12px}
+.trends-unit-skeleton{height:275px;min-width:0}
+@media(max-width:700px){
+  /* iOS Safari shouldn't zoom in when a small search/filter field receives focus. */
+  input[type="search"],input[type="text"],input[type="email"],
+  input[type="number"],input[type="password"],select,textarea{
+    font-size:16px!important;
+  }
+  .history-entry-skeleton,.updates-entry-skeleton{height:120px}
+  .trends-unit-skeleton{height:220px}
+}
+@media(prefers-reduced-motion:reduce){
+  .history-status.is-loading::before,.trends-status.is-loading::before,.updates-status.is-loading::before,
+  .history-entry-skeleton,.trends-unit-skeleton,.updates-entry-skeleton{
+    animation:none!important;
+  }
+}
