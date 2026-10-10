@@ -41,10 +41,27 @@
 <main>
   <section class="view" id="view-home" aria-label="Main page">
     <div class="container home-top">
-      <div class="notice blue">NIGHTFRONT TD VALUES</div>
-      <div class="notice white">Choose a rarity to explore unit values</div>
-      <p class="hero-copy">Browse the seven official Nightfront TD rarities. Select one to see its units, ticket values, and demand. Real unit portraits appear as they are added to the value list.</p>
-      <div class="gallery-intro"><span class="eyebrow">OFFICIAL RARITIES</span><h2>BROWSE BY RARITY</h2></div>
+      <section class="home-feature-hero" aria-label="Nightfront TD featured artwork">
+        <div class="home-feature-copy">
+          <span class="home-feature-kicker"><span class="home-feature-live-dot"></span> NIGHTFRONT TD · COMMUNITY VALUES</span>
+          <h1>NIGHTFRONT <span>VALUES</span></h1>
+          <p>FIND THE VALUE. KNOW THE TRADE.</p>
+          <div class="home-feature-metrics">
+            <span><strong id="homeTotalUnits">—</strong><small>LISTED UNITS</small></span>
+            <span><strong>7</strong><small>OFFICIAL RARITIES</small></span>
+          </div>
+          <div class="home-feature-buttons">
+            <a class="home-feature-primary" href="#units" data-all-units>EXPLORE UNITS →</a>
+            <a class="home-feature-secondary" href="#calculator">TRADE CALCULATOR</a>
+          </div>
+        </div>
+        <div class="home-feature-art">
+          <div id="homeHeroUnit" class="home-feature-unit"><img src="./assets/nftd-brand.webp" width="250" height="250" alt="Nightfront TD logo"></div>
+          <div id="homeFeaturedLabel" class="home-feature-unit-tag">OFFICIAL NIGHTFRONT ARTWORK</div>
+        </div>
+      </section>
+      <p class="hero-copy home-gallery-description">Browse the seven official Nightfront TD rarities below. Rarity covers use the real game artwork when available and can be customized by the site owner.</p>
+      <div class="gallery-intro"><span class="eyebrow">OFFICIAL RARITIES</span><h2>BROWSE BY RARITY</h2><p class="gallery-art-hint">Select a rarity to see its units. Covers appear as their official artwork becomes available.</p></div>
       <div class="category-grid rarity-gallery" id="categories" aria-label="Browse by unit rarity"></div>
       <section id="spotlightSection" class="spotlight-section" aria-label="Recently added units" hidden>
         <div class="spotlight-heading">
@@ -340,6 +357,7 @@
         <div class="admin-tabs" role="tablist" aria-label="Admin editor sections">
           <button type="button" class="admin-tab active" id="adminUnitsTab" aria-selected="true">UNITS &amp; IMAGES</button>
           <button type="button" class="admin-tab" id="adminEnchantsTab" aria-selected="false">ENCHANT BONUSES</button>
+          <button type="button" class="admin-tab" id="adminHomeArtTab" aria-selected="false">HOMEPAGE ART</button>
         </div>
 
         <div id="adminUnitsPanel" class="admin-panel">
@@ -393,6 +411,11 @@
           <h2>ENCHANTMENT BONUS EDITOR</h2>
           <p class="admin-help">Each bonus adds tickets per unit in the W/F/L calculator. Values update for visitors after they refresh.</p>
           <div id="adminEnchantsList" class="admin-enchants-list"></div>
+        </div>
+        <div id="adminHomeArtPanel" class="admin-panel" hidden>
+          <h2>HOMEPAGE RARITY COVERS</h2>
+          <p class="admin-help">Set a cover for each rarity. Upload PNG, JPG, WebP or GIF (maximum 5 MB), or paste an image URL. If a cover is blank, the homepage uses a real unit portrait from that rarity; otherwise it shows a styled rarity emblem. These covers do not change any unit's artwork or value.</p>
+          <div id="adminHomeArtList" class="admin-home-art-list"></div>
         </div>
       </div>
     </div>
