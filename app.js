@@ -21,7 +21,8 @@ function renderRarityLegend() {
 const state = {
   units: [], loading: true, error: "", search: "",
   rarity: "", sort: "name", shinyCards: new Set(),
-  offers: { yours: [], theirs: [] }, nextItemId: 1
+  offers: { yours: [], theirs: [] }, nextItemId: 1,
+  enchants: [], enchantsLoading: true, enchantsError: ""
 };
 
 const $ = (id) => document.getElementById(id);
@@ -82,6 +83,31 @@ async function loadUnits() {
     renderCalculator();
     renderLastUpdated();
     if (!$("unitPickerModal").hidden) renderPicker();
+  }
+}
+
+// Read enchant bonuses from Supabase; no enchant values are hardcoded in the browser.
+// Anyone can view these values, but public website visitors cannot edit them.
+async function loadEnchants() {
+  state.enchantsLoading = true;
+  state.enchantsError = "";
+  try {
+    const res = await fetch(SUPABASE_URL +
+      "/rest/v1/enchants?select=id,name,bonus_tickets,sort_order&order=sort_order.asc&limit=100", {
+      headers: {apikey: SUPABASE_PUBLISHABLE_KEY}
+    });
+    if (!res.ok) throw new Error("Enchantments unavailable (" + res.status + ")");
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error("Unexpected enchantment response");
+    state.enchants = data.filter((item) => item && /^[a-z0-9_-]{2,40}$/.test(item.id) &&
+      hasValue(item.bonus_tickets) && Number(item.bonus_tickets) >= 0);
+  } catch (error) {
+    state.enchantsError = error.message || "Could not load enchantments";
+    // Keep the last successfully fetched bonuses when refresh is temporarily down.
+  } finally {
+    state.enchantsLoading = false;
+    if (!$("unitPickerModal").hidden) renderPicker();
+    renderCalculator();
   }
 }
 
@@ -193,23 +219,63 @@ function renderUnits() {
 let pickerSide = "yours";
 let pickerUnitId = null;
 let pickerReturnFocus = null;
+let pickerEnchantId = "";
 
 const getUnit = (id) => state.units.find((unit) => String(unit.id) === String(id));
 const getEntryUnit = (entry) => getUnit(entry.unitId);
+const getEnchant = (id) => state.enchants.find((enchant) => enchant.id === id);
+const enchantBonus = (id) => Number(getEnchant(id)?.bonus_tickets || 0);
+const entryCost = (entry) => {
+  const unit = getEntryUnit(entry);
+  if (!unit) return 0;
+  const base = entry.shiny ? unit.shiny_value : unit.value;
+  return (Number(base) + enchantBonus(entry.enchantId)) * entry.qty;
+};
+const shortEnchant = (name) => String(name).split(/\s+/).map((part) => part[0]).join("").slice(0,3).toUpperCase();
+
+function renderEnchantPicker() {
+  const list = $("enchantOptions");
+  const current = getEnchant(pickerEnchantId);
+  if (pickerEnchantId && !current) pickerEnchantId = "";
+  const selected = current || null;
+  $("enchantCurrentName").textContent = selected ? selected.name.toUpperCase() : "NO ENCHANTMENT";
+  $("enchantCurrentBonus").textContent = selected ? "+" + fmt(selected.bonus_tickets) + " TICKETS / UNIT" : "BASE VALUE";
+  const row = (id, name, bonus, active, symbol) =>
+    '<button type="button" data-select-enchant="' + escapeHtml(id) +
+    '" class="enchant-option' + (active ? ' selected' : '') +
+    '" aria-pressed="' + active + '">' +
+    '<span class="enchant-symbol ' + (id ? 'enchant-' + escapeHtml(id) : 'enchant-none') + '">' +
+    escapeHtml(symbol) + '</span>' +
+    '<span class="enchant-copy"><strong>' + escapeHtml(name.toUpperCase()) + '</strong><small>' +
+    (id ? '+' + fmt(bonus) + ' TICKETS' : 'BASE VALUE') +
+    '</small></span><span class="enchant-selected-icon" aria-hidden="true">' +
+    (active ? '✓' : '') + '</span></button>';
+  list.innerHTML = row("", "No Enchantment", 0, !pickerEnchantId, "–") +
+    state.enchants.map((e) => row(e.id, e.name, e.bonus_tickets,
+      pickerEnchantId === e.id, shortEnchant(e.name))).join("");
+  const status = $("enchantLoadStatus");
+  status.hidden = !(state.enchantsLoading || state.enchantsError);
+  status.textContent = state.enchantsLoading ? "Loading enchants…" :
+    state.enchantsError ? "Couldn't refresh enchant bonuses. Try Refresh values." : "";
+  const symbol = $("enchantToggle").querySelector(".enchant-symbol");
+  if (symbol) {
+    symbol.textContent = selected ? shortEnchant(selected.name) : "–";
+    symbol.className = "enchant-symbol " + (selected ? "enchant-" + selected.id : "enchant-none");
+  }
+}
 
 function totalFor(side) {
   return state.offers[side].reduce((sum, entry) => {
-    const unit = getEntryUnit(entry);
-    if (!unit) return sum;
-    const value = entry.shiny ? unit.shiny_value : unit.value;
-    return sum + (hasValue(value) ? Number(value) * entry.qty : 0);
+    return sum + entryCost(entry);
   }, 0);
 }
 function offerText(side) {
   const names = state.offers[side].map((entry) => {
     const unit = getEntryUnit(entry);
     if (!unit) return "";
-    return unit.name + (entry.shiny ? " ★" : "") + " x" + entry.qty;
+    const enchant = getEnchant(entry.enchantId);
+    return unit.name + (entry.shiny ? " ★" : "") +
+      (enchant ? " [" + enchant.name + "]" : "") + " x" + entry.qty;
   }).filter(Boolean);
   return names.length ? names.join(", ") : "None";
 }
