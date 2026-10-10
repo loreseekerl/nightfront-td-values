@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#050506">
   <meta name="description" content="Nightfront TD Values — community unit values, demand and a W/F/L trade calculator.">
   <title>Nightfront TD Values</title>
-  <link rel="stylesheet" href="./style.css?v=enchant-icons-2">
-  <script src="./app.js?v=enchant-icons-2" defer></script>
+  <link rel="stylesheet" href="./style.css?v=owner-admin-1">
+  <script src="./app.js?v=owner-admin-1" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
-  <script src="./qa.js?v=auth-redirect-fix-2" defer></script>
-  <script src="./admin.js?v=owner-dashboard-1" defer></script>
+  <script src="./qa.js?v=owner-admin-1" defer></script>
+  <script src="./admin.js?v=owner-admin-1" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -373,7 +373,7 @@
         <h2>Community trading values</h2>
         <p>Nightfront TD Values is a community project to help players compare units and estimate trading value. Values may change, so always double-check before trading.</p>
         <h2>How can I add units?</h2>
-        <p>The list is managed through a protected Supabase database. Site visitors can read values, but cannot edit or delete units. The site owner can add units using the Supabase Table Editor.</p>
+        <p>The list is managed through a protected Supabase database. Site visitors can read values, but cannot edit or delete units. The verified owner can manage units, artwork and enchants through the private Admin Dashboard or through Supabase.</p>
         <p>To add a unit, open your Supabase project → Table Editor → <strong>units</strong> → Insert row. Enter a name, rarity, numeric ticket value, optional shiny value, demand, and a public image URL.</p>
         <p>Don't paste private Supabase keys into your public website. Unit artwork will appear automatically once an image URL is saved.</p>
         <a class="outline-btn" href="#units" data-all-units>EXPLORE ALL UNITS →</a>
