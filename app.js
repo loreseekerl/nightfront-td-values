@@ -71,7 +71,7 @@ async function loadUnits() {
   state.error = "";
   renderUnits();
   try {
-    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,category,value,shiny_value,demand,image_url,created_at&order=created_at.desc&limit=1000", {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,category,value,shiny_value,demand,image_url,created_at,updated_at&order=created_at.desc&limit=1000", {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY }
     });
     if (!res.ok) throw new Error("Database request failed (" + res.status + ")");
