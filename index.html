@@ -39,6 +39,10 @@
     </nav>
   </div>
 </header>
+<div id="siteLoadingStrip" class="site-loading-strip" role="status" aria-live="polite" hidden>
+  <span class="site-loading-mark" aria-hidden="true"></span>
+  <span id="siteLoadingText">Loading Nightfront unit values…</span>
+</div>
 
 <main>
   <section class="view" id="view-home" aria-label="Main page">
@@ -99,7 +103,7 @@
         <p>Search the list by name or rarity. Tap ★ on a unit to see its shiny version when a shiny value is available.</p>
       </div>
       <div class="controls">
-        <input id="search" class="field search-field" type="search" placeholder="Search units by name…" aria-label="Search units">
+        <input id="search" class="field search-field" type="search" enterkeyhint="search" placeholder="Search units by name…" aria-label="Search units">
         <div class="custom-rarity-filter" id="rarityDropdown">
           <button type="button" class="rarity-trigger" id="rarityTrigger" aria-haspopup="true" aria-expanded="false" aria-controls="rarityChoices">
             <span id="raritySelected">All rarities</span><span class="rarity-chevron" aria-hidden="true">⌄</span>
@@ -130,7 +134,8 @@
         <span><button id="clearFilters" class="text-button" type="button">Clear filters</button> ·
           <button id="refreshUnits" class="text-button" type="button">Refresh values</button></span>
       </div>
-      <div class="units-grid" id="unitsGrid" aria-live="polite"></div>
+      <div id="unitsLoadStatus" class="units-load-status" role="status" aria-live="polite" hidden></div>
+      <div class="units-grid" id="unitsGrid" aria-live="polite" aria-busy="true"></div>
     </div>
   </section>
 
@@ -321,7 +326,7 @@
         <button id="pickerClose" class="picker-close" type="button" aria-label="Close unit picker">×</button>
       </div>
       <div class="picker-controls">
-        <input id="pickerSearch" type="search" placeholder="Search units..." aria-label="Search units to add">
+        <input id="pickerSearch" type="search" enterkeyhint="search" placeholder="Search units..." aria-label="Search units to add">
         <select id="pickerRarity" aria-label="Filter units by rarity">
           <option value="">All rarities</option>
           <option>Common</option><option>Uncommon</option><option>Rare</option>
@@ -349,7 +354,7 @@
         </div>
         <div class="picker-fields">
           <label class="picker-quantity-label" for="pickerQty">Amount
-            <input id="pickerQty" type="number" min="1" max="99" step="1" value="1">
+            <input id="pickerQty" type="number" inputmode="numeric" min="1" max="99" step="1" value="1">
           </label>
           <label class="picker-shiny"><input id="pickerShiny" type="checkbox" disabled> Shiny ★ <small>(needs shiny value)</small></label>
           <button type="button" id="pickerConfirm" class="picker-confirm" disabled>ADD UNIT</button>
