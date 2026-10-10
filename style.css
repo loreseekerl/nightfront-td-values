@@ -121,8 +121,6 @@
 .rarity-filter:hover{filter:brightness(1.23);transform:translateY(-1px)}
 .rarity-filter[aria-pressed="true"]{outline:2px solid #e8eeff;outline-offset:2px}
 .unit-sub{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:26px}
-.unit-category{font-size:12px;color:#a2a9bc}
-.unit-category::before{content:"·";margin-right:6px;color:#788196}
 .spotlight-meta{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
 .spotlight-meta small{font-size:12px;color:#a4acc0}
 .unit-card:has(.rarity-glitched){border-color:#6346b0;box-shadow:0 0 17px #4735c12e}
@@ -186,26 +184,26 @@
 
 /* ===== NIGHTFRONT CALCULATOR REBUILD 2026 ===== */
 body.picker-open{overflow:hidden}
-.custom-category-filter{position:relative;flex:1;min-width:170px;z-index:15}
-.category-trigger{
+.custom-rarity-filter{position:relative;flex:1;min-width:170px;z-index:15}
+.rarity-trigger{
   display:flex;align-items:center;justify-content:space-between;
   width:100%;min-height:45px;padding:10px 14px;border:1px solid #333a50;
   border-radius:9px;background:#0a0c14;color:#f0f4ff;text-align:left;
   font-size:13px;transition:border-color .2s,background .2s;
 }
-.category-trigger:hover,.category-trigger[aria-expanded="true"]{border-color:#5a85e0;background:#10182b}
-.category-chevron{font-size:24px;font-weight:400;line-height:14px;color:#91a8dd;transition:transform .2s}
-.category-trigger[aria-expanded="true"] .category-chevron{transform:rotate(180deg)}
-.category-options{
+.rarity-trigger:hover,.rarity-trigger[aria-expanded="true"]{border-color:#5a85e0;background:#10182b}
+.rarity-chevron{font-size:24px;font-weight:400;line-height:14px;color:#91a8dd;transition:transform .2s}
+.rarity-trigger[aria-expanded="true"] .rarity-chevron{transform:rotate(180deg)}
+.rarity-options{
   position:absolute;z-index:50;left:0;right:0;top:calc(100% + 7px);
   max-height:315px;overflow-y:auto;
   padding:7px;background:#0b0e18;border:1px solid #435374;
   border-radius:11px;box-shadow:0 20px 40px #000b;
 }
-.category-options button{display:block;width:100%;border:0;border-radius:6px;
+.rarity-options button{display:block;width:100%;border:0;border-radius:6px;
   background:transparent;color:#e7edff;padding:10px 12px;text-align:left;font-size:13px}
-.category-options button:hover,.category-options button:focus-visible{background:#172442;color:white}
-.category-options button[aria-pressed="true"]{background:#203b70;color:#b8d5ff}
+.rarity-options button:hover,.rarity-options button:focus-visible{background:#172442;color:white}
+.rarity-options button[aria-pressed="true"]{background:#203b70;color:#b8d5ff}
 .controls{align-items:stretch}
 .controls select{padding-right:34px;appearance:none;-webkit-appearance:none;
   background-color:#0a0c14;
