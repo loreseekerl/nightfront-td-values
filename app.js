@@ -137,9 +137,9 @@ function renderCategories() {
       escapeHtml(rarity) + '" aria-label="Browse ' + escapeHtml(rarity) +
       ' rarity, ' + count + ' listed units">' +
       '<span class="gallery-media gallery-' + slug + '">' +
-      '<span class="gallery-art-top">' + (art ? 'NIGHTFRONT · COVER ART' : 'RARITY · ' + escapeHtml(rarity.toUpperCase())) + '</span>' +
+      '<span class="gallery-art-top">' + (art ? (override ? 'CUSTOM COVER' : 'FROM THE UNIT LIST') : 'RARITY FILE') + '</span>' +
       media + '<span class="gallery-art-bottom">' +
-      (count ? count + (count === 1 ? ' UNIT LISTED' : ' UNITS LISTED') : 'AWAITING UNITS') +
+      (count ? count + (count === 1 ? ' UNIT LISTED' : ' UNITS LISTED') : 'NO UNITS YET') +
       '</span></span>' +
       '<span class="gallery-caption"><span class="gallery-rarity-label rarity-' +
       slug + '">' + escapeHtml(rarity) + '</span>' +
@@ -154,11 +154,11 @@ function renderHomeHero() {
   const unit = state.units.find(item => validImage(item.image_url));
   if (!unit) {
     portrait.innerHTML = '<img src="./assets/nftd-brand.webp" width="250" height="250" alt="Nightfront TD logo">';
-    $("homeFeaturedLabel").textContent = "OFFICIAL NIGHTFRONT ARTWORK";
+    $("homeFeaturedLabel").textContent = "NIGHTFRONT TD / VALUE BOARD";
     return;
   }
   portrait.innerHTML = imageHtml(unit);
-  $("homeFeaturedLabel").textContent = 'FEATURED · ' + unit.name.toUpperCase() +
+  $("homeFeaturedLabel").textContent = 'SPOTLIGHT / ' + unit.name.toUpperCase() +
     ' · ' + fmt(unit.value) + ' TICKETS';
 }
 
