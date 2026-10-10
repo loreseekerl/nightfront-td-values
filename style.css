@@ -2341,3 +2341,20 @@ body{overflow-x:clip}
   .units-grid .unit-card{min-height:180px}
   .unit-skeleton{min-height:180px}
 }
+
+
+/* A quiet paging control keeps big collections responsive on phones. */
+.units-more-wrap{display:flex;justify-content:center;margin:-38px 0 67px}
+.units-more-btn{
+  min-height:45px;min-width:min(100%,240px);
+  padding:11px 21px;background:#1a2030;
+  border:1px solid #626b90;border-radius:3px;
+  color:#cbd6f4;font:900 11px/1.4 Consolas,'Courier New',monospace;
+  letter-spacing:.045em;
+}
+.units-more-btn:hover{background:#292f46;border-color:#adb8ef;color:#fff}
+.units-more-btn:active{transform:translateY(1px)}
+@media(max-width:580px){
+  .units-more-wrap{margin:-37px 0 54px}
+  .units-more-btn{width:100%}
+}
