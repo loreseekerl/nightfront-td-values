@@ -75,3 +75,56 @@
 .shiny-button:disabled{opacity:.38;cursor:not-allowed;box-shadow:none}
 @media(max-width:700px){.spotlight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.spotlight-art{height:135px}.spotlight-heading h2{font-size:22px}}
 @media(max-width:390px){.spotlight-art{height:112px}.spotlight-details{padding:10px}}
+
+
+/* NIGHTFRONT OFFICIAL RARITY COLORS */
+.rarity-guide{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;margin:17px 0 5px}
+.rarity-guide-label{font:800 11px/1.4 'Courier New',monospace;letter-spacing:.06em;color:#9ca4b6}
+.rarity-legend{display:flex;flex-wrap:wrap;gap:8px}
+.rarity-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:4px 10px;border:1px solid currentColor;border-radius:6px;
+  font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.035em;
+  text-transform:uppercase;white-space:nowrap;vertical-align:middle;
+}
+.rarity-common{color:#b1b5bf;background:#7b829021;border-color:#808896}
+.rarity-uncommon{color:#66e49a;background:#0c3823;border-color:#278956}
+.rarity-rare{color:#79baff;background:#102747;border-color:#3577cc}
+.rarity-epic{color:#d29aff;background:#2b1646;border-color:#9551df}
+.rarity-mythic{color:#ffe176;background:#44340c;border-color:#bd941f}
+.rarity-secret{color:#ffd1a0;background:linear-gradient(110deg,#732020,#85340c);border-color:#ff663b}
+.rarity-unknown{color:#c6c9d3;background:#272b35;border-color:#50596b}
+
+/* Glitched continuously rotates a dark-blue/purple conic gradient in its border. */
+@property --glitched-angle {
+  syntax:"<angle>";
+  inherits:false;
+  initial-value:0deg;
+}
+@keyframes glitched-rotate {to{--glitched-angle:360deg}}
+.rarity-glitched{
+  color:#efddff;
+  border:2px solid transparent;
+  background:
+    linear-gradient(120deg,#0b1840,#351156) padding-box,
+    conic-gradient(from var(--glitched-angle),#102c9c,#8b3bdb,#190c60,#3156cf,#102c9c) border-box;
+  animation:glitched-rotate 3s linear infinite;
+  text-shadow:0 0 8px #9b6dff;
+  box-shadow:0 0 11px #4930a550;
+}
+@media(prefers-reduced-motion:reduce){.rarity-glitched{animation:none}}
+.rarity-filter{
+  font:800 11px/1.4 Arial,Helvetica,sans-serif;
+  cursor:pointer;
+  transition:filter .16s,box-shadow .16s,transform .16s;
+}
+.rarity-filter:hover{filter:brightness(1.23);transform:translateY(-1px)}
+.rarity-filter[aria-pressed="true"]{outline:2px solid #e8eeff;outline-offset:2px}
+.unit-sub{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:26px}
+.unit-category{font-size:12px;color:#a2a9bc}
+.unit-category::before{content:"·";margin-right:6px;color:#788196}
+.spotlight-meta{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+.spotlight-meta small{font-size:12px;color:#a4acc0}
+.unit-card:has(.rarity-glitched){border-color:#6346b0;box-shadow:0 0 17px #4735c12e}
+.spotlight-card:has(.rarity-glitched){border-color:#6346b0}
+@media(max-width:700px){.rarity-guide{align-items:flex-start;flex-direction:column}.rarity-legend{gap:8px}}
