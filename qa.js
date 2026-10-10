@@ -193,10 +193,11 @@
       el("qaLoginForm").hidden = true;
       return;
     }
-    state.client = window.supabase.createClient(
-      SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,
-      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
-    );
+    state.client = window.__nightfrontAuthClient ||
+      (window.__nightfrontAuthClient = window.supabase.createClient(
+        SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,
+        { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
+      ));
     state.client.auth.onAuthStateChange((_event, session) => {
       // Defer database calls outside the auth change callback to avoid deadlocks.
       Promise.resolve().then(() => setSession(session)).catch((error) => message(error.message, true));
