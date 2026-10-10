@@ -9,6 +9,7 @@ A community trading value list for Nightfront TD, hosted on GitHub Pages and pow
 - `index.html` — homepage, all-unit list and W/F/L calculator.
 - `style.css` — black-and-blue responsive design.
 - `app.js` — reads unit values from Supabase and powers filters and trades.
+- `updates.js` — renders the public database-backed Update History changelog.
 - `assets/` — public character artwork.
 - Supabase `public.units` — database table with unit records.
 
@@ -115,6 +116,19 @@ The public **MORE → Demand & Trends** page is at `#trends`. Every unit card al
 Demand scores support the explicit `1/10` … `10/10` format; other text like `Medium` is still displayed but can't be converted into a numeric movement or demand bar. The user can filter by value and demand trends, sort by demand rating, unit price, name or largest net ticket gain, and open the detailed historical graph.
 
 The overview fetches live units and the newest **1,000** history entries. It shows this cap when reached. Trend labels are indicators of recorded ticket/demand movements, not market predictions, and don't alter any W/F/L calculation. Visitors only have read access; they cannot edit history or manually assign fake trends.
+
+## Public Update History / changelog
+
+The new public **MORE → Update History** page is at `#updates`, with a homepage shortcut in **MORE THAN JUST VALUES**. It is a chronological, handmade-style update log combining two read-only database sources:
+
+- `public.unit_value_history` — records **new units**, changes to **normal/shiny unit ticket values**, and **demand**. This table already tracked values before the changelog was added.
+- `public.enchant_change_history` — records **new enchantments**, changes to their **ticket bonus**, and enchant renames. This second table is filled automatically by an AFTER INSERT/UPDATE trigger on `public.enchants`.
+
+Every entry includes a real timestamp and any available before/after values. The page supports filters for new units, value changes, demand changes, enchant activity and tracking-started snapshots; searchable names; a **Refresh** button; **Show More** pagination; and links to the existing per-unit Value History detail page.
+
+**No invented history:** Changes made before logging was enabled cannot be reconstructed. Existing units/enchantments get an explicitly labeled **TRACKING STARTED** baseline, not a fictional `UNIT ADDED` or `ENCHANT UPDATED` entry. Future changes made by an authorized owner or directly in Supabase are logged without any manual changelog entry. Current records remain unchanged by setting up the log.
+
+**Security:** Both history tables allow public read access but no direct client writes. Enchant history is written by a restricted database trigger, and unit history by the existing trigger. Ordinary visitors cannot forge updates. The public changelog fetches the newest 400 unit events and newest 250 enchant events before combining them, and it states when those limits are reached. No editing interface or private credentials are exposed.
 
 ## Automatic Value History
 
