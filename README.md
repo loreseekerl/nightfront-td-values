@@ -42,7 +42,7 @@ Only a verified Supabase Auth account already listed in `public.qa_editors` (the
 
 1. Open the private dashboard URL, sign in using the same Supabase email as your Q&A owner account if necessary, and wait for owner verification.
 2. On **Units & Images**, click **Edit** on an existing unit or **+ Add Unit** to create one.
-3. Edit its name, official rarity, normal ticket value, optional shiny ticket value, demand, and normal/shiny image URLs.
+3. Edit its name, official rarity, normal value in tickets, optional shiny value in tickets, demand, and normal/shiny image URLs.
 4. You can instead select a PNG/JPG/WebP/GIF (5 MB max) from your PC for each image. The owner-only upload saves public artwork in the Supabase Storage bucket `nightfront-unit-art` and fills the image link when saving the unit.
 5. **Save Unit** updates the shared value list immediately. **Delete Unit** asks for confirmation; it removes the database row but does not automatically delete uploaded artwork.
 
@@ -63,7 +63,7 @@ On **Enchant Bonuses**, edit and save the bonus ticket value for any of the five
 | `rarity` | `Common` | Displayed under the name. |
 | `category` | `Other` | Legacy database field. No longer used for website filters; you can leave it unchanged. |
 | `value` | `10` | Numeric value in tickets. |
-| `shiny_value` | *(leave blank until known)* | Optional shiny ticket value; required for adding a shiny unit to a trade. |
+| `shiny_value` | *(leave blank until known)* | Optional value for the shiny version (in tickets); required for adding a shiny unit to a trade. |
 | `shiny_image_url` | *(leave blank or use a public HTTPS image link)* | Optional artwork shown only when shiny is selected. |
 | `demand` | `1/10` | Displayed as text. |
 | `image_url` | `https://.../assets/freddy.webp` | Public HTTPS URL for artwork. |
@@ -86,7 +86,7 @@ Use transparent PNG or WebP where possible. Keep files reasonably small to impro
 ### Shiny variants
 
 - A unit's normal artwork is stored in `image_url`, and its optional shiny artwork is stored separately in `shiny_image_url`.
-- The shiny star on the **All Units** card toggles between normal and shiny if there is a shiny ticket value **or** a shiny image. While shiny is selected, the image and star rotate, a rainbow border glows, and a SHINY label appears. Reduced-motion users see a static variant.
+- The shiny star on the **All Units** card toggles between normal and shiny if there is a value for the shiny version **or** a shiny image. While shiny is selected, the image and star rotate, a rainbow border glows, and a SHINY label appears. Reduced-motion users see a static variant.
 - If no `shiny_image_url` exists, the normal artwork is reused with shiny effects; **there is no need to upload duplicate artwork**.
 - Set `shiny_value` to enable the shiny version **in the W/F/L calculator**. If only shiny artwork exists, players can preview it but cannot put it in a trade at an unknown price.
 - Leave `shiny_value` and `shiny_image_url` blank until you know the actual shiny value and/or have an image. Don't put enchant names, icons or effects in these fields: enchantments will get a separate system later.
@@ -94,9 +94,9 @@ Use transparent PNG or WebP where possible. Keep files reasonably small to impro
 
 ## Demand & Value Trends
 
-The public **MORE → Demand & Trends** page is at `#trends`. Every unit card also shows separate normal/shiny ticket-value trend and demand trend badges. In the All Units list, clicking ★ switches the value trend badge to the shiny variant while keeping demand separate.
+The public **MORE → Demand & Trends** page is at `#trends`. Every unit card also shows separate normal/shiny unit-value trend and demand trend badges. In the All Units list, clicking ★ switches the value trend badge to the shiny variant while keeping demand separate.
 
-**Meaning of the labels:** Trends are calculated from actual records in `public.unit_value_history` over the most recent **30 days**. For each unit, the site sums recorded differences between old and new values for normal tickets, shiny tickets and numeric demand ratings. The result is **Rising** when net movement is positive, **Dropping** when negative, and **Stable** when recorded net movement is zero. **New units start as Stable by default** when a starting snapshot and valid value/rating exist (such as Freddy's initial 10-ticket record). This starting Stable is only a display default, **not proof that a price stayed constant**. Real updates override the starting status. Missing shiny values or invalid demand ratings still show **Not enough history** instead of pretending an unavailable value is Stable.
+**Meaning of the labels:** Trends are calculated from actual records in `public.unit_value_history` over the most recent **30 days**. For each unit, the site sums recorded differences between old and new values for normal unit values, shiny unit values (both in tickets), and numeric demand ratings. The result is **Rising** when net movement is positive, **Dropping** when negative, and **Stable** when recorded net movement is zero. **New units start as Stable by default** when a starting snapshot and valid value/rating exist (such as Freddy's initial 10-ticket record). This starting Stable is only a display default, **not proof that a price stayed constant**. Real updates override the starting status. Missing shiny values or invalid demand ratings still show **Not enough history** instead of pretending an unavailable value is Stable.
 
 Demand scores support the explicit `1/10` … `10/10` format; other text like `Medium` is still displayed but can't be converted into a numeric movement or demand bar. The user can filter by value and demand trends, sort by demand rating, unit price, name or largest net ticket gain, and open the detailed historical graph.
 
@@ -104,13 +104,13 @@ The overview fetches live units and the newest **1,000** history entries. It sho
 
 ## Automatic Value History
 
-**Value History** is a public page under **MORE → Value History** at `#history`. Individual unit cards also have a **Value history** button that opens that unit's timeline and normal/shiny ticket graph.
+**Value History** is a public page under **MORE → Value History** at `#history`. Individual unit cards also have a **Value history** button that opens that unit's timeline and normal/shiny unit-value graph.
 
 Supabase table `public.unit_value_history` is filled automatically by an AFTER INSERT/UPDATE trigger on `public.units` (including edits made directly in the Supabase Table Editor or the owner dashboard). It records:
 
 - Timestamp, unit name and rarity snapshot
 - Old and new normal ticket values
-- Old and new shiny ticket values (when shiny values exist)
+- Old and new values of shiny units (in tickets) (when shiny values exist)
 - Old and new demand
 - A special event type for initial tracking, new units, or actual changes
 
@@ -126,7 +126,7 @@ The Nightfront-style calculator is at `#calculator`:
 
 1. Open **W/F/L CALCULATOR**, then press **+** in the **ME** or **YOU** panel.
 2. Search for a unit, optionally filter by rarity, and click its tile.
-3. Choose a quantity (1–99). Shiny can be selected only if the unit has a shiny ticket value.
+3. Choose a quantity (1–99). Shiny can be selected only if the unit has a value for the shiny version.
 4. Open the **Enchantment** menu and choose No Enchantment, Engineered, Pizza Party, Phantom, Fazbear Entertainment, or Afton Robotics. This choice is separate from Shiny.
 5. Click **Add to ME / Add to YOU**. Each offer entry includes **Edit** (change its unit, quantity, shiny status or enchant without removing it) and **×** (remove it).
 6. Below the trade columns you'll see **base tickets + enchant bonus tickets**, two proportional value bars, and the W/F/L difference with a percentage of **your side's** total. **W** = their offer is worth more, **F** = equal ticket values, **L** = your offer is worth more. The percentage is omitted if your total is zero.
@@ -148,7 +148,7 @@ A unit can carry **one enchantment**. Each enchantment adds a flat ticket bonus 
 | Fazbear Entertainment | +100 |
 | Afton Robotics | +1,000 |
 
-Trade total formula: `(normal OR shiny unit ticket value + enchant ticket bonus) × quantity`.
+Trade total formula: `(normal OR shiny unit value (in tickets) + enchant ticket bonus) × quantity`.
 For example, two 10-ticket Freddys each with Pizza Party are worth `(10 + 50) × 2 = 120` tickets; a 25-ticket Shiny Freddy with Afton Robotics is worth `25 + 1000 = 1025` tickets. W/F/L automatically includes both sides' bonuses. No Enchantment uses the base value.
 
 **Edit enchant bonuses in Supabase:** Open [Supabase Table Editor](https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/editor), then `public.enchants`. Change `bonus_tickets` to update the live calculator for everyone (they can reload/refresh). `sort_order` changes the menu order. Don't change an enchant's `id` unless you also intend to change the identifier the site stores for that enchant.
