@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#050506">
   <meta name="description" content="Nightfront TD Values — community unit values, demand and a W/F/L trade calculator.">
   <title>Nightfront TD Values</title>
-  <link rel="stylesheet" href="./style.css?v=spotlight-1">
-  <script src="./app.js?v=spotlight-1" defer></script>
+  <link rel="stylesheet" href="./style.css?v=rarities-1">
+  <script src="./app.js?v=rarities-1" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -87,14 +87,17 @@
         <select id="rarity" aria-label="Rarity">
           <option value="">All rarities</option>
           <option>Common</option><option>Uncommon</option><option>Rare</option><option>Epic</option>
-          <option>Legendary</option><option>Mythic</option><option>Secret</option><option>Nightmare</option>
-          <option>Apex</option><option>Forgotten</option><option>Developer</option><option>Other</option>
+          <option>Mythic</option><option>Secret</option><option>Glitched</option>
         </select>
         <select id="sort" aria-label="Sort units">
           <option value="name">Sort by name</option>
           <option value="highest">Highest value</option>
           <option value="lowest">Lowest value</option>
         </select>
+      </div>
+      <div class="rarity-guide" aria-label="Rarity filters">
+        <span class="rarity-guide-label">FILTER BY RARITY</span>
+        <div class="rarity-legend" id="rarityLegend"></div>
       </div>
       <div class="toolbar">
         <span id="resultCount" aria-live="polite">Loading…</span>
