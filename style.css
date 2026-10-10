@@ -665,22 +665,27 @@ body.picker-open{overflow:hidden}
   animation: nftd-shiny-star-turn 9s linear infinite;
   pointer-events: none;
 }
+/* A transparent-gradient overlay was covering the portrait. This border
+   uses no background fill and therefore cannot paint across the unit. */
+@keyframes nftd-shiny-frame-hue {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
 .unit-card.is-shiny .unit-art::after {
   content: "";
   position: absolute;
   inset: 5px;
-  z-index: 2;
-  border: 3px solid transparent;
+  z-index: 1;
+  border: 3px solid #b78aff;
   border-radius: 7px;
-  background:
-    linear-gradient(transparent,transparent) padding-box,
-    conic-gradient(from var(--nftd-shiny-angle),#7eeaff,#8e63ff,#ff61ba,#ffd97e,#77f4cb,#7eeaff) border-box;
-  animation: nftd-shiny-border-turn 4s linear infinite;
+  background: none;
+  box-shadow: inset 0 0 8px #7ec8ff55, 0 0 9px #8b5bff9c;
+  animation: nftd-shiny-frame-hue 5s linear infinite;
   pointer-events: none;
 }
 .unit-card.is-shiny .unit-art > img {
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   transform-origin: center center;
   animation: nftd-shiny-portrait-turn 14s linear infinite;
   filter: drop-shadow(0 0 12px #a282ffb5);
@@ -760,12 +765,12 @@ body.picker-open{overflow:hidden}
   content: "";
   position: absolute;
   inset: 1px;
-  border: 2px solid transparent;
+  z-index: 1;
+  border: 2px solid #b78aff;
   border-radius: 6px;
-  background:
-    linear-gradient(transparent,transparent) padding-box,
-    conic-gradient(from var(--nftd-shiny-angle),#7eeaff,#8e63ff,#ff61ba,#ffd97e,#77f4cb,#7eeaff) border-box;
-  animation: nftd-shiny-border-turn 4s linear infinite;
+  background: none;
+  box-shadow: inset 0 0 5px #7ec8ff55;
+  animation: nftd-shiny-frame-hue 5s linear infinite;
   pointer-events: none;
 }
 .offer-shiny .offer-unit-info strong { color: #e4c9ff; }
