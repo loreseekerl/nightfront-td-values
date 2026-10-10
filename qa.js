@@ -238,7 +238,15 @@
       const { data, error } = await state.client.rpc("claim_qa_owner", { claim_code: code });
       if (error) throw error;
       if (data !== true) {
-        message("The claim code is incorrect, or this Q&A has already been claimed.", true);
+        // The claim may have been taken by another account since this page opened.
+        const status = await state.client.rpc("qa_owner_claimed");
+        if (!status.error && status.data === true) {
+          el("qaClaimPanel").hidden = true;
+          el("qaNotAuthorized").hidden = false;
+          message("Ownership is already claimed. Other accounts cannot access the editor.", true);
+        } else {
+          message("That claim code is incorrect. Check your private code and try again.", true);
+        }
         return;
       }
       codeInput.value = ""; // Never keep the used claim secret in the input.
