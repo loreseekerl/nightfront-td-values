@@ -31,6 +31,18 @@ Only these seven rarities are accepted by the Supabase database and shown in the
 
 The examples are **rarity references**, not automatically published units. Add their actual images, ticket values and demand before listing them as tradable units. The Glitched animation respects reduced-motion preferences.
 
+## Mobile & UI polish
+
+The public site keeps the handmade Nightfront trading-board style while improving phone usability:
+
+- **Unit cards:** On phones, the actual unit portrait sits beside the name, rarity, **normal/shiny variant**, ticket value, demand, trend labels and value-history link. Desktops keep a grid. The shiny star remains interactive, with its label and value changed together.
+- **Faster large lists:** All Units initially renders 60 cards, followed by **SHOW MORE UNITS** in batches of 60. Search, rarity filters and sorting always search the complete fetched data set and start at the first batch. No units are deleted or hidden permanently.
+- **Loading & refresh:** The first unit fetch shows matching card skeletons and a small loading strip. Refreshing preserves the existing cards while checking for new values; offline errors show a retry action and retain previously loaded data. Value History, Demand & Trends and Update History show understated loading placeholders instead of abruptly empty sections.
+- **Phone controls:** Navigation collapses on tablet and phone, the menu is scrollable, trade buttons are easier to tap, and the unit picker fits the available mobile viewport. Inputs use at least 16px text on phones to avoid unwanted iOS zoom; filters can scroll horizontally.
+- **Motion & accessibility:** Cards have a quick, restrained entrance on first load; loading indicators are subtle and CSS honors `prefers-reduced-motion: reduce`. Shiny toggles preserve keyboard focus, and loading indicators expose their state through text and accessibility status attributes.
+
+All ticket calculations, Supabase records, owner-only permissions, enchant bonuses and unit artwork stay unchanged. Normal and shiny versions both use **tickets**.
+
 ## Homepage artwork and rarity covers
 
 The **Main Page** now has a cinematic hero using the existing Nightfront header artwork and a real featured unit portrait (or the Nightfront logo if no unit portrait is available). It displays the current unit count and links to All Units and the W/F/L calculator. It does not invent character artwork for rarities without uploaded portraits.
