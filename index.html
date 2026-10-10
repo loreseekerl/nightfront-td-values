@@ -1,261 +1,157 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nightfront TD Values</title>
-<style>
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: #0b0d14;
-  color: #f4f5fb;
-  font-family: Arial, sans-serif;
-}
-header {
-  padding: 24px 7%;
-  background: #111522;
-  border-bottom: 1px solid #292e40;
-}
-.logo { font-size: 25px; font-weight: 800; }
-.logo span { color: #9b87ff; }
-nav { margin-top: 18px; display: flex; gap: 20px; flex-wrap: wrap; }
-nav a { color: #b7bdd0; text-decoration: none; }
-main { max-width: 1100px; margin: auto; padding: 35px 20px; }
-.hero {
-  padding: 35px;
-  border: 1px solid #34304f;
-  border-radius: 18px;
-  background: linear-gradient(135deg,#19172e,#111522);
-}
-h1 { font-size: 36px; margin: 0 0 12px; }
-p { color: #aab1c6; line-height: 1.6; }
-input, select, button {
-  padding: 12px;
-  border: 1px solid #34394c;
-  border-radius: 9px;
-  background: #151a28;
-  color: white;
-  font: inherit;
-}
-input { width: 100%; margin: 12px 0; }
-button { cursor: pointer; background: #7560df; border: 0; }
-button:hover { opacity: .85; }
-.section-title { margin-top: 32px; }
-.filters { display: flex; gap: 10px; flex-wrap: wrap; }
-.filters select { flex: 1; min-width: 150px; }
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
-  gap: 15px;
-  margin-top: 18px;
-}
-.card, .panel {
-  background: #131725;
-  border: 1px solid #292f42;
-  border-radius: 13px;
-  padding: 18px;
-}
-.card h3 { margin: 10px 0; }
-.rarity { color: #b9a7ff; font-size: 12px; text-transform: uppercase; }
-.value { font-size: 22px; font-weight: bold; margin-top: 15px; }
-.small { font-size: 13px; color: #aab1c6; }
-.panel { margin-top: 18px; }
-.panel input { width: 100%; }
-.result { font-weight: bold; margin-top: 14px; }
-footer { text-align: center; color: #858ca3; padding: 30px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050506">
+  <meta name="description" content="Nightfront TD Values — community unit values, demand and a W/F/L trade calculator.">
+  <title>Nightfront TD Values</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" defer></script>
 </head>
 <body>
-<header>
-  <div class="logo">NIGHTFRONT <span>VALUES</span></div>
-  <nav>
-    <a href="#units">Units</a>
-    <a href="#calculator">Value Calculator</a>
-    <a href="#admin">Admin</a>
-  </nav>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="#home" aria-label="Nightfront TD Values main page">
+      <span class="brand-mark" aria-hidden="true">N</span>
+      <span>NIGHTFRONT <span>VALUES</span></span>
+    </a>
+    <button id="menuToggle" class="menu-toggle" type="button" aria-controls="nav" aria-expanded="false">☰ Menu</button>
+    <nav class="nav" id="nav" aria-label="Main navigation">
+      <a href="#home">MAIN PAGE</a>
+      <a href="#units" data-all-units>ALL UNITS</a>
+      <a href="#calculator">VALUE W/F/L CALCULATOR</a>
+      <a href="#about">MORE / ABOUT</a>
+    </nav>
+  </div>
 </header>
 
 <main>
-  <section class="hero">
-    <h1>Nightfront TD Values</h1>
-    <p>Your community trading value list. Find units, compare trades, and check values in one place.</p>
-    <p>UNIT VALUES COMING SOON</p>
-  </section>
-
-  <section id="units">
-    <h2 class="section-title">Unit Value List</h2>
-    <input id="search" placeholder="Search units..." />
-    <div class="filters">
-      <select id="rarity">
-        <option value="">All rarities</option>
-        <option>Common</option>
-        <option>Rare</option>
-        <option>Epic</option>
-        <option>Legendary</option>
-        <option>Mythic</option>
-      </select>
-      <select id="sort">
-        <option value="name">Sort by name</option>
-        <option value="value">Highest value</option>
-      </select>
-    </div>
-    <div id="unitsGrid" class="grid"></div>
-  </section>
-
-  <section id="calculator">
-    <h2 class="section-title">Trade Calculator</h2>
-    <div class="panel">
-      <p>Add up the values of both sides of a trade.</p>
-      <label>Your side</label>
-      <input id="yourTrade" type="number" min="0" placeholder="Your total value" />
-      <label>Their side</label>
-      <input id="theirTrade" type="number" min="0" placeholder="Their total value" />
-      <button id="checkTrade">Check Trade</button>
-      <div id="tradeResult" class="result"></div>
-      <p class="small">Trade results are estimates based on the values entered.</p>
+  <section class="view" id="view-home" aria-label="Main page">
+    <div class="container home-top">
+      <div class="notice blue">NIGHTFRONT TD VALUES</div>
+      <div class="notice white">Click a category to browse its units and values</div>
+      <p class="hero-copy">Explore the community trading value list. Click any category to find units, view demand, and compare offers using the W/F/L calculator.</p>
+      <div class="category-grid" id="categories" aria-label="Unit categories"></div>
+      <div class="home-actions">
+        <a class="outline-btn" href="#calculator">VALUE CALCULATOR</a>
+        <a class="outline-btn" href="#units" data-all-units>VIEW ALL UNITS</a>
+      </div>
+      <hr class="feature-divider">
+      <div class="feature-band">
+        <div class="feature">
+          <h3>SEARCH ALL UNITS</h3>
+          <p>Look up individual units, regular and shiny values, demand, and rarity.</p>
+          <a class="outline-btn" href="#units" data-all-units>ALL UNITS →</a>
+        </div>
+        <div class="feature">
+          <h3>CHECK A TRADE</h3>
+          <p>Build both sides with units from the live list to compare total values.</p>
+          <a class="outline-btn" href="#calculator">W/F/L CALCULATOR →</a>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section id="admin">
-    <h2 class="section-title">Admin Panel</h2>
-    <div class="panel">
-      <p>Add a unit to your local test list.</p>
-      <input id="unitName" placeholder="Unit name" />
-      <select id="unitRarity">
-        <option>Common</option>
-        <option>Rare</option>
-        <option>Epic</option>
-        <option>Legendary</option>
-        <option>Mythic</option>
-      </select>
-      <input id="unitValue" type="number" min="0" placeholder="Value (0 for now)" />
-      <input id="unitDemand" placeholder="Demand (e.g. Medium)" />
-      <button id="addUnit">Add Unit</button>
-      <p class="small">Demo only. This is not a secure admin panel and changes are stored only in this browser.</p>
+  <section class="view" id="view-units" aria-label="All unit values" hidden>
+    <div class="container">
+      <div class="page-heading">
+        <div class="eyebrow">Community value list</div>
+        <h1>ALL UNIT VALUES</h1>
+        <p>Find the latest units added to the Nightfront TD list. Click ★ on a unit to switch between its normal and shiny value.</p>
+      </div>
+      <div class="controls">
+        <input id="search" class="field search-field" type="search" placeholder="Search units by name…" aria-label="Search units">
+        <select id="categoryFilter" aria-label="Category">
+          <option value="">All categories</option>
+          <option>Developer / ARG</option>
+          <option>Forgottens</option>
+          <option>Apexes</option>
+          <option>Evolutions</option>
+          <option>Nightmares</option>
+          <option>Secrets</option>
+          <option>Mythic and+</option>
+          <option>Items</option>
+          <option>Other</option>
+        </select>
+        <select id="rarity" aria-label="Rarity">
+          <option value="">All rarities</option>
+          <option>Common</option><option>Uncommon</option><option>Rare</option><option>Epic</option>
+          <option>Legendary</option><option>Mythic</option><option>Secret</option><option>Nightmare</option>
+          <option>Apex</option><option>Forgotten</option><option>Developer</option><option>Other</option>
+        </select>
+        <select id="sort" aria-label="Sort units">
+          <option value="name">Sort by name</option>
+          <option value="highest">Highest value</option>
+          <option value="lowest">Lowest value</option>
+        </select>
+      </div>
+      <div class="toolbar">
+        <span id="resultCount" aria-live="polite">Loading…</span>
+        <span><button id="clearFilters" class="text-button" type="button">Clear filters</button> ·
+          <button id="refreshUnits" class="text-button" type="button">Refresh values</button></span>
+      </div>
+      <div class="units-grid" id="unitsGrid" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-calculator" aria-label="Value calculator" hidden>
+    <div class="container">
+      <div class="page-heading">
+        <div class="eyebrow">Trade checker</div>
+        <h1>VALUE W/F/L CALCULATOR</h1>
+        <p>Add units to both sides of a trade. We'll calculate a win, fair, or loss based on their current listed values.</p>
+      </div>
+      <div class="notice-inline">The calculator uses values from Supabase. Shiny units only work when a shiny value has been entered for them. Results don't guarantee a trade is good; consider demand too.</div>
+      <div class="calc-grid">
+        <section class="trade-panel" aria-label="Your offer">
+          <h2>YOUR OFFER</h2>
+          <div class="add-row">
+            <select id="pick-yours" aria-label="Unit to add to your offer"><option value="">Choose a unit…</option></select>
+            <input id="qty-yours" type="number" min="1" max="99" value="1" aria-label="Your quantity">
+          </div>
+          <div class="add-options">
+            <label class="checkbox-line"><input id="shiny-yours" type="checkbox"> Shiny version ★</label>
+            <button class="primary-btn" id="add-yours" type="button">+ Add</button>
+          </div>
+          <ul class="line-items" id="items-yours"></ul>
+          <div class="trade-total"><span>Total value</span><span id="total-yours">0</span></div>
+        </section>
+        <section class="trade-panel theirs" aria-label="Their offer">
+          <h2>THEIR OFFER</h2>
+          <div class="add-row">
+            <select id="pick-theirs" aria-label="Unit to add to their offer"><option value="">Choose a unit…</option></select>
+            <input id="qty-theirs" type="number" min="1" max="99" value="1" aria-label="Their quantity">
+          </div>
+          <div class="add-options">
+            <label class="checkbox-line"><input id="shiny-theirs" type="checkbox"> Shiny version ★</label>
+            <button class="primary-btn" id="add-theirs" type="button">+ Add</button>
+          </div>
+          <ul class="line-items" id="items-theirs"></ul>
+          <div class="trade-total"><span>Total value</span><span id="total-theirs">0</span></div>
+        </section>
+      </div>
+      <div class="trade-result" id="tradeResult" aria-live="polite">
+        <h2>READY TO COMPARE</h2><p>Add at least one unit to each side to check the trade.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-about" aria-label="About" hidden>
+    <div class="container">
+      <div class="page-heading"><div class="eyebrow">Nightfront TD Values</div><h1>ABOUT THE VALUE LIST</h1></div>
+      <div class="about-panel">
+        <h2>Community trading values</h2>
+        <p>Nightfront TD Values is a community project to help players compare units and estimate trading value. Values may change, so always double-check before trading.</p>
+        <h2>How can I add units?</h2>
+        <p>The list is managed through a protected Supabase database. Site visitors can read values, but cannot edit or delete units. The site owner can add units using the Supabase Table Editor.</p>
+        <p>To add a unit, open your Supabase project → Table Editor → <strong>units</strong> → Insert row. Enter a name, category, rarity, numeric value, optional shiny value, demand, and a public image URL.</p>
+        <p>Don't paste private Supabase keys into your public website. Unit artwork will appear automatically once an image URL is saved.</p>
+        <a class="outline-btn" href="#units" data-all-units>EXPLORE ALL UNITS →</a>
+      </div>
     </div>
   </section>
 </main>
-
-<footer>Nightfront TD Values · Community project</footer>
-
-<script>
-const starterUnits = [];
-let units = JSON.parse(localStorage.getItem("nightfrontUnits") || "null") || starterUnits;
-
-const grid = document.getElementById("unitsGrid");
-const search = document.getElementById("search");
-const rarity = document.getElementById("rarity");
-const sort = document.getElementById("sort");
-
-function save() {
-  localStorage.setItem("nightfrontUnits", JSON.stringify(units));
-}
-
-function renderUnits() {
-  const query = search.value.toLowerCase().trim();
-  let filtered = units.filter(unit =>
-    unit.name.toLowerCase().includes(query) &&
-    (!rarity.value || unit.rarity === rarity.value)
-  );
-
-  if (sort.value === "value") {
-    filtered.sort((a, b) => b.value - a.value);
-  } else {
-    filtered.sort((a, b) => a.name.localeCompare(b.name));
-  }
-
-  grid.innerHTML = "";
-
-  if (!filtered.length) {
-    grid.innerHTML = '<p>No units found. Add units in the demo admin panel.</p>';
-    return;
-  }
-
-  filtered.forEach(unit => {
-    const card = document.createElement("article");
-    card.className = "card";
-
-    const title = document.createElement("h3");
-    title.textContent = unit.name;
-
-    const rarityLabel = document.createElement("div");
-    rarityLabel.className = "rarity";
-    rarityLabel.textContent = unit.rarity;
-
-    const value = document.createElement("div");
-    value.className = "value";
-    value.textContent = Number(unit.value).toLocaleString() + " value";
-
-    const demand = document.createElement("p");
-    demand.className = "small";
-    demand.textContent = "Demand: " + (unit.demand || "Unknown");
-
-    card.append(title, rarityLabel, value, demand);
-    grid.appendChild(card);
-  });
-}
-
-search.addEventListener("input", renderUnits);
-rarity.addEventListener("change", renderUnits);
-sort.addEventListener("change", renderUnits);
-
-document.getElementById("addUnit").addEventListener("click", () => {
-  const name = document.getElementById("unitName").value.trim();
-  const unitRarity = document.getElementById("unitRarity").value;
-  const value = Number(document.getElementById("unitValue").value);
-  const demand = document.getElementById("unitDemand").value.trim();
-
-  if (!name || document.getElementById("unitValue").value === "" ||
-      !Number.isFinite(value) || value < 0) {
-    alert("Enter a unit name and a valid value.");
-    return;
-  }
-
-  if (units.some(unit => unit.name.toLowerCase() === name.toLowerCase())) {
-    alert("That unit already exists.");
-    return;
-  }
-
-  units.push({ name, rarity: unitRarity, value, demand });
-  save();
-  renderUnits();
-
-  document.getElementById("unitName").value = "";
-  document.getElementById("unitValue").value = "";
-  document.getElementById("unitDemand").value = "";
-});
-
-document.getElementById("checkTrade").addEventListener("click", () => {
-  const yourText = document.getElementById("yourTrade").value;
-  const theirText = document.getElementById("theirTrade").value;
-  const result = document.getElementById("tradeResult");
-
-  if (yourText === "" || theirText === "") {
-    result.textContent = "Enter both trade values first.";
-    return;
-  }
-
-  const yours = Number(yourText);
-  const theirs = Number(theirText);
-
-  if (!Number.isFinite(yours) || !Number.isFinite(theirs) ||
-      yours < 0 || theirs < 0) {
-    result.textContent = "Enter valid non-negative values.";
-    return;
-  }
-
-  if (yours === theirs) {
-    result.textContent = "Fair trade by listed value.";
-  } else if (yours < theirs) {
-    result.textContent = "W for you by listed value.";
-  } else {
-    result.textContent = "L for you by listed value.";
-  }
-});
-
-renderUnits();
-</script>
+<footer class="footer">NIGHTFRONT TD VALUES · Community project · Trading values are estimates</footer>
 </body>
 </html>
