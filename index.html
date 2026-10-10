@@ -72,18 +72,23 @@
       </div>
       <div class="controls">
         <input id="search" class="field search-field" type="search" placeholder="Search units by name…" aria-label="Search units">
-        <select id="categoryFilter" aria-label="Category">
-          <option value="">All categories</option>
-          <option>Developer / ARG</option>
-          <option>Forgottens</option>
-          <option>Apexes</option>
-          <option>Evolutions</option>
-          <option>Nightmares</option>
-          <option>Secrets</option>
-          <option>Mythic and+</option>
-          <option>Items</option>
-          <option>Other</option>
-        </select>
+        <div class="custom-category-filter" id="categoryDropdown">
+          <button type="button" class="category-trigger" id="categoryTrigger" aria-expanded="false" aria-controls="categoryChoices">
+            <span id="categorySelected">All categories</span><span class="category-chevron" aria-hidden="true">⌄</span>
+          </button>
+          <div class="category-options" id="categoryChoices" role="group" aria-label="Filter by category" hidden>
+            <button type="button" data-filter-category="" aria-pressed="true">All categories</button>
+            <button type="button" data-filter-category="Developer / ARG">Developer / ARG</button>
+            <button type="button" data-filter-category="Forgottens">Forgottens</button>
+            <button type="button" data-filter-category="Apexes">Apexes</button>
+            <button type="button" data-filter-category="Evolutions">Evolutions</button>
+            <button type="button" data-filter-category="Nightmares">Nightmares</button>
+            <button type="button" data-filter-category="Secrets">Secrets</button>
+            <button type="button" data-filter-category="Mythic and+">Mythic and+</button>
+            <button type="button" data-filter-category="Items">Items</button>
+            <button type="button" data-filter-category="Other">Other</button>
+          </div>
+        </div>
         <select id="rarity" aria-label="Rarity">
           <option value="">All rarities</option>
           <option>Common</option><option>Uncommon</option><option>Rare</option><option>Epic</option>
@@ -108,47 +113,85 @@
     </div>
   </section>
 
-  <section class="view" id="view-calculator" aria-label="Value calculator" hidden>
-    <div class="container">
-      <div class="page-heading">
-        <div class="eyebrow">Trade checker</div>
-        <h1>VALUE W/F/L CALCULATOR</h1>
-        <p>Add units to both sides of a trade. We'll calculate a win, fair, or loss based on their current listed ticket values. 1 ticket = 1 value.</p>
+  <section class="view" id="view-calculator" aria-label="Trade calculator" hidden>
+    <div class="container calculator-page">
+      <div class="page-heading calc-title">
+        <span class="eyebrow">NIGHTFRONT TD · TRADE CHECKER</span>
+        <h1>W/F/L CALCULATOR</h1>
+        <p>Build both offers using the live unit list. 1 ticket = 1 value.</p>
       </div>
-      <div class="notice-inline">The calculator uses values from Supabase. Shiny units only work when a shiny value has been entered for them. Results don't guarantee a trade is good; consider demand too.</div>
-      <div class="calc-grid">
-        <section class="trade-panel" aria-label="Your offer">
-          <h2>YOUR OFFER</h2>
-          <div class="add-row">
-            <select id="pick-yours" aria-label="Unit to add to your offer"><option value="">Choose a unit…</option></select>
-            <input id="qty-yours" type="number" min="1" max="99" value="1" aria-label="Your quantity">
+
+      <div class="offer-grid">
+        <section class="offer-column" aria-label="Your offer">
+          <div class="offer-header">
+            <div class="offer-heading"><strong class="offer-me">ME</strong><span>Your offer</span></div>
+            <button id="open-yours" class="offer-add" type="button" aria-label="Add unit to my offer" title="Add a unit to my offer">+</button>
           </div>
-          <div class="add-options">
-            <label class="checkbox-line"><input id="shiny-yours" type="checkbox"> Shiny version ★</label>
-            <button class="primary-btn" id="add-yours" type="button">+ Add</button>
-          </div>
-          <ul class="line-items" id="items-yours"></ul>
-          <div class="trade-total"><span>Total tickets</span><span id="total-yours">0</span></div>
+          <ul id="items-yours" class="offer-items" aria-live="polite"><li class="offer-empty">Press + to add units</li></ul>
+          <div class="offer-total"><span>TOTAL VALUE: <strong id="total-yours">0</strong></span><small>TICKETS</small></div>
         </section>
-        <section class="trade-panel theirs" aria-label="Their offer">
-          <h2>THEIR OFFER</h2>
-          <div class="add-row">
-            <select id="pick-theirs" aria-label="Unit to add to their offer"><option value="">Choose a unit…</option></select>
-            <input id="qty-theirs" type="number" min="1" max="99" value="1" aria-label="Their quantity">
+
+        <section class="offer-column" aria-label="Other player's offer">
+          <div class="offer-header">
+            <div class="offer-heading"><strong class="offer-you">YOU</strong><span>Their offer</span></div>
+            <button id="open-theirs" class="offer-add" type="button" aria-label="Add unit to their offer" title="Add a unit to their offer">+</button>
           </div>
-          <div class="add-options">
-            <label class="checkbox-line"><input id="shiny-theirs" type="checkbox"> Shiny version ★</label>
-            <button class="primary-btn" id="add-theirs" type="button">+ Add</button>
-          </div>
-          <ul class="line-items" id="items-theirs"></ul>
-          <div class="trade-total"><span>Total tickets</span><span id="total-theirs">0</span></div>
+          <ul id="items-theirs" class="offer-items" aria-live="polite"><li class="offer-empty">Press + to add units</li></ul>
+          <div class="offer-total"><span>TOTAL VALUE: <strong id="total-theirs">0</strong></span><small>TICKETS</small></div>
         </section>
       </div>
-      <div class="trade-result" id="tradeResult" aria-live="polite">
-        <h2>READY TO COMPARE</h2><p>Add at least one unit to each side to check the trade.</p>
-      </div>
+
+      <div id="tradeResult" class="trade-outcome-bar" role="status" aria-live="polite">ADD UNITS TO BOTH SIDES</div>
+      <p class="calc-disclaimer">W = their offer is worth more · F = equal ticket values · L = your offer is worth more. Demand can change the quality of a trade.</p>
+
+      <section class="trade-extras" aria-label="Copy your trade">
+        <div class="extras-heading">
+          <h2>TRADE TEXT</h2>
+          <button type="button" class="copy-trade-btn" id="copyTrade" aria-label="Copy trade text">▢ <span>Copy</span></button>
+        </div>
+        <div class="trade-text-box">
+          <div class="trade-text-group"><strong>Trading:</strong><p id="tradingText">None</p></div>
+          <div class="trade-text-group"><strong>Looking for:</strong><p id="lookingForText">None</p></div>
+        </div>
+      </section>
+
+      <section class="trade-extras recent-values" aria-label="Recently updated unit values">
+        <div class="extras-heading"><h2>LAST UPDATED</h2></div>
+        <div id="lastUpdatedUnits" class="last-updated-grid" aria-live="polite"></div>
+      </section>
     </div>
   </section>
+
+  <div id="unitPickerModal" class="picker-overlay" hidden>
+    <div class="picker-modal" role="dialog" aria-modal="true" aria-labelledby="pickerTitle" tabindex="-1">
+      <div class="picker-heading">
+        <div><span class="eyebrow">SELECT UNITS</span><h2 id="pickerTitle">ADD TO ME</h2></div>
+        <button id="pickerClose" class="picker-close" type="button" aria-label="Close unit picker">×</button>
+      </div>
+      <div class="picker-controls">
+        <input id="pickerSearch" type="search" placeholder="Search units..." aria-label="Search units to add">
+        <select id="pickerRarity" aria-label="Filter units by rarity">
+          <option value="">All rarities</option>
+          <option>Common</option><option>Uncommon</option><option>Rare</option>
+          <option>Epic</option><option>Mythic</option><option>Secret</option><option>Glitched</option>
+        </select>
+      </div>
+      <div id="pickerResults" class="picker-results" aria-label="Available units"></div>
+      <div class="picker-bottom">
+        <div class="picker-chosen">
+          <strong id="pickerUnitName">Choose a unit above</strong>
+          <span id="pickerUnitValue">Select a unit to add it to your trade.</span>
+        </div>
+        <div class="picker-fields">
+          <label class="picker-quantity-label" for="pickerQty">Amount
+            <input id="pickerQty" type="number" min="1" max="99" step="1" value="1">
+          </label>
+          <label class="picker-shiny"><input id="pickerShiny" type="checkbox" disabled> Shiny ★</label>
+          <button type="button" id="pickerConfirm" class="picker-confirm" disabled>ADD UNIT</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <section class="view" id="view-about" aria-label="About" hidden>
     <div class="container">
