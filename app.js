@@ -39,7 +39,7 @@ const $ = (id) => document.getElementById(id);
 // Broken or blocked image URLs show a clean placeholder instead of an image error.
 document.addEventListener("error", (event) => {
   const target = event.target;
-  if (!(target instanceof HTMLImageElement) || !target.closest(".unit-art, .category-art, .spotlight-art")) return;
+  if (!(target instanceof HTMLImageElement) || !target.closest(".unit-art, .category-art, .spotlight-art, .picker-unit-art, .offer-unit-art, .recent-unit-image")) return;
   const placeholder = document.createElement("span");
   placeholder.className = "placeholder-art";
   placeholder.textContent = "★";
@@ -86,18 +86,38 @@ async function loadUnits() {
     renderFeatured();
     renderUnits();
     renderCalculator();
+    renderLastUpdated();
+    if (!$("unitPickerModal").hidden) renderPicker();
   }
 }
 
 function renderCategories() {
   const grid = $("categories");
   grid.innerHTML = CATEGORIES.map((category) => {
-    const representative = state.units.find((unit) => categoryOf(unit) === category.name && validImage(unit.image_url));
+    const matching = state.units.filter((unit) => categoryOf(unit) === category.name);
+    const representative = matching.find((unit) => validImage(unit.image_url));
     return '<button type="button" class="category-tile" data-category="' + escapeHtml(category.name) + '">' +
       '<span class="category-art" style="--accent:' + category.accent + ';--glow:' + category.glow + '">' +
-      (representative ? imageHtml(representative) : '<span class="category-symbol" aria-hidden="true">' + category.symbol + '</span><span class="mini-stars" aria-hidden="true">✧</span>') +
-      '</span><span class="category-name">' + escapeHtml(category.name) + '</span></button>';
+      (representative ? imageHtml(representative) :
+        '<span class="category-symbol" aria-hidden="true">' + category.symbol + '</span>' +
+        '<span class="category-art-note">ART COMING SOON</span>') +
+      '</span><span class="category-name">' + escapeHtml(category.name) + '</span>' +
+      '<span class="category-count">' + matching.length + ' UNIT' + (matching.length === 1 ? '' : 'S') + '</span></button>';
   }).join("");
+}
+
+function syncCategoryDropdown() {
+  const label = $("categorySelected");
+  const dropdown = $("categoryDropdown");
+  if (!label || !dropdown) return;
+  label.textContent = state.category || "All categories";
+  dropdown.querySelectorAll("[data-filter-category]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.filterCategory === state.category));
+  });
+}
+function closeCategoryDropdown() {
+  $("categoryChoices").hidden = true;
+  $("categoryTrigger").setAttribute("aria-expanded", "false");
 }
 
 function renderFeatured() {
@@ -126,7 +146,7 @@ function renderUnits() {
   const grid = $("unitsGrid");
   $("search").value = state.search;
   $("rarity").value = state.rarity;
-  $("categoryFilter").value = state.category;
+  syncCategoryDropdown();
   $("sort").value = state.sort;
   if (state.loading) {
     grid.innerHTML = '<div class="empty">Loading unit values…</div>';
@@ -170,59 +190,163 @@ function renderUnits() {
   }).join("");
 }
 
-function renderCalculator() {
-  for (const side of ["yours", "theirs"]) {
-    const select = $("pick-" + side);
-    const selected = select.value;
-    select.innerHTML = '<option value="">Choose a unit…</option>' +
-      state.units.map((unit) => '<option value="' + escapeHtml(unit.id) + '">' + escapeHtml(unit.name) + '</option>').join("");
-    if (state.units.some((unit) => String(unit.id) === selected)) select.value = selected;
-    $("add-" + side).disabled = !state.units.length;
-    const lines = $("items-" + side);
-    const entries = state.offers[side];
-    lines.innerHTML = entries.length ? entries.map((entry) => {
-      const unit = state.units.find((u) => u.id === entry.unitId);
-      if (!unit) return "";
-      const value = Number(entry.shiny ? unit.shiny_value : unit.value) * entry.qty;
-      return '<li class="trade-line"><div><strong>' + escapeHtml(unit.name) + (entry.shiny ? ' ★' : '') +
-        ' × ' + entry.qty + '</strong><small>' + fmt(value) + ' tickets</small></div>' +
-        '<button type="button" class="remove-btn" data-remove="' + entry.id +
-        '" data-side="' + side + '" aria-label="Remove ' + escapeHtml(unit.name) + '">Remove</button></li>';
-    }).join("") : '<li style="color:#8791a5;font-size:13px;padding:18px 0">No units added yet.</li>';
-    $("total-" + side).textContent = fmt(totalFor(side));
-  }
-  const yours = totalFor("yours"), theirs = totalFor("theirs");
-  const panel = $("tradeResult");
-  if (!state.offers.yours.length || !state.offers.theirs.length) {
-    panel.className = "trade-result";
-    panel.innerHTML = '<h2>READY TO COMPARE</h2><p>Add at least one unit to each side to check the trade.</p>';
-    return;
-  }
-  const diff = Math.abs(theirs - yours);
-  const result = theirs > yours ? ["WIN", "win", "You gain " + fmt(diff) + " tickets."] :
-    theirs < yours ? ["LOSS", "loss", "You give " + fmt(diff) + " more tickets."] :
-    ["FAIR", "fair", "Both sides have the same ticket value."];
-  panel.className = "trade-result " + result[1];
-  panel.innerHTML = '<span class="eyebrow">Trade outcome</span><h2>' + result[0] +
-    '</h2><p>' + escapeHtml(result[2]) + ' Values are estimates; demand matters too.</p>';
-}
+// The website only reads publicly listed data; trade offers live in memory in the visitor's browser.
+let pickerSide = "yours";
+let pickerUnitId = null;
+let pickerReturnFocus = null;
+
+const getUnit = (id) => state.units.find((unit) => String(unit.id) === String(id));
+const getEntryUnit = (entry) => getUnit(entry.unitId);
 
 function totalFor(side) {
-  return state.offers[side].reduce((total, entry) => {
-    const unit = state.units.find((u) => u.id === entry.unitId);
-    if (!unit) return total;
-    return total + Number(entry.shiny ? unit.shiny_value : unit.value) * entry.qty;
+  return state.offers[side].reduce((sum, entry) => {
+    const unit = getEntryUnit(entry);
+    if (!unit) return sum;
+    const value = entry.shiny ? unit.shiny_value : unit.value;
+    return sum + (hasValue(value) ? Number(value) * entry.qty : 0);
   }, 0);
 }
-function addTradeItem(side) {
-  const id = $("pick-" + side).value;
-  const unit = state.units.find((u) => String(u.id) === id);
-  const qty = Number($("qty-" + side).value);
-  const shiny = $("shiny-" + side).checked;
-  if (!unit) return alert("Choose a unit first.");
-  if (!Number.isInteger(qty) || qty < 1 || qty > 99) return alert("Quantity must be between 1 and 99.");
-  if (!hasValue(shiny ? unit.shiny_value : unit.value)) return alert("This unit doesn't have a listed " + (shiny ? "shiny " : "") + "value yet.");
-  state.offers[side].push({ id: state.nextItemId++, unitId: unit.id, qty, shiny });
+function offerText(side) {
+  const names = state.offers[side].map((entry) => {
+    const unit = getEntryUnit(entry);
+    if (!unit) return "";
+    return unit.name + (entry.shiny ? " ★" : "") + " x" + entry.qty;
+  }).filter(Boolean);
+  return names.length ? names.join(", ") : "None";
+}
+function getTradeText() {
+  return "Trading:\n" + offerText("yours") + "\n\nLooking for:\n" + offerText("theirs");
+}
+function renderCalculator() {
+  for (const side of ["yours", "theirs"]) {
+    const entries = state.offers[side];
+    const list = $("items-" + side);
+    const html = entries.map((entry) => {
+      const unit = getEntryUnit(entry);
+      if (!unit) return "";
+      const cost = Number(entry.shiny ? unit.shiny_value : unit.value) * entry.qty;
+      return '<li class="offer-item">' +
+        '<div class="offer-unit-art">' + imageHtml(unit) + '</div>' +
+        '<div class="offer-unit-info"><strong>' + escapeHtml(unit.name) + (entry.shiny ? ' ★' : '') + '</strong>' +
+        '<span>' + escapeHtml(unit.rarity) + ' · x' + entry.qty + '</span>' +
+        '<small>' + fmt(cost) + ' tickets</small></div>' +
+        '<button type="button" class="offer-remove" data-remove="' + entry.id +
+        '" data-side="' + side + '" title="Remove unit" aria-label="Remove ' +
+        escapeHtml(unit.name) + ' from offer">×</button></li>';
+    }).filter(Boolean).join("");
+    list.innerHTML = html || '<li class="offer-empty">Press + to add units</li>';
+    $("total-" + side).textContent = fmt(totalFor(side));
+    $("open-" + side).disabled = state.loading || !!state.error || !state.units.length;
+    $("open-" + side).title = state.loading ? "Loading units" : !state.units.length ? "Add units to the database first" : "Add a unit";
+  }
+  $("tradingText").textContent = offerText("yours");
+  $("lookingForText").textContent = offerText("theirs");
+  const panel = $("tradeResult");
+  panel.className = "trade-outcome-bar";
+  if (!state.offers.yours.length || !state.offers.theirs.length) {
+    panel.textContent = "ADD UNITS TO BOTH SIDES";
+    return;
+  }
+  const yours = totalFor("yours");
+  const theirs = totalFor("theirs");
+  const difference = Math.abs(yours - theirs);
+  if (theirs > yours) {
+    panel.classList.add("win");
+    panel.textContent = "W — YOU GAIN " + fmt(difference) + " TICKETS";
+  } else if (yours > theirs) {
+    panel.classList.add("loss");
+    panel.textContent = "L — YOU OVERPAY BY " + fmt(difference) + " TICKETS";
+  } else {
+    panel.classList.add("fair");
+    panel.textContent = "F — FAIR TRADE BY TICKET VALUE";
+  }
+}
+function renderLastUpdated() {
+  const grid = $("lastUpdatedUnits");
+  if (!grid) return;
+  if (state.error) {
+    grid.innerHTML = '<p class="recent-empty">Could not load recent units.</p>';
+    return;
+  }
+  if (!state.units.length) {
+    grid.innerHTML = '<p class="recent-empty">No units added yet.</p>';
+    return;
+  }
+  const recent = [...state.units]
+    .sort((a,b) => Date.parse(b.updated_at || b.created_at || 0) - Date.parse(a.updated_at || a.created_at || 0))
+    .slice(0,6);
+  grid.innerHTML = recent.map((unit) => {
+    const rawDate = unit.updated_at || unit.created_at;
+    const parsed = rawDate ? new Date(rawDate) : null;
+    const niceDate = parsed && !Number.isNaN(parsed.getTime()) ? parsed.toLocaleDateString() : "Recently";
+    return '<button type="button" class="recent-unit" data-recent-unit="' + escapeHtml(unit.id) +
+      '" title="See ' + escapeHtml(unit.name) + ' in the value list">' +
+      '<span class="recent-unit-image">' + imageHtml(unit) + '</span>' +
+      '<span class="recent-unit-details"><strong>' + escapeHtml(unit.name) + '</strong>' +
+      rarityBadge(unit.rarity) + '<small>' + niceDate + '</small></span></button>';
+  }).join("");
+}
+function openPicker(side) {
+  pickerSide = side;
+  pickerUnitId = null;
+  pickerReturnFocus = document.activeElement;
+  $("pickerTitle").textContent = side === "yours" ? "ADD TO ME" : "ADD TO YOU";
+  $("pickerSearch").value = "";
+  $("pickerRarity").value = "";
+  $("pickerQty").value = "1";
+  $("pickerShiny").checked = false;
+  $("unitPickerModal").hidden = false;
+  document.body.classList.add("picker-open");
+  renderPicker();
+  $("pickerSearch").focus();
+}
+function closePicker() {
+  if ($("unitPickerModal").hidden) return;
+  $("unitPickerModal").hidden = true;
+  document.body.classList.remove("picker-open");
+  pickerUnitId = null;
+  if (pickerReturnFocus && typeof pickerReturnFocus.focus === "function") pickerReturnFocus.focus();
+}
+function renderPicker() {
+  const query = $("pickerSearch").value.trim().toLowerCase();
+  const rarity = $("pickerRarity").value;
+  const filtered = state.units.filter((unit) =>
+    unit.name.toLowerCase().includes(query) && (!rarity || unit.rarity === rarity));
+  const visible = filtered.slice(0,120);
+  $("pickerResults").innerHTML = visible.length ? visible.map((unit) => {
+    const selected = String(unit.id) === String(pickerUnitId);
+    return '<button type="button" class="picker-unit ' + (selected ? 'selected' : '') +
+      '" data-pick-unit="' + escapeHtml(unit.id) + '" aria-pressed="' + selected + '">' +
+      '<span class="picker-unit-art">' + imageHtml(unit) + '</span>' +
+      '<strong>' + escapeHtml(unit.name) + '</strong>' +
+      rarityBadge(unit.rarity) + '<small>' + fmt(unit.value) + ' tickets</small></button>';
+  }).join("") : '<div class="picker-no-results">' +
+    (state.units.length ? "No matching units found." : "No units available yet.") + '</div>';
+  const unit = getUnit(pickerUnitId);
+  const shiny = $("pickerShiny");
+  const availableShiny = unit && hasValue(unit.shiny_value);
+  shiny.disabled = !availableShiny;
+  if (!availableShiny) shiny.checked = false;
+  $("pickerUnitName").textContent = unit ? unit.name : "Choose a unit above";
+  $("pickerUnitValue").textContent = unit ?
+    (shiny.checked ? fmt(unit.shiny_value) + " shiny tickets each" :
+    fmt(unit.value) + " tickets each" + (availableShiny ? " · shiny available" : "")) :
+    "Select a unit to add it to your trade.";
+  $("pickerConfirm").disabled = !unit;
+  $("pickerConfirm").textContent = "ADD TO " + (pickerSide === "yours" ? "ME" : "YOU");
+}
+function confirmPicker() {
+  const unit = getUnit(pickerUnitId);
+  const amount = Number($("pickerQty").value);
+  const shiny = $("pickerShiny").checked;
+  if (!unit) return;
+  if (!Number.isInteger(amount) || amount < 1 || amount > 99) {
+    $("pickerQty").focus();
+    return alert("Enter an amount between 1 and 99.");
+  }
+  if (!hasValue(shiny ? unit.shiny_value : unit.value)) return alert("This value is not available yet.");
+  state.offers[pickerSide].push({id:state.nextItemId++,unitId:unit.id,qty:amount,shiny});
+  closePicker();
   renderCalculator();
 }
 function route() {
@@ -238,57 +362,119 @@ function route() {
 }
 
 document.addEventListener("click", (event) => {
-  const spotlightButton = event.target.closest("[data-spotlight-id]");
-  if (spotlightButton) {
-    const unit = state.units.find((item) => String(item.id) === spotlightButton.dataset.spotlightId);
+  if (event.target === $("unitPickerModal") || event.target.closest("#pickerClose")) {
+    closePicker(); return;
+  }
+  const pickedUnit = event.target.closest("[data-pick-unit]");
+  if (pickedUnit) {
+    pickerUnitId = pickedUnit.dataset.pickUnit;
+    renderPicker();
+    return;
+  }
+  const clickedRecent = event.target.closest("[data-recent-unit]");
+  if (clickedRecent) {
+    const unit = getUnit(clickedRecent.dataset.recentUnit);
     if (unit) {
       state.search = unit.name;
-      state.category = "";
-      state.rarity = "";
+      state.rarity = ""; state.category = "";
+      location.hash = "#units"; route();
+    }
+    return;
+  }
+  const spotlightButton = event.target.closest("[data-spotlight-id]");
+  if (spotlightButton) {
+    const unit = getUnit(spotlightButton.dataset.spotlightId);
+    if (unit) {
+      state.search = unit.name;
+      state.category = ""; state.rarity = "";
     }
   }
   const rarityFilterButton = event.target.closest("[data-rarity-filter]");
   if (rarityFilterButton) {
     const chosen = rarityFilterButton.dataset.rarityFilter;
     state.rarity = state.rarity === chosen ? "" : chosen;
-    renderUnits();
+    renderUnits(); return;
   }
+  const dropdownOption = event.target.closest("[data-filter-category]");
+  if (dropdownOption) {
+    state.category = dropdownOption.dataset.filterCategory;
+    closeCategoryDropdown();
+    renderUnits();
+    $("categoryTrigger").focus();
+    return;
+  }
+  if (event.target.closest("#categoryTrigger")) {
+    const menu = $("categoryChoices");
+    menu.hidden = !menu.hidden;
+    $("categoryTrigger").setAttribute("aria-expanded", String(!menu.hidden));
+    return;
+  }
+  if (!event.target.closest("#categoryDropdown")) closeCategoryDropdown();
   const categoryButton = event.target.closest("[data-category]");
   if (categoryButton) {
     state.category = categoryButton.dataset.category;
-    location.hash = "#units";
-    route();
+    location.hash = "#units"; route(); return;
   }
   const shinyButton = event.target.closest("[data-shiny-id]");
   if (shinyButton && !shinyButton.disabled) {
     const id = shinyButton.dataset.shinyId;
     if (state.shinyCards.has(id)) state.shinyCards.delete(id);
     else state.shinyCards.add(id);
-    renderUnits();
+    renderUnits(); return;
   }
   const remove = event.target.closest("[data-remove]");
   if (remove && ["yours","theirs"].includes(remove.dataset.side)) {
-    state.offers[remove.dataset.side] = state.offers[remove.dataset.side].filter((entry) => String(entry.id) !== remove.dataset.remove);
-    renderCalculator();
+    state.offers[remove.dataset.side] = state.offers[remove.dataset.side].filter((entry) =>
+      String(entry.id) !== remove.dataset.remove);
+    renderCalculator(); return;
   }
   if (event.target.closest("[data-all-units]")) {
-    state.category = "";
-    state.search = "";
-    state.rarity = "";
+    state.category = ""; state.search = ""; state.rarity = "";
     if (location.hash === "#units") renderUnits();
   }
 });
 $("search").addEventListener("input", (e) => { state.search = e.target.value; renderUnits(); });
 $("rarity").addEventListener("change", (e) => { state.rarity = e.target.value; renderUnits(); });
-$("categoryFilter").addEventListener("change", (e) => { state.category = e.target.value; renderUnits(); });
 $("sort").addEventListener("change", (e) => { state.sort = e.target.value; renderUnits(); });
 $("clearFilters").addEventListener("click", () => {
   state.search = ""; state.rarity = ""; state.category = ""; state.sort = "name"; renderUnits();
 });
 $("refreshUnits").addEventListener("click", loadUnits);
-for (const side of ["yours", "theirs"]) {
-  $("add-" + side).addEventListener("click", () => addTradeItem(side));
-}
+$("open-yours").addEventListener("click", () => openPicker("yours"));
+$("open-theirs").addEventListener("click", () => openPicker("theirs"));
+$("pickerSearch").addEventListener("input", renderPicker);
+$("pickerRarity").addEventListener("change", renderPicker);
+$("pickerShiny").addEventListener("change", renderPicker);
+$("pickerConfirm").addEventListener("click", confirmPicker);
+$("pickerQty").addEventListener("keydown", (e) => { if(e.key === "Enter") confirmPicker(); });
+$("copyTrade").addEventListener("click", async () => {
+  const button = $("copyTrade");
+  try {
+    await navigator.clipboard.writeText(getTradeText());
+    button.querySelector("span").textContent = "Copied!";
+    setTimeout(() => {button.querySelector("span").textContent = "Copy";}, 1800);
+  } catch {
+    button.querySelector("span").textContent = "Copy failed";
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    if (!$("unitPickerModal").hidden) { event.preventDefault(); closePicker(); }
+    else if (!$("categoryChoices").hidden) { closeCategoryDropdown(); $("categoryTrigger").focus(); }
+    return;
+  }
+  if (event.key === "Tab" && !$("unitPickerModal").hidden) {
+    const modal = $("unitPickerModal");
+    const focusables = [...modal.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled)')];
+    if (!focusables.length) return;
+    const first = focusables[0], last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      last.focus(); event.preventDefault();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      first.focus(); event.preventDefault();
+    }
+  }
+});
 $("menuToggle").addEventListener("click", () => {
   const open = $("nav").classList.toggle("open");
   $("menuToggle").setAttribute("aria-expanded", String(open));
