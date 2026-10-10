@@ -836,23 +836,85 @@ body.picker-open{overflow:hidden}
 }
 .enchant-current:hover,
 .enchant-current[aria-expanded="true"] { background: #21132e; }
+/* Rotating color ONLY. The letters remain upright on top of this animation. */
+@keyframes nftd-enchant-color-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 .enchant-symbol {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
   flex: 0 0 36px;
   place-items: center;
+  width: 36px;
   height: 36px;
   border-radius: 7px;
   border: 1px solid #3a4052;
   font: 900 10px/1 'Courier New', monospace;
-  color: white;
+  color: #fff;
   background: #24252d;
+  text-shadow: 0 1px 3px #000b;
 }
-.enchant-none { background: #22232a; color:#9aa1ae; }
-.enchant-engineered { background: linear-gradient(145deg,#28598f,#0e9ca3); }
-.enchant-pizza-party { background: linear-gradient(145deg,#dc4b13,#ff9d23); }
-.enchant-phantom { background: linear-gradient(145deg,#56229e,#a74deb); }
-.enchant-fazbear-entertainment { background: linear-gradient(145deg,#7b2626,#d44923); }
-.enchant-afton-robotics { background: linear-gradient(145deg,#342057,#c43152); }
+.enchant-symbol::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -55%;
+  pointer-events: none;
+  background: var(--enchant-gradient, linear-gradient(145deg,#343540,#161923));
+  animation: nftd-enchant-color-spin 4s linear infinite;
+}
+.enchant-symbol::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 2px;
+  border-radius: 4px;
+  background: #0b0b111c;
+  pointer-events: none;
+}
+.enchant-symbol-label {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  pointer-events: none;
+}
+.enchant-none {
+  border-color: #3a4052;
+  color: #9aa1ae;
+  --enchant-gradient: linear-gradient(145deg,#2d2f36,#1b1d24);
+}
+.enchant-none::before { animation: none; }
+/* Engineered: lime and white */
+.enchant-engineered {
+  border-color: #b5ff98;
+  --enchant-gradient: conic-gradient(#fff,#d4ff9d,#7dff4f,#f2ffe2,#6ffb48,#fff);
+}
+/* Pizza Party: orange and deep orange */
+.enchant-pizza-party {
+  border-color: #ffa04b;
+  --enchant-gradient: conic-gradient(#ffb755,#f87507,#9f3200,#ff9235,#c45400,#ffb755);
+}
+/* Phantom: dark green and lime */
+.enchant-phantom {
+  border-color: #86ff61;
+  --enchant-gradient: conic-gradient(#173b19,#286b29,#9aff50,#17411a,#a7ff69,#173b19);
+}
+/* Fazbear Entertainment: orange, white and yellow */
+.enchant-fazbear-entertainment {
+  border-color: #ffdd89;
+  --enchant-gradient: conic-gradient(#fff,#ffeab0,#ffab3f,#fff3d3,#ffd452,#fff);
+}
+/* Afton Robotics: purple, dark purple and purple */
+.enchant-afton-robotics {
+  border-color: #bc87ff;
+  --enchant-gradient: conic-gradient(#c28aff,#6831a4,#260943,#894ad0,#af64f6,#c28aff);
+}
+@media (prefers-reduced-motion: reduce) {
+  .enchant-symbol::before { animation: none !important; }
+}
 .enchant-copy { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
 .enchant-copy strong { font: 900 12px/1.25 'Courier New',monospace; overflow-wrap: anywhere; }
 .enchant-copy small { font: 700 11px/1.2 'Courier New',monospace; color:#a4a5b0; }
