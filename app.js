@@ -47,19 +47,25 @@ const validImage = (url) => {
   } catch { return ""; }
 };
 const hasValue = (value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
-const imageHtml = (unit, placeholder="★") => {
-  const image = validImage(unit?.image_url);
+// Shiny visuals are separate from any future enchantment system.
+const canPreviewShiny = (unit) => hasValue(unit?.shiny_value) || !!validImage(unit?.shiny_image_url);
+const canTradeShiny = (unit) => hasValue(unit?.shiny_value);
+const imageHtml = (unit, placeholder="★", shiny=false) => {
+  const image = (shiny && validImage(unit?.shiny_image_url)) || validImage(unit?.image_url);
   return image
-    ? '<img loading="lazy" src="' + escapeHtml(image) + '" alt="' + escapeHtml(unit?.name || "Unit artwork") + '">'
+    ? '<img loading="lazy" src="' + escapeHtml(image) + '" alt="' + escapeHtml(unit?.name || "Unit artwork") + (shiny ? ' (shiny)' : '') + '">'
     : '<span class="placeholder-art" aria-hidden="true">' + escapeHtml(placeholder) + '</span>';
 };
+const shinyOverlay = (shiny) => shiny
+  ? '<span class="shiny-icon" aria-hidden="true">✦</span><span class="shiny-label">SHINY</span>'
+  : '';
 
 async function loadUnits() {
   state.loading = true;
   state.error = "";
   renderUnits();
   try {
-    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,value,shiny_value,demand,image_url,created_at,updated_at&order=created_at.desc&limit=1000", {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,value,shiny_value,demand,image_url,shiny_image_url,created_at,updated_at&order=created_at.desc&limit=1000", {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY }
     });
     if (!res.ok) throw new Error("Database request failed (" + res.status + ")");
@@ -165,12 +171,13 @@ function renderUnits() {
   grid.innerHTML = filtered.map((unit) => {
     const shiny = state.shinyCards.has(unit.id);
     const value = shiny ? unit.shiny_value : unit.value;
-    const shinyAvailable = hasValue(unit.shiny_value);
-    return '<article class="unit-card"><div class="unit-art">' + imageHtml(unit) +
+    const shinyAvailable = canPreviewShiny(unit);
+    return '<article class="unit-card' + (shiny ? ' is-shiny' : '') + '"><div class="unit-art">' +
+      imageHtml(unit, "★", shiny) + shinyOverlay(shiny) +
       '<button type="button" class="shiny-button ' + (shiny ? 'active' : '') +
       '" data-shiny-id="' + escapeHtml(unit.id) + '" title="' +
-      (shinyAvailable ? "Toggle shiny value" : "Shiny value not listed yet") + '" aria-label="' +
-      (shinyAvailable ? ("Show " + (shiny ? "normal" : "shiny") + " value for ") : "Shiny value unavailable for ") +
+      (shinyAvailable ? "Toggle shiny appearance" : "Shiny appearance not listed yet") + '" aria-label="' +
+      (shinyAvailable ? ("Show " + (shiny ? "normal" : "shiny") + " appearance for ") : "Shiny not available for ") +
       escapeHtml(unit.name) + '" aria-pressed="' + shiny + '"' +
       (shinyAvailable ? '' : ' disabled') +
       '>★</button></div><div class="unit-details"><h3>' +
@@ -217,8 +224,8 @@ function renderCalculator() {
       const unit = getEntryUnit(entry);
       if (!unit) return "";
       const cost = Number(entry.shiny ? unit.shiny_value : unit.value) * entry.qty;
-      return '<li class="offer-item">' +
-        '<div class="offer-unit-art">' + imageHtml(unit) + '</div>' +
+      return '<li class="offer-item' + (entry.shiny ? ' offer-shiny' : '') + '">' +
+        '<div class="offer-unit-art">' + imageHtml(unit, "★", entry.shiny) + shinyOverlay(entry.shiny) + '</div>' +
         '<div class="offer-unit-info"><strong>' + escapeHtml(unit.name) + (entry.shiny ? ' ★' : '') + '</strong>' +
         '<span>' + escapeHtml(unit.rarity) + ' · x' + entry.qty + '</span>' +
         '<small>' + fmt(cost) + ' tickets</small></div>' +
@@ -307,16 +314,18 @@ function renderPicker() {
   const visible = filtered.slice(0,120);
   $("pickerResults").innerHTML = visible.length ? visible.map((unit) => {
     const selected = String(unit.id) === String(pickerUnitId);
+    const displayShiny = selected && $("pickerShiny").checked && canTradeShiny(unit);
     return '<button type="button" class="picker-unit ' + (selected ? 'selected' : '') +
+      (displayShiny ? ' picker-unit-shiny' : '') +
       '" data-pick-unit="' + escapeHtml(unit.id) + '" aria-pressed="' + selected + '">' +
-      '<span class="picker-unit-art">' + imageHtml(unit) + '</span>' +
+      '<span class="picker-unit-art">' + imageHtml(unit, "★", displayShiny) + shinyOverlay(displayShiny) + '</span>' +
       '<strong>' + escapeHtml(unit.name) + '</strong>' +
       rarityBadge(unit.rarity) + '<small>' + fmt(unit.value) + ' tickets</small></button>';
   }).join("") : '<div class="picker-no-results">' +
     (state.units.length ? "No matching units found." : "No units available yet.") + '</div>';
   const unit = getUnit(pickerUnitId);
   const shiny = $("pickerShiny");
-  const availableShiny = unit && hasValue(unit.shiny_value);
+  const availableShiny = unit && canTradeShiny(unit);
   shiny.disabled = !availableShiny;
   if (!availableShiny) shiny.checked = false;
   $("pickerUnitName").textContent = unit ? unit.name : "Choose a unit above";
