@@ -14,6 +14,22 @@ A community trading value list for Nightfront TD, hosted on GitHub Pages and pow
 
 **Currency rule: 1 ticket = 1 value.** Store values as numbers only (e.g. `10`), not strings like `10 tickets`.
 
+## Official rarity list
+
+Only these seven rarities are accepted by the Supabase database and shown in the All Units filter:
+
+| Rarity | Color | Example supplied by owner |
+| --- | --- | --- |
+| Common | Gray | Freddy |
+| Uncommon | Green | — |
+| Rare | Blue | Ignited Chica |
+| Epic | Purple | Ignited Foxy |
+| Mythic | Yellow | Ignited Bonnie |
+| Secret | Red/orange | Ignited Freddy |
+| Glitched | Animated rotating dark-blue/purple gradient | The Creation |
+
+The examples are **rarity references**, not automatically published units. Add their actual images, ticket values and demand before listing them as tradable units. The Glitched animation respects reduced-motion preferences.
+
 ## Adding or editing units
 
 1. Sign in to the [Supabase Table Editor](https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/editor).
