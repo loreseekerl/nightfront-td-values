@@ -12,6 +12,7 @@
   <script src="./qa.js?v=otp-error-fix-1" defer></script>
   <script src="./admin.js?v=homepage-artwork-1" defer></script>
   <script src="./history.js?v=ticket-label-cleanup-2" defer></script>
+  <script src="./updates.js?v=changelog-1" defer></script>
   <script src="./trends.js?v=initial-stable-2" defer></script>
 </head>
 <body>
@@ -31,6 +32,7 @@
         <div id="moreMenu" class="more-menu" hidden>
           <a href="#qa">Developer Q&A</a>
           <a href="#history">Value History</a>
+          <a href="#updates">Update History</a>
           <a href="#trends">Demand &amp; Trends</a>
         </div>
       </div>
@@ -82,7 +84,8 @@
         <div class="home-quicklinks-grid">
           <a href="#history"><span class="quicklink-number">01</span><strong>Value history</strong><small>See when a unit changed</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
           <a href="#trends"><span class="quicklink-number">02</span><strong>Demand &amp; trends</strong><small>See what's rising or dropping</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
-          <a href="#qa"><span class="quicklink-number">03</span><strong>Developer Q&amp;A</strong><small>Answers from the team</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
+          <a href="#updates"><span class="quicklink-number">03</span><strong>Update history</strong><small>New units, values and enchants</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
+          <a href="#qa"><span class="quicklink-number">04</span><strong>Developer Q&amp;A</strong><small>Answers from the team</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
         </div>
       </section>
     </div>
@@ -165,6 +168,46 @@
       </section>
       <div class="history-list-heading"><h2>RECORDED UPDATES</h2><span id="historyResultCount">0 events</span></div>
       <div id="historyTimeline" class="history-timeline" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-updates" aria-label="Public update history" hidden>
+    <div class="container updates-page">
+      <div class="updates-page-top">
+        <span class="section-index">THE NIGHTFRONT LOG <span>/</span> PUBLIC CHANGELOG</span>
+        <h1>UPDATE HISTORY<span class="updates-heading-mark">_</span></h1>
+        <p>New units, ticket-value changes, demand edits, and enchant bonuses. Everything that's changed on the list, in one place.</p>
+        <div class="updates-track-note"><span class="updates-track-dot" aria-hidden="true"></span> Updates are recorded automatically. Older edits from before tracking started aren't available.</div>
+      </div>
+      <div class="updates-summary" id="updatesSummary" aria-label="Recorded change totals">
+        <div><span>NEW UNITS</span><strong id="updatesNewCount">—</strong></div>
+        <div><span>UNIT UPDATES</span><strong id="updatesValueCount">—</strong></div>
+        <div><span>ENCHANT UPDATES</span><strong id="updatesEnchantCount">—</strong></div>
+      </div>
+      <div class="updates-toolbar">
+        <label for="updatesFilter">SHOW
+          <select id="updatesFilter">
+            <option value="all">Everything</option>
+            <option value="unit-added">New units</option>
+            <option value="unit-value">Value changes</option>
+            <option value="unit-demand">Demand changes</option>
+            <option value="enchant">Enchant updates</option>
+            <option value="baseline">Tracking started</option>
+          </select>
+        </label>
+        <label for="updatesSearch">FIND
+          <input id="updatesSearch" type="search" placeholder="Search a unit or enchant…" autocomplete="off">
+        </label>
+        <button type="button" id="updatesRefresh" class="updates-refresh">↻ Refresh</button>
+      </div>
+      <div class="updates-feed-heading">
+        <div><span class="section-index">RECORDED ACTIVITY</span><h2>LATEST CHANGES</h2></div>
+        <span id="updatesCount" aria-live="polite">Loading…</span>
+      </div>
+      <div id="updatesStatus" class="updates-status" role="status" aria-live="polite">Loading the changelog…</div>
+      <div id="updatesFeed" class="updates-feed" aria-label="Changelog timeline"></div>
+      <div class="updates-more"><button type="button" id="updatesShowMore" hidden>SHOW MORE CHANGES ↓</button></div>
+      <p class="updates-footnote">This log reflects database updates, not predictions. Ticket values are the same for normal and shiny units—shiny is a variant, not a different currency.</p>
     </div>
   </section>
 
