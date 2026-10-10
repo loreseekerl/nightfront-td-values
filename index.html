@@ -11,7 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
   <script src="./qa.js?v=otp-error-fix-1" defer></script>
   <script src="./admin.js?v=owner-admin-1" defer></script>
-  <script src="./history.js?v=value-history-1" defer></script>
+  <script src="./history.js?v=ticket-label-cleanup-2" defer></script>
   <script src="./trends.js?v=initial-stable-2" defer></script>
 </head>
 <body>
@@ -64,7 +64,7 @@
       <div class="feature-band">
         <div class="feature">
           <h3>SEARCH ALL UNITS</h3>
-          <p>Look up individual units, regular and shiny ticket values, demand, and rarity.</p>
+          <p>Look up individual units, normal and shiny values in tickets, demand, and rarity.</p>
           <a class="outline-btn" href="#units" data-all-units>ALL UNITS →</a>
         </div>
         <div class="feature">
@@ -135,7 +135,7 @@
           <select id="historyTypeFilter" aria-label="Filter history type">
             <option value="">All changes</option>
             <option value="normal">Normal tickets</option>
-            <option value="shiny">Shiny tickets</option>
+            <option value="shiny">Shiny value</option>
             <option value="demand">Demand</option>
           </select>
         </label>
