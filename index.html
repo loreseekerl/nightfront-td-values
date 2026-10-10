@@ -7,7 +7,9 @@
   <meta name="description" content="Nightfront TD Values — community unit values, demand and a W/F/L trade calculator.">
   <title>Nightfront TD Values</title>
   <link rel="stylesheet" href="./style.css?v=rarity-only-2">
-  <script src="./app.js?v=rarity-only-2" defer></script>
+  <script src="./app.js?v=developer-qa-1" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
+  <script src="./qa.js?v=developer-qa-1" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -21,7 +23,13 @@
       <a href="#home">MAIN PAGE</a>
       <a href="#units" data-all-units>ALL UNITS</a>
       <a href="#calculator">VALUE W/F/L CALCULATOR</a>
-      <a href="#about">MORE / ABOUT</a>
+      <div class="nav-more" id="moreWrap">
+        <button type="button" id="moreToggle" class="nav-more-toggle" aria-expanded="false" aria-controls="moreMenu">MORE <span aria-hidden="true">⌄</span></button>
+        <div id="moreMenu" class="more-menu" hidden>
+          <a href="#qa">Developer Q&A</a>
+          <a href="#about">About</a>
+        </div>
+      </div>
     </nav>
   </div>
 </header>
@@ -186,6 +194,57 @@
       </div>
     </div>
   </div>
+
+  <section class="view" id="view-qa" aria-label="Developer Q&A" hidden>
+    <div class="container developer-qa-page">
+      <div class="qa-heading-frame">
+        <h1>Developer Q&amp;A</h1>
+      </div>
+      <p class="qa-intro">Answers to questions about Nightfront TD Values, the trade calculator, and updates to the list.</p>
+      <div id="qaItems" class="qa-list" aria-live="polite">
+        <div class="qa-loading">Loading questions…</div>
+      </div>
+
+      <details id="qaOwnerTools" class="qa-owner-tools">
+        <summary><span aria-hidden="true">✎</span> Edit Q&amp;A <small>(owner only)</small></summary>
+        <div class="qa-owner-body">
+          <p class="qa-owner-help">Only approved editors can change the live Q&amp;A. Visitors can read it, but cannot edit it.</p>
+          <p class="qa-owner-help">You can also edit questions anytime in the <a href="https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/editor" target="_blank" rel="noopener noreferrer">Supabase Table Editor</a> → <strong>qa_entries</strong>.</p>
+          <div id="qaAuthStatus" class="qa-message" role="status"></div>
+          <form id="qaLoginForm" class="qa-login-form">
+            <label for="qaLoginEmail">Owner email</label>
+            <div class="qa-login-row">
+              <input id="qaLoginEmail" name="email" type="email" autocomplete="email" placeholder="Email for a sign-in link" required>
+              <button type="submit" class="qa-primary-btn">Email me a login link</button>
+            </div>
+            <p class="qa-owner-hint">A secure Supabase email link is used. Your account must also be approved as an editor.</p>
+          </form>
+          <div id="qaSessionTools" class="qa-session-tools" hidden>
+            <span id="qaLoggedEmail"></span>
+            <button type="button" id="qaLogoutButton">Sign out</button>
+          </div>
+          <div id="qaNotAuthorized" class="qa-message qa-warning" hidden>
+            Signed in, but this account has not been approved as an editor yet. Ask the site owner to authorize it.
+          </div>
+          <div id="qaEditorPanel" class="qa-editor-panel" hidden>
+            <h2>Manage questions</h2>
+            <p class="qa-owner-hint">Edit the entries below. Changes go straight to the shared database. Uncheck Published to hide a question from visitors.</p>
+            <div id="qaEditorList" class="qa-editor-list"></div>
+            <h3>Add a new question</h3>
+            <form id="qaAddForm" class="qa-edit-form">
+              <label>Question <input name="question" required minlength="3" maxlength="220" placeholder="Enter the question"></label>
+              <label>Answer <textarea name="answer" required maxlength="5000" rows="4" placeholder="Write the answer"></textarea></label>
+              <div class="qa-form-actions">
+                <label>Order <input name="sort_order" type="number" min="0" max="100000" value="100" required></label>
+                <label class="qa-check"><input type="checkbox" name="published" checked> Published</label>
+                <button type="submit" class="qa-primary-btn">Add question</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <section class="view" id="view-about" aria-label="About" hidden>
     <div class="container">
