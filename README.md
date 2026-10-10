@@ -64,7 +64,20 @@ Use transparent PNG or WebP where possible. Keep files reasonably small to impro
 
 ## Trade calculator
 
-Select unit, quantity and optionally shiny version on each side. **W** means their side has a higher total; **L** means your side is worth more; **Fair** means equal ticket values. Demand and trading preferences may affect whether a trade is worthwhile.
+The Nightfront-style calculator is at `#calculator`:
+
+1. Open **W/F/L CALCULATOR**, then press **+** in the **ME** or **YOU** panel.
+2. Search for a unit, optionally filter by rarity, and click its tile.
+3. Choose a quantity (1–99). Shiny can be selected only if the unit has a shiny ticket value.
+4. Click **Add to ME / Add to YOU**. Remove a unit using its × button when necessary.
+5. Compare the tickets shown below each offer. **W** means their offer is higher; **F** means equal; **L** means your offer is higher.
+6. Use **Copy** in the **Trade Text** section to share the two offers.
+
+The **Last Updated** section uses `units.updated_at`, automatically set by a Supabase trigger whenever a unit record is edited.
+
+## Homepage categories & rarity filters
+
+Categories are separate from rarity: the eight homepage category tiles are clickable filters, while the official seven rarities filter units by rarity. Until artwork is added for a category, a themed illustration placeholder is shown. The **All Units** page has a custom dark category dropdown and rarity filter chips.
 
 ## Security
 
