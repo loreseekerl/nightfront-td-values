@@ -23,7 +23,7 @@ const state = {
   rarity: "", sort: "name", shinyCards: new Set(),
   offers: { yours: [], theirs: [] }, nextItemId: 1,
   enchants: [], enchantsLoading: true, enchantsError: "",
-  homeArt: {}, fetchingUnits:false, hasLoadedUnits:false, animateCards:false
+  homeArt: {}, fetchingUnits:false, hasLoadedUnits:false, animateCards:false, unitsShown:60
 };
 
 const $ = (id) => document.getElementById(id);
@@ -55,7 +55,7 @@ const canTradeShiny = (unit) => hasValue(unit?.shiny_value);
 const imageHtml = (unit, placeholder="★", shiny=false) => {
   const image = (shiny && validImage(unit?.shiny_image_url)) || validImage(unit?.image_url);
   return image
-    ? '<img loading="lazy" src="' + escapeHtml(image) + '" alt="' + escapeHtml(unit?.name || "Unit artwork") + (shiny ? ' (shiny)' : '') + '">'
+    ? '<img loading="lazy" decoding="async" src="' + escapeHtml(image) + '" alt="' + escapeHtml(unit?.name || "Unit artwork") + (shiny ? ' (shiny)' : '') + '">'
     : '<span class="placeholder-art" aria-hidden="true">' + escapeHtml(placeholder) + '</span>';
 };
 const shinyOverlay = (shiny) => shiny
@@ -270,6 +270,7 @@ function renderUnits() {
   if (!$("unitsGrid")) return;
   renderRarityLegend();
   const grid = $("unitsGrid");
+  $("loadMoreUnits").hidden = true;
   $("search").value = state.search;
   syncRarityDropdown();
   $("sort").value = state.sort;
@@ -293,13 +294,19 @@ function renderUnits() {
   }).sort((a,b) => state.sort === "highest" ? Number(b.value) - Number(a.value) :
                   state.sort === "lowest" ? Number(a.value) - Number(b.value) :
                   a.name.localeCompare(b.name));
-  $("resultCount").textContent = filtered.length + " unit" + (filtered.length === 1 ? "" : "s") +
-    (state.loading ? " · refreshing…" : " found");
+  const countVisible = Math.min(state.unitsShown,filtered.length);
+  $("resultCount").textContent = filtered.length > countVisible ?
+    "Showing " + countVisible + " of " + filtered.length + " units" :
+    filtered.length + " unit" + (filtered.length === 1 ? "" : "s") +
+      (state.loading ? " · refreshing…" : " found");
+  $("loadMoreUnits").hidden = filtered.length <= countVisible;
+  $("loadMoreUnits").textContent = "SHOW " + Math.min(60,filtered.length-countVisible) +
+    " MORE UNITS ↓";
   if (!filtered.length) {
     grid.innerHTML = '<div class="empty">' + (state.units.length ? "No matching units. Try another filter." : "No units listed yet. Add your first unit in the Supabase Table Editor.") + '</div>';
     return;
   }
-  grid.innerHTML = filtered.map((unit,index) => {
+  grid.innerHTML = filtered.slice(0,state.unitsShown).map((unit,index) => {
     const shiny = state.shinyCards.has(unit.id);
     const value = shiny ? unit.shiny_value : unit.value;
     const shinyAvailable = canPreviewShiny(unit);
@@ -679,11 +686,13 @@ document.addEventListener("click", (event) => {
   if (rarityFilterButton) {
     const chosen = rarityFilterButton.dataset.rarityFilter;
     state.rarity = state.rarity === chosen ? "" : chosen;
+    state.unitsShown=60;
     renderUnits(); return;
   }
   const dropdownOption = event.target.closest("[data-filter-rarity]");
   if (dropdownOption) {
     state.rarity = dropdownOption.dataset.filterRarity;
+    state.unitsShown=60;
     closeRarityDropdown();
     renderUnits();
     $("rarityTrigger").focus();
@@ -699,7 +708,7 @@ document.addEventListener("click", (event) => {
   const galleryButton = event.target.closest("[data-gallery-rarity]");
   if (galleryButton) {
     state.rarity = galleryButton.dataset.galleryRarity;
-    state.search = "";
+    state.search = ""; state.unitsShown=60;
     if (location.hash === "#units") renderUnits();
     else { location.hash = "#units"; route(); }
     return;
@@ -742,16 +751,20 @@ document.addEventListener("click", (event) => {
     renderCalculator(); return;
   }
   if (event.target.closest("[data-all-units]")) {
-    state.search = ""; state.rarity = "";
+    state.search = ""; state.rarity = ""; state.unitsShown=60;
     if (location.hash === "#units") renderUnits();
   }
 });
-$("search").addEventListener("input", (e) => { state.search = e.target.value; renderUnits(); });
-$("sort").addEventListener("change", (e) => { state.sort = e.target.value; renderUnits(); });
+$("search").addEventListener("input", (e) => { state.search = e.target.value; state.unitsShown=60; renderUnits(); });
+$("sort").addEventListener("change", (e) => { state.sort = e.target.value; state.unitsShown=60; renderUnits(); });
 $("clearFilters").addEventListener("click", () => {
-  state.search = ""; state.rarity = ""; state.sort = "name"; renderUnits();
+  state.search = ""; state.rarity = ""; state.sort = "name"; state.unitsShown=60; renderUnits();
 });
 $("refreshUnits").addEventListener("click", () => { loadUnits(); loadEnchants(); window.NightfrontTrends?.refresh(); });
+$("loadMoreUnits").addEventListener("click", () => {
+  state.unitsShown+=60;
+  renderUnits();
+});
 $("open-yours").addEventListener("click", () => openPicker("yours"));
 $("open-theirs").addEventListener("click", () => openPicker("theirs"));
 for (const side of ["yours", "theirs"]) {
