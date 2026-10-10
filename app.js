@@ -62,26 +62,44 @@ const shinyOverlay = (shiny) => shiny
   ? '<span class="shiny-icon" aria-hidden="true">✦</span><span class="shiny-label">SHINY</span>'
   : '';
 
+function setUnitLoading(loading) {
+  const bar = $("siteLoadingStrip");
+  if (bar) {
+    bar.hidden = !loading;
+    if (loading) $("siteLoadingText").textContent = state.units.length ?
+      "Checking the latest ticket values…" : "Loading Nightfront unit values…";
+  }
+  $("refreshUnits").disabled = loading;
+  $("refreshUnits").setAttribute("aria-busy",String(loading));
+}
 async function loadUnits() {
+  if (state.fetchingUnits) return;
+  state.fetchingUnits = true;
   state.loading = true;
   state.error = "";
+  setUnitLoading(true);
   renderUnits();
   try {
     const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,value,shiny_value,demand,image_url,shiny_image_url,created_at,updated_at&order=created_at.desc&limit=1000", {
-      headers: { apikey: SUPABASE_PUBLISHABLE_KEY }
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache:"no-store"
     });
     if (!res.ok) throw new Error("Database request failed (" + res.status + ")");
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error("Unexpected database response");
     state.units = data;
+    state.animateCards = !state.hasLoadedUnits;
+    state.hasLoadedUnits = true;
   } catch (err) {
     state.error = "Couldn't load the value list. Please try again. " + (err?.message || "");
   } finally {
     state.loading = false;
+    state.fetchingUnits = false;
+    setUnitLoading(false);
     renderCategories();
     renderFeatured();
     renderHomeHero();
     renderUnits();
+    state.animateCards = false;
     renderCalculator();
     renderLastUpdated();
     if (!$("unitPickerModal").hidden) renderPicker();
@@ -612,6 +630,10 @@ function route() {
   document.querySelectorAll(".nav a").forEach((link) => link.classList.toggle("active", link.getAttribute("href") === "#" + page));
   $("nav").classList.remove("open");
   $("menuToggle").setAttribute("aria-expanded", "false");
+  if ($("moreMenu")) {
+    $("moreMenu").hidden = true;
+    $("moreToggle").setAttribute("aria-expanded","false");
+  }
   if (page === "units") renderUnits();
   if (page === "calculator") renderCalculator();
   window.scrollTo({top:0,behavior:"instant"});
@@ -620,6 +642,10 @@ function route() {
 document.addEventListener("click", (event) => {
   if (event.target === $("unitPickerModal") || event.target.closest("#pickerClose")) {
     closePicker(); return;
+  }
+  if (event.target.closest("[data-retry-units]")) {
+    loadUnits();
+    return;
   }
   const pickedUnit = event.target.closest("[data-pick-unit]");
   if (pickedUnit) {
@@ -683,7 +709,12 @@ document.addEventListener("click", (event) => {
     const id = shinyButton.dataset.shinyId;
     if (state.shinyCards.has(id)) state.shinyCards.delete(id);
     else state.shinyCards.add(id);
-    renderUnits(); return;
+    renderUnits();
+    // Re-rendering cards shouldn't throw keyboard focus back to the page.
+    const newButton = [...document.querySelectorAll("[data-shiny-id]")].find(button =>
+      button.dataset.shinyId === id);
+    if (newButton) newButton.focus({preventScroll:true});
+    return;
   }
   const selectedEnchant = event.target.closest("[data-select-enchant]");
   if (selectedEnchant) {
@@ -761,6 +792,11 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     if (!$("unitPickerModal").hidden) { event.preventDefault(); closePicker(); }
     else if (!$("rarityChoices").hidden) { closeRarityDropdown(); $("rarityTrigger").focus(); }
+    else if ($("nav").classList.contains("open")) {
+      $("nav").classList.remove("open");
+      $("menuToggle").setAttribute("aria-expanded","false");
+      $("menuToggle").focus();
+    }
     return;
   }
   if (event.key === "Tab" && !$("unitPickerModal").hidden) {
@@ -778,6 +814,13 @@ document.addEventListener("keydown", (event) => {
 $("menuToggle").addEventListener("click", () => {
   const open = $("nav").classList.toggle("open");
   $("menuToggle").setAttribute("aria-expanded", String(open));
+});
+document.addEventListener("click", (event) => {
+  if ($("nav").classList.contains("open") &&
+      !event.target.closest("#nav") && !event.target.closest("#menuToggle")) {
+    $("nav").classList.remove("open");
+    $("menuToggle").setAttribute("aria-expanded","false");
+  }
 });
 window.addEventListener("hashchange", route);
 renderCategories();
