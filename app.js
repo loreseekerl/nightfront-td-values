@@ -184,7 +184,7 @@ function renderUnits() {
       escapeHtml(unit.name) + '</h3><div class="unit-sub">' +
       rarityBadge(unit.rarity) + '</div><div class="unit-value">' +
       (hasValue(value) ? fmt(value) : 'Not listed') +
-      ' <small>' + (shiny ? 'shiny tickets' : 'tickets') + '</small></div><div class="unit-demand">Demand: <b>' +
+      ' <small>tickets</small></div><div class="unit-demand">Demand: <b>' +
       escapeHtml(unit.demand || "Unknown") + '</b></div></div></article>';
   }).join("");
 }
@@ -330,7 +330,7 @@ function renderPicker() {
   if (!availableShiny) shiny.checked = false;
   $("pickerUnitName").textContent = unit ? unit.name : "Choose a unit above";
   $("pickerUnitValue").textContent = unit ?
-    (shiny.checked ? fmt(unit.shiny_value) + " shiny tickets each" :
+    (shiny.checked ? fmt(unit.shiny_value) + " tickets each" :
     fmt(unit.value) + " tickets each" + (availableShiny ? " · shiny available" : "")) :
     "Select a unit to add it to your trade.";
   $("pickerConfirm").disabled = !unit;
