@@ -20,6 +20,16 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
+// Broken or blocked image URLs show a clean placeholder instead of an image error.
+document.addEventListener("error", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLImageElement) || !target.closest(".unit-art, .category-art, .spotlight-art")) return;
+  const placeholder = document.createElement("span");
+  placeholder.className = "placeholder-art";
+  placeholder.textContent = "★";
+  placeholder.setAttribute("aria-hidden", "true");
+  target.replaceWith(placeholder);
+}, true);
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
 }[char]));
@@ -45,7 +55,7 @@ async function loadUnits() {
   state.error = "";
   renderUnits();
   try {
-    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,category,value,shiny_value,demand,image_url&order=name.asc&limit=1000", {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,category,value,shiny_value,demand,image_url,created_at&order=created_at.desc&limit=1000", {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY }
     });
     if (!res.ok) throw new Error("Database request failed (" + res.status + ")");
@@ -57,6 +67,7 @@ async function loadUnits() {
   } finally {
     state.loading = false;
     renderCategories();
+    renderFeatured();
     renderUnits();
     renderCalculator();
   }
@@ -71,6 +82,25 @@ function renderCategories() {
       (representative ? imageHtml(representative) : '<span class="category-symbol" aria-hidden="true">' + category.symbol + '</span><span class="mini-stars" aria-hidden="true">✧</span>') +
       '</span><span class="category-name">' + escapeHtml(category.name) + '</span></button>';
   }).join("");
+}
+
+function renderFeatured() {
+  const section = $("spotlightSection");
+  const grid = $("spotlightGrid");
+  if (!section || !grid) return;
+  // Show only database-backed units. An empty database should not create blank cards.
+  section.hidden = !state.units.length || !!state.error;
+  if (section.hidden) {
+    grid.innerHTML = "";
+    return;
+  }
+  grid.innerHTML = state.units.slice(0, 4).map((unit) => (
+    '<a href="#units" class="spotlight-card" data-spotlight-id="' + escapeHtml(unit.id) + '">' +
+      '<span class="spotlight-art">' + imageHtml(unit) + '</span>' +
+      '<span class="spotlight-details"><strong>' + escapeHtml(unit.name) + '</strong>' +
+      '<small>' + escapeHtml(unit.rarity) + ' · ' + escapeHtml(unit.demand || "Unknown") + ' demand</small>' +
+      '<b>' + (hasValue(unit.value) ? fmt(unit.value) : "Not listed") + ' tickets</b></span></a>'
+  )).join("");
 }
 
 function renderUnits() {
@@ -105,11 +135,15 @@ function renderUnits() {
   grid.innerHTML = filtered.map((unit) => {
     const shiny = state.shinyCards.has(unit.id);
     const value = shiny ? unit.shiny_value : unit.value;
+    const shinyAvailable = hasValue(unit.shiny_value);
     return '<article class="unit-card"><div class="unit-art">' + imageHtml(unit) +
       '<button type="button" class="shiny-button ' + (shiny ? 'active' : '') +
-      '" data-shiny-id="' + escapeHtml(unit.id) + '" title="Toggle shiny value" aria-label="Show ' +
-      (shiny ? "normal" : "shiny") + ' value for ' + escapeHtml(unit.name) +
-      '" aria-pressed="' + shiny + '">★</button></div><div class="unit-details"><h3>' +
+      '" data-shiny-id="' + escapeHtml(unit.id) + '" title="' +
+      (shinyAvailable ? "Toggle shiny value" : "Shiny value not listed yet") + '" aria-label="' +
+      (shinyAvailable ? ("Show " + (shiny ? "normal" : "shiny") + " value for ") : "Shiny value unavailable for ") +
+      escapeHtml(unit.name) + '" aria-pressed="' + shiny + '"' +
+      (shinyAvailable ? '' : ' disabled') +
+      '>★</button></div><div class="unit-details"><h3>' +
       escapeHtml(unit.name) + '</h3><div class="unit-sub">' +
       escapeHtml(unit.rarity) + ' · ' + escapeHtml(categoryOf(unit)) + '</div><div class="unit-value">' +
       (hasValue(value) ? fmt(value) : 'Not listed') +
@@ -186,6 +220,15 @@ function route() {
 }
 
 document.addEventListener("click", (event) => {
+  const spotlightButton = event.target.closest("[data-spotlight-id]");
+  if (spotlightButton) {
+    const unit = state.units.find((item) => String(item.id) === spotlightButton.dataset.spotlightId);
+    if (unit) {
+      state.search = unit.name;
+      state.category = "";
+      state.rarity = "";
+    }
+  }
   const categoryButton = event.target.closest("[data-category]");
   if (categoryButton) {
     state.category = categoryButton.dataset.category;
@@ -193,7 +236,7 @@ document.addEventListener("click", (event) => {
     route();
   }
   const shinyButton = event.target.closest("[data-shiny-id]");
-  if (shinyButton) {
+  if (shinyButton && !shinyButton.disabled) {
     const id = shinyButton.dataset.shinyId;
     if (state.shinyCards.has(id)) state.shinyCards.delete(id);
     else state.shinyCards.add(id);
