@@ -7,7 +7,18 @@
   const safe = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[character]));
-  const state = { client: null, authorized: false, ownerRows: [], loadingEditor: false };
+  const privateEditLink = new URLSearchParams(location.search).get("qa") === "edit";
+  const state = { client: null, authorized: false, ownerRows: [], loadingEditor: false, sessionVersion: 0 };
+
+  // Visitors never see the editor or its claim form on the public Q&A page.
+  // A private ?qa=edit URL is needed for signing in before claiming ownership.
+  function syncOwnerVisibility() {
+    const tools = el("qaOwnerTools");
+    tools.hidden = !(state.authorized || privateEditLink);
+    if (tools.hidden) tools.open = false;
+    else if (privateEditLink) tools.open = true;
+  }
+  syncOwnerVisibility();
 
   function message(text, isError = false) {
     const node = el("qaAuthStatus");
@@ -111,33 +122,69 @@
     renderOwnerEditor();
   }
   async function setSession(session) {
+    const version = ++state.sessionVersion;
     state.authorized = false;
     el("qaEditorPanel").hidden = true;
     el("qaNotAuthorized").hidden = true;
+    el("qaClaimPanel").hidden = true;
     el("qaLoginForm").hidden = !!session;
     el("qaSessionTools").hidden = !session;
+    syncOwnerVisibility();
+
     if (!session) {
       el("qaLoggedEmail").textContent = "";
+      if (privateEditLink) message("Sign in to claim or manage the Q&A.");
       return;
     }
     el("qaLoggedEmail").textContent = "Signed in: " + (session.user?.email || "Account");
     if (!state.client) return;
     try {
+      // Supabase RLS lets an account read only its own owner membership.
       const { data, error } = await state.client.from("qa_editors")
         .select("user_id").eq("user_id", session.user.id).maybeSingle();
+      if (version !== state.sessionVersion) return;
       if (error) throw error;
+
       if (!data) {
-        el("qaNotAuthorized").hidden = false;
-        message("Signed in. Q&A editing is waiting for owner authorization.");
+        if (!privateEditLink) {
+          // Non-owners visiting normally should never see admin controls.
+          syncOwnerVisibility();
+          return;
+        }
+        // Only an authenticated visitor at the private owner link may see the
+        // one-time claim form, and only before the first successful claim.
+        const result = await state.client.rpc("qa_owner_claimed");
+        if (version !== state.sessionVersion) return;
+        if (result.error) throw result.error;
+        const isClaimed = result.data === true;
+        el("qaClaimPanel").hidden = isClaimed;
+        el("qaNotAuthorized").hidden = !isClaimed;
+        message(isClaimed
+          ? "The Q&A has already been claimed. Only its owner can edit it."
+          : "Enter your one-time claim code to secure the Q&A.");
+        syncOwnerVisibility();
         return;
       }
+
+      // A confirmed owner alone sees the editing toggle and controls.
       state.authorized = true;
+      el("qaClaimPanel").hidden = true;
+      el("qaNotAuthorized").hidden = true;
       el("qaEditorPanel").hidden = false;
+      syncOwnerVisibility();
       await refreshOwnerEditor();
-      message("Editor access active. Your updates will appear for everyone.");
+      if (version !== state.sessionVersion) return;
+      message("Owner access active. Your Q&A changes appear for everyone.");
     } catch (error) {
-      el("qaNotAuthorized").hidden = false;
-      message("Could not verify editor access. " + (error.message || "Try again."), true);
+      if (version !== state.sessionVersion) return;
+      state.authorized = false;
+      el("qaEditorPanel").hidden = true;
+      el("qaClaimPanel").hidden = true;
+      if (privateEditLink) {
+        el("qaNotAuthorized").hidden = false;
+        message("Could not verify ownership. " + (error.message || "Try again."), true);
+      }
+      syncOwnerVisibility();
     }
   }
   async function initAuth() {
@@ -177,6 +224,35 @@
     } catch (error) {
       message("Sign-in link failed: " + error.message, true);
     } finally { button.disabled = false; }
+  });
+  el("qaClaimForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!state.client || !privateEditLink) return;
+    const codeInput = el("qaClaimCode");
+    const code = codeInput.value.trim();
+    if (!code) return;
+    const button = event.target.querySelector('button[type="submit"]');
+    button.disabled = true;
+    message("Checking your owner claim code…");
+    try {
+      const { data, error } = await state.client.rpc("claim_qa_owner", { claim_code: code });
+      if (error) throw error;
+      if (data !== true) {
+        message("The claim code is incorrect, or this Q&A has already been claimed.", true);
+        return;
+      }
+      codeInput.value = ""; // Never keep the used claim secret in the input.
+      const sessionResult = await state.client.auth.getSession();
+      if (sessionResult.error || !sessionResult.data?.session) {
+        throw sessionResult.error || new Error("Please sign in again.");
+      }
+      await setSession(sessionResult.data.session);
+      message("Ownership claimed! Only this account can open the Q&A editor.");
+    } catch (error) {
+      message("Claim failed: " + (error?.message || "Try again."), true);
+    } finally {
+      button.disabled = false;
+    }
   });
   el("qaLogoutButton").addEventListener("click", async () => {
     if (!state.client) return;
