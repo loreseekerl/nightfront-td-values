@@ -120,7 +120,7 @@
       <div class="page-heading calc-title">
         <span class="eyebrow">NIGHTFRONT TD · TRADE CHECKER</span>
         <h1>W/F/L CALCULATOR</h1>
-        <p>Build both offers using the live unit list. 1 ticket = 1 value.</p>
+        <p>Build both offers using the live unit list, Shiny variants, and enchant bonuses. 1 ticket = 1 value.</p>
       </div>
 
       <div class="offer-grid">
@@ -179,6 +179,18 @@
         </select>
       </div>
       <div id="pickerResults" class="picker-results" aria-label="Available units"></div>
+      <div class="enchant-picker" id="enchantPicker">
+        <div class="enchant-picker-heading">
+          <label for="enchantToggle">ENCHANTMENT</label><small>Adds tickets per unit · separate from Shiny</small>
+        </div>
+        <button type="button" id="enchantToggle" class="enchant-current" aria-controls="enchantOptions" aria-expanded="false">
+          <span class="enchant-symbol enchant-none">–</span>
+          <span class="enchant-copy"><strong id="enchantCurrentName">NO ENCHANTMENT</strong><small id="enchantCurrentBonus">BASE VALUE</small></span>
+          <span class="enchant-caret" aria-hidden="true">⌄</span>
+        </button>
+        <div class="enchant-options" id="enchantOptions" role="group" aria-label="Select enchantment" hidden></div>
+        <div id="enchantLoadStatus" class="enchant-status" role="status" hidden></div>
+      </div>
       <div class="picker-bottom">
         <div class="picker-chosen">
           <strong id="pickerUnitName">Choose a unit above</strong>
