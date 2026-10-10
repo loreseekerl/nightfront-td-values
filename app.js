@@ -220,6 +220,7 @@ let pickerSide = "yours";
 let pickerUnitId = null;
 let pickerReturnFocus = null;
 let pickerEnchantId = "";
+let pickerEditingId = null;
 
 const getUnit = (id) => state.units.find((unit) => String(unit.id) === String(id));
 const getEntryUnit = (entry) => getUnit(entry.unitId);
@@ -265,10 +266,21 @@ function renderEnchantPicker() {
   }
 }
 
-function totalFor(side) {
+function offerBreakdown(side) {
   return state.offers[side].reduce((sum, entry) => {
-    return sum + entryCost(entry);
-  }, 0);
+    const unit = getEntryUnit(entry);
+    if (!unit) return sum;
+    const qty = Number(entry.qty);
+    const unitBase = Number(entry.shiny ? unit.shiny_value : unit.value) || 0;
+    sum.base += unitBase * qty;
+    sum.enchants += enchantBonus(entry.enchantId) * qty;
+    sum.count += qty;
+    return sum;
+  }, {base:0, enchants:0, count:0});
+}
+function totalFor(side) {
+  const {base, enchants} = offerBreakdown(side);
+  return base + enchants;
 }
 function offerText(side) {
   const names = state.offers[side].map((entry) => {
@@ -281,7 +293,13 @@ function offerText(side) {
   return names.length ? names.join(", ") : "None";
 }
 function getTradeText() {
-  return "Trading:\n" + offerText("yours") + "\n\nLooking for:\n" + offerText("theirs");
+  const yours = totalFor("yours"), theirs = totalFor("theirs");
+  return "Trading:\n" + offerText("yours") + "\nTotal: " + fmt(yours) +
+    " tickets\n\nLooking for:\n" + offerText("theirs") +
+    "\nTotal: " + fmt(theirs) + " tickets" +
+    (state.offers.yours.length && state.offers.theirs.length ?
+      "\n\nDifference: " + fmt(Math.abs(yours - theirs)) + " tickets (" +
+      (theirs > yours ? "W" : theirs < yours ? "L" : "F") + ")" : "");
 }
 function renderCalculator() {
   for (const side of ["yours", "theirs"]) {
@@ -299,35 +317,65 @@ function renderCalculator() {
         (enchant ? '<span class="offer-enchant">✧ ' + escapeHtml(enchant.name) +
         ' (+' + fmt(enchant.bonus_tickets) + '/unit)</span>' : '') +
         '<small>' + fmt(cost) + ' tickets</small></div>' +
+        '<div class="offer-item-actions">' +
+        '<button type="button" class="offer-edit" data-edit="' + entry.id +
+        '" data-side="' + side + '" title="Edit unit, amount, shiny and enchant" aria-label="Edit ' +
+        escapeHtml(unit.name) + ' in offer">Edit</button>' +
         '<button type="button" class="offer-remove" data-remove="' + entry.id +
         '" data-side="' + side + '" title="Remove unit" aria-label="Remove ' +
-        escapeHtml(unit.name) + ' from offer">×</button></li>';
+        escapeHtml(unit.name) + ' from offer">×</button></div></li>';
     }).filter(Boolean).join("");
     list.innerHTML = html || '<li class="offer-empty">Press + to add units</li>';
     $("total-" + side).textContent = fmt(totalFor(side));
+    $("clear-" + side).disabled = !entries.length;
     $("open-" + side).disabled = state.loading || !!state.error || !state.units.length;
     $("open-" + side).title = state.loading ? "Loading units" : !state.units.length ? "Add units to the database first" : "Add a unit";
   }
   $("tradingText").textContent = offerText("yours");
   $("lookingForText").textContent = offerText("theirs");
+  const yoursInfo = offerBreakdown("yours");
+  const theirsInfo = offerBreakdown("theirs");
+  const yours = yoursInfo.base + yoursInfo.enchants;
+  const theirs = theirsInfo.base + theirsInfo.enchants;
+  $("comparisonYours").textContent = fmt(yours) + " tickets";
+  $("comparisonTheirs").textContent = fmt(theirs) + " tickets";
+  $("breakdownYours").textContent = "Base " + fmt(yoursInfo.base) + " + Enchants " +
+    fmt(yoursInfo.enchants) + " = " + fmt(yours) + " tickets";
+  $("breakdownTheirs").textContent = "Base " + fmt(theirsInfo.base) + " + Enchants " +
+    fmt(theirsInfo.enchants) + " = " + fmt(theirs) + " tickets";
+  const scale = Math.max(yours,theirs,1);
+  $("compareBarYours").style.width = (100 * yours / scale).toFixed(2) + "%";
+  $("compareBarTheirs").style.width = (100 * theirs / scale).toFixed(2) + "%";
+  $("compareBarYours").setAttribute("aria-label", "Your offer: " + fmt(yours) + " tickets");
+  $("compareBarTheirs").setAttribute("aria-label", "Their offer: " + fmt(theirs) + " tickets");
+  const anyOffers = !!(state.offers.yours.length || state.offers.theirs.length);
+  $("resetTrade").disabled = !anyOffers;
+  $("swapOffers").disabled = !anyOffers;
   const panel = $("tradeResult");
+  const differenceText = $("tradeDifference");
   panel.className = "trade-outcome-bar";
   if (!state.offers.yours.length || !state.offers.theirs.length) {
     panel.textContent = "ADD UNITS TO BOTH SIDES";
+    differenceText.textContent = "Add at least one unit to both sides for a W/F/L result.";
     return;
   }
-  const yours = totalFor("yours");
-  const theirs = totalFor("theirs");
   const difference = Math.abs(yours - theirs);
+  const percentage = yours > 0 ? " (" + fmt(difference / yours * 100) + "% of your offer)" : "";
   if (theirs > yours) {
     panel.classList.add("win");
     panel.textContent = "W — YOU GAIN " + fmt(difference) + " TICKETS";
+    differenceText.textContent = "You receive " + fmt(difference) + " more tickets" + percentage +
+      ". This is a win by listed ticket value.";
   } else if (yours > theirs) {
     panel.classList.add("loss");
     panel.textContent = "L — YOU OVERPAY BY " + fmt(difference) + " TICKETS";
+    differenceText.textContent = "You give " + fmt(difference) + " more tickets" + percentage +
+      ". This is a loss by listed ticket value.";
   } else {
     panel.classList.add("fair");
     panel.textContent = "F — FAIR TRADE BY TICKET VALUE";
+    differenceText.textContent = "Both offers total " + fmt(yours) +
+      " tickets. Equal value doesn't guarantee equal demand.";
   }
 }
 function renderLastUpdated() {
