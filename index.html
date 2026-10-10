@@ -12,6 +12,7 @@
   <script src="./qa.js?v=otp-error-fix-1" defer></script>
   <script src="./admin.js?v=owner-admin-1" defer></script>
   <script src="./history.js?v=value-history-1" defer></script>
+  <script src="./trends.js?v=demand-trends-1" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -30,6 +31,7 @@
         <div id="moreMenu" class="more-menu" hidden>
           <a href="#qa">Developer Q&A</a>
           <a href="#history">Value History</a>
+          <a href="#trends">Demand &amp; Trends</a>
         </div>
       </div>
     </nav>
@@ -151,6 +153,36 @@
       </section>
       <div class="history-list-heading"><h2>RECORDED UPDATES</h2><span id="historyResultCount">0 events</span></div>
       <div id="historyTimeline" class="history-timeline" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-trends" aria-label="Demand and value trends" hidden>
+    <div class="container trends-page">
+      <div class="page-heading trends-heading">
+        <span class="eyebrow">NIGHTFRONT TD · COMMUNITY MARKET</span>
+        <h1>DEMAND &amp; VALUE TRENDS</h1>
+        <p>Follow ticket-value changes and demand movement separately. Rising, Stable and Dropping are based only on recorded changes—not predictions.</p>
+        <p class="trends-explainer">Comparisons use changes recorded in the past 30 days. A starting snapshot alone is not enough to establish a trend.</p>
+      </div>
+      <div class="trends-toolbar">
+        <label>SEARCH UNIT <input id="trendsSearch" type="search" placeholder="Search units…" autocomplete="off"></label>
+        <label>VALUE TREND
+          <select id="trendsValueFilter">
+            <option value="">All trends</option><option value="up">Rising</option><option value="stable">Stable</option>
+            <option value="down">Dropping</option><option value="unknown">Not enough history</option>
+          </select>
+        </label>
+        <label>SORT BY
+          <select id="trendsSort"><option value="name">Unit name</option><option value="demand">Highest demand</option>
+            <option value="value">Highest value</option><option value="movement">Biggest ticket gain</option></select>
+        </label>
+        <button type="button" class="trends-refresh" id="trendsRefresh">↻ Refresh trends</button>
+      </div>
+      <div id="trendsStatus" class="trends-status" role="status" aria-live="polite">Loading live trends…</div>
+      <div id="trendsStats" class="trends-stats" aria-label="Market trend summary"></div>
+      <div class="trends-list-heading"><h2>UNIT TRENDS</h2><span id="trendsCount">Loading…</span></div>
+      <div id="trendsGrid" class="trends-grid" aria-live="polite"></div>
+      <p class="trends-footer-note">Demand is a community rating from 1/10 to 10/10 when entered that way. Neither demand nor historical ticket movement guarantees a future trade price.</p>
     </div>
   </section>
 
