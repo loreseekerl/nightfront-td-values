@@ -2,18 +2,7 @@
 const SUPABASE_URL = "https://edmijiqrwtuakmpqnepw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_fz8-97xMhNiBYgSr346Akw_HFK9Gul0";
 
-const CATEGORIES = [
-  { name: "Developer / ARG", symbol: "◈", accent: "#ff769b", glow: "#752943" },
-  { name: "Forgottens", symbol: "▣", accent: "#8eb6ff", glow: "#2a4477" },
-  { name: "Apexes", symbol: "✷", accent: "#ffe59b", glow: "#68572e" },
-  { name: "Evolutions", symbol: "♛", accent: "#fbc56c", glow: "#7d5420" },
-  { name: "Nightmares", symbol: "✦", accent: "#e3ecac", glow: "#59672c" },
-  { name: "Secrets", symbol: "☄", accent: "#a37cff", glow: "#4b2f83" },
-  { name: "Mythic and+", symbol: "★", accent: "#ffe382", glow: "#926835" },
-  { name: "Items", symbol: "⚔", accent: "#d28bff", glow: "#612a86" }
-];
-
-// Rarities are separate from the homepage categories.
+// Official Nightfront TD rarity tiers.
 const RARITIES = ["Common", "Uncommon", "Rare", "Epic", "Mythic", "Secret", "Glitched"];
 const rarityClass = (rarity) => RARITIES.includes(rarity) ? "rarity-" + rarity.toLowerCase() : "rarity-unknown";
 const rarityBadge = (rarity) =>
@@ -30,7 +19,7 @@ function renderRarityLegend() {
 }
 
 const state = {
-  units: [], loading: true, error: "", category: "", search: "",
+  units: [], loading: true, error: "", search: "",
   rarity: "", sort: "name", shinyCards: new Set(),
   offers: { yours: [], theirs: [] }, nextItemId: 1
 };
@@ -58,7 +47,6 @@ const validImage = (url) => {
   } catch { return ""; }
 };
 const hasValue = (value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
-const categoryOf = (unit) => CATEGORIES.find((c) => c.name.toLowerCase() === String(unit.category).toLowerCase())?.name || "Other";
 const imageHtml = (unit, placeholder="★") => {
   const image = validImage(unit?.image_url);
   return image
@@ -71,7 +59,7 @@ async function loadUnits() {
   state.error = "";
   renderUnits();
   try {
-    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,category,value,shiny_value,demand,image_url,created_at,updated_at&order=created_at.desc&limit=1000", {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,value,shiny_value,demand,image_url,created_at,updated_at&order=created_at.desc&limit=1000", {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY }
     });
     if (!res.ok) throw new Error("Database request failed (" + res.status + ")");
@@ -112,18 +100,18 @@ function renderCategories() {
   }).join("");
 }
 
-function syncCategoryDropdown() {
-  const label = $("categorySelected");
-  const dropdown = $("categoryDropdown");
+function syncRarityDropdown() {
+  const label = $("raritySelected");
+  const dropdown = $("rarityDropdown");
   if (!label || !dropdown) return;
-  label.textContent = state.category || "All categories";
-  dropdown.querySelectorAll("[data-filter-category]").forEach((button) => {
-    button.setAttribute("aria-pressed", String(button.dataset.filterCategory === state.category));
+  label.textContent = state.rarity || "All rarities";
+  dropdown.querySelectorAll("[data-filter-rarity]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.filterRarity === state.rarity));
   });
 }
-function closeCategoryDropdown() {
-  $("categoryChoices").hidden = true;
-  $("categoryTrigger").setAttribute("aria-expanded", "false");
+function closeRarityDropdown() {
+  $("rarityChoices").hidden = true;
+  $("rarityTrigger").setAttribute("aria-expanded", "false");
 }
 
 function renderFeatured() {
@@ -151,8 +139,7 @@ function renderUnits() {
   renderRarityLegend();
   const grid = $("unitsGrid");
   $("search").value = state.search;
-  $("rarity").value = state.rarity;
-  syncCategoryDropdown();
+  syncRarityDropdown();
   $("sort").value = state.sort;
   if (state.loading) {
     grid.innerHTML = '<div class="empty">Loading unit values…</div>';
@@ -166,8 +153,7 @@ function renderUnits() {
   }
   const filtered = state.units.filter((unit) => {
     return (!state.search || unit.name.toLowerCase().includes(state.search.toLowerCase())) &&
-      (!state.rarity || unit.rarity === state.rarity) &&
-      (!state.category || categoryOf(unit) === state.category);
+      (!state.rarity || unit.rarity === state.rarity);
   }).sort((a,b) => state.sort === "highest" ? Number(b.value) - Number(a.value) :
                   state.sort === "lowest" ? Number(a.value) - Number(b.value) :
                   a.name.localeCompare(b.name));
@@ -189,7 +175,7 @@ function renderUnits() {
       (shinyAvailable ? '' : ' disabled') +
       '>★</button></div><div class="unit-details"><h3>' +
       escapeHtml(unit.name) + '</h3><div class="unit-sub">' +
-      rarityBadge(unit.rarity) + '<span class="unit-category">' + escapeHtml(categoryOf(unit)) + '</span></div><div class="unit-value">' +
+      rarityBadge(unit.rarity) + '</div><div class="unit-value">' +
       (hasValue(value) ? fmt(value) : 'Not listed') +
       ' <small>' + (shiny ? 'shiny tickets' : 'tickets') + '</small></div><div class="unit-demand">Demand: <b>' +
       escapeHtml(unit.demand || "Unknown") + '</b></div></div></article>';
@@ -382,8 +368,7 @@ document.addEventListener("click", (event) => {
     const unit = getUnit(clickedRecent.dataset.recentUnit);
     if (unit) {
       state.search = unit.name;
-      state.rarity = ""; state.category = "";
-      location.hash = "#units"; route();
+      state.rarity = ""; location.hash = "#units"; route();
     }
     return;
   }
@@ -392,7 +377,7 @@ document.addEventListener("click", (event) => {
     const unit = getUnit(spotlightButton.dataset.spotlightId);
     if (unit) {
       state.search = unit.name;
-      state.category = ""; state.rarity = "";
+      state.rarity = "";
     }
   }
   const rarityFilterButton = event.target.closest("[data-rarity-filter]");
@@ -401,34 +386,28 @@ document.addEventListener("click", (event) => {
     state.rarity = state.rarity === chosen ? "" : chosen;
     renderUnits(); return;
   }
-  const dropdownOption = event.target.closest("[data-filter-category]");
+  const dropdownOption = event.target.closest("[data-filter-rarity]");
   if (dropdownOption) {
-    state.category = dropdownOption.dataset.filterCategory;
-    closeCategoryDropdown();
+    state.rarity = dropdownOption.dataset.filterRarity;
+    closeRarityDropdown();
     renderUnits();
-    $("categoryTrigger").focus();
+    $("rarityTrigger").focus();
     return;
   }
-  if (event.target.closest("#categoryTrigger")) {
-    const menu = $("categoryChoices");
+  if (event.target.closest("#rarityTrigger")) {
+    const menu = $("rarityChoices");
     menu.hidden = !menu.hidden;
-    $("categoryTrigger").setAttribute("aria-expanded", String(!menu.hidden));
+    $("rarityTrigger").setAttribute("aria-expanded", String(!menu.hidden));
     return;
   }
-  if (!event.target.closest("#categoryDropdown")) closeCategoryDropdown();
+  if (!event.target.closest("#rarityDropdown")) closeRarityDropdown();
   const galleryButton = event.target.closest("[data-gallery-rarity]");
   if (galleryButton) {
     state.rarity = galleryButton.dataset.galleryRarity;
-    state.category = "";
     state.search = "";
     if (location.hash === "#units") renderUnits();
     else { location.hash = "#units"; route(); }
     return;
-  }
-  const categoryButton = event.target.closest("[data-category]");
-  if (categoryButton) {
-    state.category = categoryButton.dataset.category;
-    location.hash = "#units"; route(); return;
   }
   const shinyButton = event.target.closest("[data-shiny-id]");
   if (shinyButton && !shinyButton.disabled) {
@@ -444,15 +423,14 @@ document.addEventListener("click", (event) => {
     renderCalculator(); return;
   }
   if (event.target.closest("[data-all-units]")) {
-    state.category = ""; state.search = ""; state.rarity = "";
+    state.search = ""; state.rarity = "";
     if (location.hash === "#units") renderUnits();
   }
 });
 $("search").addEventListener("input", (e) => { state.search = e.target.value; renderUnits(); });
-$("rarity").addEventListener("change", (e) => { state.rarity = e.target.value; renderUnits(); });
 $("sort").addEventListener("change", (e) => { state.sort = e.target.value; renderUnits(); });
 $("clearFilters").addEventListener("click", () => {
-  state.search = ""; state.rarity = ""; state.category = ""; state.sort = "name"; renderUnits();
+  state.search = ""; state.rarity = ""; state.sort = "name"; renderUnits();
 });
 $("refreshUnits").addEventListener("click", loadUnits);
 $("open-yours").addEventListener("click", () => openPicker("yours"));
@@ -475,7 +453,7 @@ $("copyTrade").addEventListener("click", async () => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     if (!$("unitPickerModal").hidden) { event.preventDefault(); closePicker(); }
-    else if (!$("categoryChoices").hidden) { closeCategoryDropdown(); $("categoryTrigger").focus(); }
+    else if (!$("rarityChoices").hidden) { closeRarityDropdown(); $("rarityTrigger").focus(); }
     return;
   }
   if (event.key === "Tab" && !$("unitPickerModal").hidden) {
