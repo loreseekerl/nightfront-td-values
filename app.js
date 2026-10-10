@@ -211,7 +211,9 @@ function renderUnits() {
       rarityBadge(unit.rarity) + '</div><div class="unit-value">' +
       (hasValue(value) ? fmt(value) : 'Not listed') +
       ' <small>tickets</small></div><div class="unit-demand">Demand: <b>' +
-      escapeHtml(unit.demand || "Unknown") + '</b></div></div></article>';
+      escapeHtml(unit.demand || "Unknown") + '</b></div>' +
+      '<button type="button" class="unit-history-link" data-history-id="' +
+      escapeHtml(unit.id) + '">↗ Value history</button></div></article>';
   }).join("");
 }
 
@@ -509,7 +511,7 @@ function route() {
   // sign-in page so the user can request a new email instead of landing on Home.
   const loginExpired = new URLSearchParams(location.hash.slice(1)).get("error_code") === "otp_expired";
   const page = (hash === "#admin" && privateAdmin) ? "admin" :
-    ["#units", "#calculator", "#about", "#qa"].includes(hash) ? hash.slice(1) :
+    ["#units", "#calculator", "#about", "#qa", "#history"].includes(hash) ? hash.slice(1) :
     (loginExpired ? "qa" : privateAdmin ? "admin" : params.get("qa") === "edit" ? "qa" : "home");
   document.querySelectorAll(".view").forEach((view) => view.hidden = view.id !== "view-" + page);
   document.querySelectorAll(".nav a").forEach((link) => link.classList.toggle("active", link.getAttribute("href") === "#" + page));
@@ -528,6 +530,11 @@ document.addEventListener("click", (event) => {
   if (pickedUnit) {
     pickerUnitId = pickedUnit.dataset.pickUnit;
     renderPicker();
+    return;
+  }
+  const historyButton = event.target.closest("[data-history-id]");
+  if (historyButton) {
+    window.NightfrontHistory?.openUnit(historyButton.dataset.historyId);
     return;
   }
   const clickedRecent = event.target.closest("[data-recent-unit]");
