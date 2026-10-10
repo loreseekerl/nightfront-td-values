@@ -417,3 +417,68 @@ body.picker-open{overflow:hidden}
     flex-basis:42px;
   }
 }
+
+
+/* Official Nightfront rarity gallery; genuine portraits when supplied. */
+.gallery-intro{text-align:center;margin:45px 0 0}
+.gallery-intro h2{font:900 clamp(23px,3vw,35px)/1.3 'Courier New',monospace;letter-spacing:.06em;margin:7px 0 0;color:#f6f7ff}
+.rarity-gallery{margin-top:23px;row-gap:37px;column-gap:24px}
+.rarity-gallery .gallery-tile{
+  display:block;min-width:0;width:100%;
+  border:0;padding:0;background:transparent;color:#fff;text-align:center;
+  cursor:pointer;transition:transform .2s ease;
+}
+.rarity-gallery .gallery-tile:hover{transform:translateY(-4px)}
+.rarity-gallery .gallery-media{
+  --stage-color:#5d6881;
+  position:relative;isolation:isolate;overflow:hidden;
+  width:100%;height:235px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid #222739;border-radius:5px;
+  background:radial-gradient(ellipse at 50% 60%,color-mix(in srgb,var(--stage-color) 30%,transparent),#090b12 68%,#050506 100%);
+  transition:border-color .2s,box-shadow .2s;
+}
+.rarity-gallery .gallery-tile:hover .gallery-media{border-color:var(--stage-color);box-shadow:0 0 20px color-mix(in srgb,var(--stage-color) 35%,transparent)}
+.rarity-gallery .gallery-media::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 60%,#0304069e 100%);
+  pointer-events:none;z-index:2;
+}
+.rarity-gallery .gallery-portrait{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;z-index:1}
+.rarity-gallery .gallery-portrait img{display:block;width:100%;height:100%;padding:4px 10px 0;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 15px #000)}
+.rarity-gallery .gallery-lettering{
+  position:relative;z-index:1;max-width:100%;padding:0 9px;
+  font:900 clamp(19px,2.3vw,33px)/1.15 'Courier New',monospace;
+  letter-spacing:.045em;overflow-wrap:anywhere;text-transform:uppercase;
+  color:var(--stage-color);text-shadow:0 3px 0 #050507,0 0 22px color-mix(in srgb,var(--stage-color) 50%,transparent);
+}
+.rarity-gallery .gallery-caption{
+  display:block;margin-top:11px;padding:9px 9px;
+  font:800 12px/1.3 Arial,sans-serif;letter-spacing:.04em;
+  background:#050506;border:1px solid #b2b7c5;border-radius:4px;
+  transition:background .2s,border-color .2s;
+}
+.rarity-gallery .gallery-tile:hover .gallery-caption{border-color:var(--stage-color);background:#111623}
+.rarity-gallery .gallery-rarity-label{display:block;background:none;border:0;padding:0;box-shadow:none}
+.rarity-gallery .gallery-common{--stage-color:#b3b8c3}
+.rarity-gallery .gallery-uncommon{--stage-color:#42d989}
+.rarity-gallery .gallery-rare{--stage-color:#5aa5ff}
+.rarity-gallery .gallery-epic{--stage-color:#bd7af1}
+.rarity-gallery .gallery-mythic{--stage-color:#ffe079}
+.rarity-gallery .gallery-secret{--stage-color:#ff7a49}
+.rarity-gallery .gallery-secret .gallery-lettering{
+  background:linear-gradient(100deg,#ff393e,#ffae49);
+  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px #f84a395b)
+}
+.rarity-gallery .gallery-glitched{--stage-color:#9f80ff;background:#070b22}
+.rarity-gallery .gallery-glitched::before{
+  content:"";position:absolute;z-index:0;inset:-40%;
+  background:conic-gradient(from 0deg,#061b70,#6625b3,#090838,#12369e,#672baf,#061b70);
+  opacity:.75;animation:nightfront-gallery-spin 5s linear infinite;
+}
+.rarity-gallery .gallery-glitched .gallery-lettering{color:#c6acff;text-shadow:0 0 14px #6231ee,0 0 28px #254de6}
+@keyframes nightfront-gallery-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.rarity-gallery .gallery-glitched::before{animation:none}}
+@media(max-width:950px){.rarity-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}.rarity-gallery .gallery-media{height:210px}}
+@media(max-width:700px){.rarity-gallery{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:15px;row-gap:27px}.rarity-gallery .gallery-media{height:185px}.rarity-gallery .gallery-lettering{font-size:clamp(17px,4.2vw,28px)}}
+@media(max-width:390px){.rarity-gallery .gallery-media{height:155px}.rarity-gallery .gallery-caption{font-size:11px}}
