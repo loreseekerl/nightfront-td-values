@@ -212,6 +212,7 @@ function renderUnits() {
       (hasValue(value) ? fmt(value) : 'Not listed') +
       ' <small>tickets</small></div><div class="unit-demand">Demand: <b>' +
       escapeHtml(unit.demand || "Unknown") + '</b></div>' +
+      (window.NightfrontTrends?.cardBadges(unit,shiny) || '') +
       '<button type="button" class="unit-history-link" data-history-id="' +
       escapeHtml(unit.id) + '">↗ Value history</button></div></article>';
   }).join("");
@@ -511,7 +512,7 @@ function route() {
   // sign-in page so the user can request a new email instead of landing on Home.
   const loginExpired = new URLSearchParams(location.hash.slice(1)).get("error_code") === "otp_expired";
   const page = (hash === "#admin" && privateAdmin) ? "admin" :
-    ["#units", "#calculator", "#about", "#qa", "#history"].includes(hash) ? hash.slice(1) :
+    ["#units", "#calculator", "#about", "#qa", "#history", "#trends"].includes(hash) ? hash.slice(1) :
     (loginExpired ? "qa" : privateAdmin ? "admin" : params.get("qa") === "edit" ? "qa" : "home");
   document.querySelectorAll(".view").forEach((view) => view.hidden = view.id !== "view-" + page);
   document.querySelectorAll(".nav a").forEach((link) => link.classList.toggle("active", link.getAttribute("href") === "#" + page));
@@ -625,7 +626,7 @@ $("sort").addEventListener("change", (e) => { state.sort = e.target.value; rende
 $("clearFilters").addEventListener("click", () => {
   state.search = ""; state.rarity = ""; state.sort = "name"; renderUnits();
 });
-$("refreshUnits").addEventListener("click", () => { loadUnits(); loadEnchants(); });
+$("refreshUnits").addEventListener("click", () => { loadUnits(); loadEnchants(); window.NightfrontTrends?.refresh(); });
 $("open-yours").addEventListener("click", () => openPicker("yours"));
 $("open-theirs").addEventListener("click", () => openPicker("theirs"));
 for (const side of ["yours", "theirs"]) {
