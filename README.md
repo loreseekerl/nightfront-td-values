@@ -77,7 +77,9 @@ The **Last Updated** section uses `units.updated_at`, automatically set by a Sup
 
 ## Homepage categories & rarity filters
 
-Categories are separate from rarity: the eight homepage category tiles are clickable filters, while the official seven rarities filter units by rarity. Until artwork is added for a category, a themed illustration placeholder is shown. The **All Units** page has a custom dark category dropdown and rarity filter chips.
+The homepage features the official **seven Nightfront rarity tiers** (Common, Uncommon, Rare, Epic, Mythic, Secret, and Glitched). A rarity tile automatically displays a real unit portrait when that rarity contains an image-backed unit; otherwise the tile displays a styled rarity name, without fake character artwork or empty unit counts. Clicking the tile filters the All Units page by that rarity. Glitched has an animated blue/purple treatment that honors reduced-motion settings.
+
+The eight older collection categories remain available in the **All Units** category dropdown as separate optional groupings, and the rarity filter chips remain available there.
 
 ## Security
 
