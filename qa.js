@@ -7,7 +7,8 @@
   const safe = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[character]));
-  const privateEditLink = new URLSearchParams(location.search).get("qa") === "edit";
+  const loginExpired = new URLSearchParams(location.hash.slice(1)).get("error_code") === "otp_expired";
+  const privateEditLink = new URLSearchParams(location.search).get("qa") === "edit" || loginExpired;
   const state = { client: null, authorized: false, ownerRows: [], loadingEditor: false, sessionVersion: 0 };
 
   // Visitors never see the editor or its claim form on the public Q&A page.
@@ -133,7 +134,9 @@
 
     if (!session) {
       el("qaLoggedEmail").textContent = "";
-      if (privateEditLink) message("Sign in to claim or manage the Q&A.");
+      if (loginExpired) {
+        message("That email sign-in link has expired or has already been used. Request a fresh link below, then open only the newest email link once.", true);
+      } else if (privateEditLink) message("Sign in to claim or manage the Q&A.");
       return;
     }
     el("qaLoggedEmail").textContent = "Signed in: " + (session.user?.email || "Account");
