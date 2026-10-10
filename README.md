@@ -100,9 +100,12 @@ The Nightfront-style calculator is at `#calculator`:
 2. Search for a unit, optionally filter by rarity, and click its tile.
 3. Choose a quantity (1–99). Shiny can be selected only if the unit has a shiny ticket value.
 4. Open the **Enchantment** menu and choose No Enchantment, Engineered, Pizza Party, Phantom, Fazbear Entertainment, or Afton Robotics. This choice is separate from Shiny.
-5. Click **Add to ME / Add to YOU**. Remove a unit using its × button when necessary.
-6. Compare the tickets shown below each offer. **W** means their offer is higher; **F** means equal; **L** means your offer is higher.
-7. Use **Copy** in the **Trade Text** section to share the two offers, including any enchantment names.
+5. Click **Add to ME / Add to YOU**. Each offer entry includes **Edit** (change its unit, quantity, shiny status or enchant without removing it) and **×** (remove it).
+6. Below the trade columns you'll see **base tickets + enchant bonus tickets**, two proportional value bars, and the W/F/L difference with a percentage of **your side's** total. **W** = their offer is worth more, **F** = equal ticket values, **L** = your offer is worth more. The percentage is omitted if your total is zero.
+7. **Clear** empties one column, **Clear entire trade** resets both, and **Swap sides** exchanges the offers.
+8. Use **Copy** in the **Trade Text** section to share the selected units, enchantments, both total ticket values and the W/F/L difference.
+
+The unit picker displays a live **total for quantity × (base + enchant)** before you add or save the item. Ticket calculations use current unit values and live enchant bonuses from Supabase; nothing needs to be saved to a separate trade database. Trades are local to the open page, so refreshing clears the offers. These results compare listed ticket values, **not** demand, rarity preferences or liquidity.
 
 ### Enchantment ticket bonuses
 
