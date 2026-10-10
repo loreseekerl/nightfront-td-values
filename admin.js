@@ -218,8 +218,8 @@
     await withBusy(async()=>{
       const rarity=form.dataset.coverForm;
       if(!rarities.includes(rarity)) throw Error("Invalid rarity cover");
-      let url=imageURL(form.elements.cover_url.value);
       const file=form.elements.cover_file.files?.[0];
+      let url=file ? null : imageURL(form.elements.cover_url.value);
       status("Saving "+rarity+" cover…");
       if(file) url=await uploadImage(file);
       const {data,error}=await state.client.from("homepage_rarity_artwork")
