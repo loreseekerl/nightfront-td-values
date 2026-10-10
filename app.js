@@ -436,9 +436,12 @@ function route() {
   const hash = location.hash.split("?")[0];
   const params = new URLSearchParams(location.search);
   const privateAdmin = params.get("admin") === "1";
+  // Supabase puts an expired-login error in the URL fragment. Show the owner
+  // sign-in page so the user can request a new email instead of landing on Home.
+  const loginExpired = new URLSearchParams(location.hash.slice(1)).get("error_code") === "otp_expired";
   const page = (hash === "#admin" && privateAdmin) ? "admin" :
     ["#units", "#calculator", "#about", "#qa"].includes(hash) ? hash.slice(1) :
-    (privateAdmin ? "admin" : params.get("qa") === "edit" ? "qa" : "home");
+    (loginExpired ? "qa" : privateAdmin ? "admin" : params.get("qa") === "edit" ? "qa" : "home");
   document.querySelectorAll(".view").forEach((view) => view.hidden = view.id !== "view-" + page);
   document.querySelectorAll(".nav a").forEach((link) => link.classList.toggle("active", link.getAttribute("href") === "#" + page));
   $("nav").classList.remove("open");
