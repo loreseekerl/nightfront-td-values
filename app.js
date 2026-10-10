@@ -245,7 +245,7 @@ function renderEnchantPicker() {
     '" class="enchant-option' + (active ? ' selected' : '') +
     '" aria-pressed="' + active + '">' +
     '<span class="enchant-symbol ' + (id ? 'enchant-' + escapeHtml(id) : 'enchant-none') + '">' +
-    escapeHtml(symbol) + '</span>' +
+    '<span class="enchant-symbol-label">' + escapeHtml(symbol) + '</span></span>' +
     '<span class="enchant-copy"><strong>' + escapeHtml(name.toUpperCase()) + '</strong><small>' +
     (id ? '+' + fmt(bonus) + ' TICKETS' : 'BASE VALUE') +
     '</small></span><span class="enchant-selected-icon" aria-hidden="true">' +
@@ -259,7 +259,8 @@ function renderEnchantPicker() {
     state.enchantsError ? "Couldn't refresh enchant bonuses. Try Refresh values." : "";
   const symbol = $("enchantToggle").querySelector(".enchant-symbol");
   if (symbol) {
-    symbol.textContent = selected ? shortEnchant(selected.name) : "–";
+    const label = symbol.querySelector(".enchant-symbol-label");
+    if (label) label.textContent = selected ? shortEnchant(selected.name) : "–";
     symbol.className = "enchant-symbol " + (selected ? "enchant-" + selected.id : "enchant-none");
   }
 }
