@@ -7,7 +7,7 @@
   <meta name="description" content="Nightfront TD Values — community unit values, demand and a W/F/L trade calculator.">
   <title>Nightfront TD Values</title>
   <link rel="stylesheet" href="./style.css?v=freddy-frame-3">
-  <script src="./app.js" defer></script>
+  <script src="./app.js?v=spotlight-1" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -33,6 +33,16 @@
       <div class="notice white">Click a category to browse its units and values</div>
       <p class="hero-copy">Explore the community trading value list. Click any category to find units, view demand, and compare offers using the W/F/L calculator.</p>
       <div class="category-grid" id="categories" aria-label="Unit categories"></div>
+      <section id="spotlightSection" class="spotlight-section" aria-label="Recently added units" hidden>
+        <div class="spotlight-heading">
+          <div>
+            <span class="eyebrow">Live from the value list</span>
+            <h2>NEWLY ADDED UNITS</h2>
+          </div>
+          <a class="text-button" href="#units" data-all-units>View all units →</a>
+        </div>
+        <div id="spotlightGrid" class="spotlight-grid"></div>
+      </section>
       <div class="home-actions">
         <a class="outline-btn" href="#calculator">VALUE CALCULATOR</a>
         <a class="outline-btn" href="#units" data-all-units>VIEW ALL UNITS</a>
