@@ -43,7 +43,8 @@ The examples are **rarity references**, not automatically published units. Add t
 | `rarity` | `Common` | Displayed under the name. |
 | `category` | `Other` | Legacy database field. No longer used for website filters; you can leave it unchanged. |
 | `value` | `10` | Numeric value in tickets. |
-| `shiny_value` | *(leave blank)* | Optional. Until entered, the unit's shiny star is disabled. |
+| `shiny_value` | *(leave blank until known)* | Optional shiny ticket value; required for adding a shiny unit to a trade. |
+| `shiny_image_url` | *(leave blank or use a public HTTPS image link)* | Optional artwork shown only when shiny is selected. |
 | `demand` | `1/10` | Displayed as text. |
 | `image_url` | `https://.../assets/freddy.webp` | Public HTTPS URL for artwork. |
 
@@ -61,6 +62,15 @@ Images hosted in the same GitHub Pages repository are reliable and free:
    `https://loreseekerl.github.io/nightfront-td-values/assets/bonnie.png`
 
 Use transparent PNG or WebP where possible. Keep files reasonably small to improve load time.
+
+### Shiny variants
+
+- A unit's normal artwork is stored in `image_url`, and its optional shiny artwork is stored separately in `shiny_image_url`.
+- The shiny star on the **All Units** card toggles between normal and shiny if there is a shiny ticket value **or** a shiny image. While shiny is selected, the image and star rotate, a rainbow border glows, and a SHINY label appears. Reduced-motion users see a static variant.
+- If no `shiny_image_url` exists, the normal artwork is reused with shiny effects; **there is no need to upload duplicate artwork**.
+- Set `shiny_value` to enable the shiny version **in the W/F/L calculator**. If only shiny artwork exists, players can preview it but cannot put it in a trade at an unknown price.
+- Leave `shiny_value` and `shiny_image_url` blank until you know the actual shiny value and/or have an image. Don't put enchant names, icons or effects in these fields: enchantments will get a separate system later.
+- Rotating effects apply only to the shiny variant; they do not alter the original character's stored image.
 
 ## Trade calculator
 
