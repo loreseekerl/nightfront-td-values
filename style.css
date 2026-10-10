@@ -480,3 +480,118 @@ body.picker-open{overflow:hidden}
 @media(max-width:950px){.rarity-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}.rarity-gallery .gallery-media{height:210px}}
 @media(max-width:700px){.rarity-gallery{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:15px;row-gap:27px}.rarity-gallery .gallery-media{height:185px}.rarity-gallery .gallery-lettering{font-size:clamp(17px,4.2vw,28px)}}
 @media(max-width:390px){.rarity-gallery .gallery-media{height:155px}.rarity-gallery .gallery-caption{font-size:11px}}
+
+
+/* Developer Q&A page — arcade-style reference layout and protected owner editor. */
+.nav-more{position:relative;display:flex;align-items:center}
+.nav-more-toggle{
+  border:0;background:transparent;padding:4px 0;color:#b7bdd0;
+  font:inherit;font-size:13px;cursor:pointer;white-space:nowrap;text-transform:uppercase;
+  display:flex;align-items:center;gap:7px;
+}
+.nav-more-toggle:hover,.nav-more-toggle[aria-expanded="true"]{color:#fff}
+.nav-more-toggle span{font-size:18px}
+.more-menu{
+  position:absolute;right:0;top:calc(100% + 18px);
+  min-width:184px;z-index:50;background:#07080e;
+  border:1px solid #38425e;border-radius:7px;box-shadow:0 18px 32px #000c;
+  padding:7px;
+}
+.more-menu a{
+  display:block;padding:10px 12px;border-radius:5px;
+  color:#e5e9fa;font-size:13px;text-transform:none;
+}
+.more-menu a:hover,.more-menu a.active{background:#172341;color:#a9c8ff}
+.developer-qa-page{max-width:1180px;padding-bottom:70px}
+.qa-heading-frame{
+  margin:26px auto 24px;min-height:73px;border:1px solid #28282e;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  background:#050505;
+}
+.qa-heading-frame h1{
+  color:#ffa000;font:900 clamp(25px,3.1vw,35px)/1.35 'Courier New',monospace;
+  letter-spacing:.025em;margin:10px 12px;
+  text-shadow:0 0 14px #d27b171b;
+}
+.qa-intro{font:600 13px/1.55 'Courier New',monospace;color:#8e94a3;text-align:center;margin:0 auto 27px;max-width:820px}
+.qa-list{display:flex;flex-direction:column;gap:20px;min-height:180px}
+.qa-entry{
+  padding:13px 15px;border:1px solid #2f3036;background:#050506;
+  color:#fafafb;font:900 clamp(13px,1.6vw,17px)/1.85 'Courier New',monospace;
+  letter-spacing:.015em;overflow-wrap:anywhere;
+}
+.qa-question{display:inline;color:#ff2934;margin-right:9px}
+.qa-answer{display:inline;color:#f3f3f6;white-space:pre-wrap}
+.qa-answer .qa-green{color:#16ef57}
+.qa-answer .qa-red{color:#ff3845}
+.qa-answer .qa-blue{color:#658eff}
+.qa-answer .qa-orange{color:#ffa32e}
+.qa-loading,.qa-empty{margin:auto;padding:45px 14px;color:#9199ac;text-align:center;font:700 15px 'Courier New',monospace}
+.qa-empty{border:1px dashed #363a4b;width:100%}
+.qa-error{color:#ffb1bd}
+.qa-owner-tools{border-top:1px solid #272d39;margin-top:60px;padding-top:15px;color:#c5c9d4}
+.qa-owner-tools summary{
+  cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:9px;
+  color:#b8c9ef;font:800 13px 'Courier New',monospace;padding:12px 0;
+}
+.qa-owner-tools summary::-webkit-details-marker{display:none}
+.qa-owner-tools summary:hover{color:#fff}
+.qa-owner-tools summary small{color:#7f8da4;font-size:11px}
+.qa-owner-body{
+  margin-top:8px;padding:22px;border:1px solid #2c374b;
+  background:#0b101a;border-radius:10px;
+}
+.qa-owner-help{color:#9ca7be;font-size:13px;margin:0 0 13px}
+.qa-owner-help a{text-decoration:underline;color:#9dc6ff}
+.qa-message{color:#bcd3fd;min-height:20px;font-size:13px;margin:10px 0}
+.qa-message-error{color:#ff929c}
+.qa-warning{
+  color:#f4c783;background:#2f2510;
+  border:1px solid #785d34;padding:13px 15px;border-radius:7px;margin:15px 0;
+}
+.qa-login-form{margin:15px 0}
+.qa-login-form>label{display:block;color:#dbe3f5;font-weight:bold;font-size:13px;margin:0 0 8px}
+.qa-login-row{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px}
+.qa-login-row input{min-width:200px;flex:1;margin:0}
+.qa-primary-btn{
+  padding:11px 19px;border-radius:6px;background:#294eb0;
+  color:#fff;border:1px solid #4d75dd;font-weight:800;cursor:pointer;
+}
+.qa-primary-btn:hover{background:#3964cf}
+.qa-primary-btn:disabled{opacity:.6;cursor:wait}
+.qa-owner-hint{color:#9ca8bf;font-size:12px;line-height:1.5}
+.qa-session-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:#dbe4fc;font-size:12px;margin:14px 0}
+.qa-session-tools button{
+  background:#25212a;border:1px solid #695461;border-radius:6px;
+  color:#ffe0ea;padding:7px 13px;
+}
+.qa-editor-panel h2{font:900 22px 'Courier New',monospace;color:#d5e2ff;margin:22px 0 10px}
+.qa-editor-panel h3{font:900 17px 'Courier New',monospace;color:#d5e2ff;margin:24px 0 10px}
+.qa-editor-list{display:flex;flex-direction:column;gap:16px;margin-top:18px}
+.qa-edit-form{
+  background:#101623;border:1px solid #343e57;border-radius:8px;
+  padding:16px;display:flex;flex-direction:column;gap:10px
+}
+.qa-edit-form>label{display:flex;flex-direction:column;gap:7px;color:#cedaef;font-size:13px;font-weight:700}
+.qa-edit-form input:not([type="checkbox"]),.qa-edit-form textarea{
+  width:100%;border-radius:6px;border:1px solid #47536a;
+  background:#080c15;color:#f4f7ff;font:500 14px/1.5 Arial,sans-serif;
+  padding:10px 12px;outline-offset:2px;
+}
+.qa-edit-form textarea{resize:vertical;min-height:90px;white-space:pre-wrap}
+.qa-form-actions{display:flex;align-items:end;gap:13px;flex-wrap:wrap}
+.qa-form-actions>label:not(.qa-check){display:flex;align-items:center;gap:9px;color:#becce5;font-size:13px}
+.qa-form-actions input[type="number"]{max-width:100px}
+.qa-form-actions .qa-check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;color:#d9e1f0}
+.qa-form-actions .qa-check input{min-height:auto;width:16px;height:16px;accent-color:#5478e8}
+.qa-delete-btn{border:1px solid #89404c;background:#2b131d;color:#ffacb9;border-radius:6px;padding:10px 14px}
+.qa-delete-btn:hover{background:#511b2c}
+@media(max-width:700px){
+  .nav-more{display:block;width:100%}
+  .nav-more-toggle{padding:8px 3px;width:100%;justify-content:space-between;text-align:left}
+  .more-menu{position:static;box-shadow:none;margin:2px 0 5px}
+  .qa-heading-frame{margin-top:20px}
+  .qa-list{gap:14px}
+  .qa-entry{font-size:13px;padding:13px 12px}
+  .qa-owner-body{padding:14px}
+}
