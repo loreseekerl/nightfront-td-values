@@ -128,7 +128,7 @@
         <section class="offer-column" aria-label="Your offer">
           <div class="offer-header">
             <div class="offer-heading"><strong class="offer-me">ME</strong><span>Your offer</span></div>
-            <button id="open-yours" class="offer-add" type="button" aria-label="Add unit to my offer" title="Add a unit to my offer">+</button>
+            <div class="offer-header-actions"><button type="button" id="clear-yours" class="offer-clear" aria-label="Clear my offer" disabled>Clear</button><button id="open-yours" class="offer-add" type="button" aria-label="Add unit to my offer" title="Add a unit to my offer">+</button></div>
           </div>
           <ul id="items-yours" class="offer-items" aria-live="polite"><li class="offer-empty">Press + to add units</li></ul>
           <div class="offer-total"><span>TOTAL VALUE: <strong id="total-yours">0</strong></span><small>TICKETS</small></div>
@@ -137,14 +137,32 @@
         <section class="offer-column" aria-label="Other player's offer">
           <div class="offer-header">
             <div class="offer-heading"><strong class="offer-you">YOU</strong><span>Their offer</span></div>
-            <button id="open-theirs" class="offer-add" type="button" aria-label="Add unit to their offer" title="Add a unit to their offer">+</button>
+            <div class="offer-header-actions"><button type="button" id="clear-theirs" class="offer-clear" aria-label="Clear their offer" disabled>Clear</button><button id="open-theirs" class="offer-add" type="button" aria-label="Add unit to their offer" title="Add a unit to their offer">+</button></div>
           </div>
           <ul id="items-theirs" class="offer-items" aria-live="polite"><li class="offer-empty">Press + to add units</li></ul>
           <div class="offer-total"><span>TOTAL VALUE: <strong id="total-theirs">0</strong></span><small>TICKETS</small></div>
         </section>
       </div>
 
-      <div id="tradeResult" class="trade-outcome-bar" role="status" aria-live="polite">ADD UNITS TO BOTH SIDES</div>
+      <div class="trade-summary" aria-label="Trade outcome and ticket breakdown">
+        <div id="tradeResult" class="trade-outcome-bar" role="status" aria-live="polite">ADD UNITS TO BOTH SIDES</div>
+        <div class="trade-comparison" id="tradeComparison">
+          <div class="trade-comparison-labels">
+            <div><strong>YOU GIVE</strong><span id="comparisonYours">0 tickets</span></div>
+            <div><strong>YOU RECEIVE</strong><span id="comparisonTheirs">0 tickets</span></div>
+          </div>
+          <div class="trade-compare-bars">
+            <div class="trade-compare-bar yours" id="compareBarYours" role="img" aria-label="Your offer's relative ticket value"></div>
+            <div class="trade-compare-bar theirs" id="compareBarTheirs" role="img" aria-label="Their offer's relative ticket value"></div>
+          </div>
+          <div class="trade-breakdown">
+            <div><strong>YOUR SIDE</strong><span id="breakdownYours">Base 0 + Enchants 0 = 0 tickets</span></div>
+            <div><strong>THEIR SIDE</strong><span id="breakdownTheirs">Base 0 + Enchants 0 = 0 tickets</span></div>
+          </div>
+          <p id="tradeDifference" class="trade-difference">Add units to both sides to compare them.</p>
+        </div>
+        <div class="trade-actions"><button type="button" id="swapOffers" class="trade-action-button" disabled>⇄ Swap sides</button><button type="button" id="resetTrade" class="trade-action-button" disabled>↺ Clear entire trade</button></div>
+      </div>
       <p class="calc-disclaimer">W = their offer is worth more · F = equal ticket values · L = your offer is worth more. Demand can change the quality of a trade.</p>
 
       <section class="trade-extras" aria-label="Copy your trade">
@@ -168,7 +186,7 @@
   <div id="unitPickerModal" class="picker-overlay" hidden>
     <div class="picker-modal" role="dialog" aria-modal="true" aria-labelledby="pickerTitle" tabindex="-1">
       <div class="picker-heading">
-        <div><span class="eyebrow">SELECT UNITS</span><h2 id="pickerTitle">ADD TO ME</h2></div>
+        <div><span class="eyebrow" id="pickerModeLabel">SELECT UNITS</span><h2 id="pickerTitle">ADD TO ME</h2></div>
         <button id="pickerClose" class="picker-close" type="button" aria-label="Close unit picker">×</button>
       </div>
       <div class="picker-controls">
@@ -196,6 +214,7 @@
         <div class="picker-chosen">
           <strong id="pickerUnitName">Choose a unit above</strong>
           <span id="pickerUnitValue">Select a unit to add it to your trade.</span>
+          <small class="picker-extended-total" id="pickerExtendedTotal" aria-live="polite"></small>
         </div>
         <div class="picker-fields">
           <label class="picker-quantity-label" for="pickerQty">Amount
