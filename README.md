@@ -41,7 +41,7 @@ The examples are **rarity references**, not automatically published units. Add t
 | --- | --- | --- |
 | `name` | `Freddy` | Must be unique. |
 | `rarity` | `Common` | Displayed under the name. |
-| `category` | `Other` | Category filter; use an existing homepage category if applicable. |
+| `category` | `Other` | Legacy database field. No longer used for website filters; you can leave it unchanged. |
 | `value` | `10` | Numeric value in tickets. |
 | `shiny_value` | *(leave blank)* | Optional. Until entered, the unit's shiny star is disabled. |
 | `demand` | `1/10` | Displayed as text. |
@@ -79,7 +79,7 @@ The **Last Updated** section uses `units.updated_at`, automatically set by a Sup
 
 The homepage features the official **seven Nightfront rarity tiers** (Common, Uncommon, Rare, Epic, Mythic, Secret, and Glitched). A rarity tile automatically displays a real unit portrait when that rarity contains an image-backed unit; otherwise the tile displays a styled rarity name, without fake character artwork or empty unit counts. Clicking the tile filters the All Units page by that rarity. Glitched has an animated blue/purple treatment that honors reduced-motion settings.
 
-The eight older collection categories remain available in the **All Units** category dropdown as separate optional groupings, and the rarity filter chips remain available there.
+The old FNTD collection filters (Developer/ARG, Forgottens, Apexes, and similar) are no longer part of the website. The **All Units** page has one custom dropdown for the official seven rarities, plus matching rarity chips.
 
 ## Security
 
