@@ -12,8 +12,9 @@
   const mimeExt = {"image/png":"png","image/jpeg":"jpg","image/webp":"webp","image/gif":"gif"};
   const maxFileSize = 5 * 1024 * 1024;
   const state = {
-    client:null, authorized:false, units:[], enchants:[],
-    editUnitId:null, busy:false, sessionCheck:0, previews:{normal:null,shiny:null}
+    client:null, authorized:false, units:[], enchants:[], homeArt:[],
+    editUnitId:null, busy:false, sessionCheck:0, previews:{normal:null,shiny:null},
+    coverPreviews:{}
   };
 
   function status(message, error=false) {
@@ -34,20 +35,26 @@
   }
   async function refreshData() {
     requireOwner();
-    const [u,e] = await Promise.all([
+    const [u,e,covers] = await Promise.all([
       state.client.from("units")
         .select("id,name,rarity,value,shiny_value,demand,image_url,shiny_image_url,updated_at")
         .order("name", {ascending:true}),
       state.client.from("enchants")
         .select("id,name,bonus_tickets,sort_order")
-        .order("sort_order", {ascending:true})
+        .order("sort_order", {ascending:true}),
+      state.client.from("homepage_rarity_artwork")
+        .select("rarity,image_url")
+        .order("rarity", {ascending:true})
     ]);
     if (u.error) throw u.error;
     if (e.error) throw e.error;
+    if (covers.error) throw covers.error;
     state.units = u.data || [];
     state.enchants = e.data || [];
+    state.homeArt = covers.data || [];
     renderUnits();
     renderEnchants();
+    renderHomeArt();
     status("Owner verified · " + state.units.length + " units · " + state.enchants.length + " enchants");
   }
   async function checkSession(session) {
@@ -155,6 +162,73 @@
       safe(enchant.bonus_tickets) + '"></label>' +
       '<button class="admin-primary" type="submit">SAVE</button></form>'
     )).join("") || '<p class="admin-help">No enchantments found.</p>';
+  }
+  function renderHomeArt() {
+    // One configurable hero cover per official rarity. Blank = real unit
+    // portrait of that rarity, or a styled abstract emblem until a unit exists.
+    for (const url of Object.values(state.coverPreviews)) if (url) URL.revokeObjectURL(url);
+    state.coverPreviews = {};
+    $("adminHomeArtList").innerHTML = rarities.map(rarity=>{
+      const saved = state.homeArt.find(item=>item.rarity===rarity);
+      const fallback = state.units.find(u=>u.rarity===rarity && u.image_url);
+      const path=saved?.image_url || "";
+      const image=path || fallback?.image_url || "";
+      const label=path ? "CUSTOM COVER" : fallback ? "USING UNIT ART: "+fallback.name : "AWAITING ARTWORK";
+      return '<form class="admin-home-art-row" data-cover-form="'+safe(rarity)+'">' +
+        '<div class="admin-home-art-top"><h3>'+safe(rarity.toUpperCase())+
+        '</h3><small>'+safe(label)+'</small></div>' +
+        '<div class="admin-home-art-preview" data-cover-preview="'+safe(rarity)+'">' +
+        (image?'<img loading="lazy" src="'+safe(image)+'" alt="'+safe(rarity)+' cover preview">':
+          '<span>RARITY COVER PENDING</span>')+'</div>' +
+        '<label>Cover image URL<input name="cover_url" type="text" maxlength="2048" placeholder="https://… or ./assets/…" value="'+safe(path)+'"></label>' +
+        '<label>Or upload from PC<input name="cover_file" type="file" accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif"></label>' +
+        '<div class="admin-home-art-actions">' +
+        '<button class="admin-primary" type="submit">SAVE COVER</button>' +
+        '<button class="admin-outline" type="button" data-cover-auto="'+safe(rarity)+'">USE AUTO</button>' +
+        '</div></form>';
+    }).join("");
+  }
+  function coverFormPreview(form) {
+    const rarity=form.dataset.coverForm;
+    const urlField=form.elements.cover_url;
+    const file=form.elements.cover_file.files?.[0];
+    const panel=form.querySelector('[data-cover-preview]');
+    if(state.coverPreviews[rarity]) URL.revokeObjectURL(state.coverPreviews[rarity]);
+    state.coverPreviews[rarity] = null;
+    let src="";
+    if(file) {
+      src=URL.createObjectURL(file);
+      state.coverPreviews[rarity]=src;
+    } else {
+      try {src=imageURL(urlField.value) || "";} catch {src="";}
+      if(!src) src=state.units.find(u=>u.rarity===rarity && u.image_url)?.image_url || "";
+    }
+    panel.replaceChildren();
+    if(!src) {panel.textContent="RARITY COVER PENDING";return;}
+    const img=document.createElement("img");
+    img.src=src;
+    img.alt=rarity+" cover preview";
+    img.onerror=()=>{panel.textContent="IMAGE NOT AVAILABLE";};
+    panel.append(img);
+  }
+  async function saveHomeCover(event) {
+    const form=event.target.closest("[data-cover-form]");
+    if(!form) return;
+    event.preventDefault();
+    await withBusy(async()=>{
+      const rarity=form.dataset.coverForm;
+      if(!rarities.includes(rarity)) throw Error("Invalid rarity cover");
+      let url=imageURL(form.elements.cover_url.value);
+      const file=form.elements.cover_file.files?.[0];
+      status("Saving "+rarity+" cover…");
+      if(file) url=await uploadImage(file);
+      const {data,error}=await state.client.from("homepage_rarity_artwork")
+        .update({image_url:url}).eq("rarity",rarity).select("rarity").single();
+      if(error || !data) throw error || Error("Rarity cover update was not authorized");
+      await refreshData();
+      if(typeof window.loadHomeArtwork==="function") window.loadHomeArtwork();
+      status(rarity+" homepage artwork saved.");
+    });
   }
   function openUnit(unitId=null) {
     const unit = state.units.find(u => u.id === unitId) || null;
@@ -279,14 +353,35 @@
   function setTab(tab) {
     $("adminUnitsPanel").hidden = tab !== "units";
     $("adminEnchantsPanel").hidden = tab !== "enchants";
-    $("adminUnitsTab").classList.toggle("active",tab === "units");
-    $("adminEnchantsTab").classList.toggle("active",tab === "enchants");
-    $("adminUnitsTab").setAttribute("aria-selected",String(tab === "units"));
-    $("adminEnchantsTab").setAttribute("aria-selected",String(tab === "enchants"));
+    $("adminHomeArtPanel").hidden = tab !== "homeArt";
+    for (const [id,active] of [["adminUnitsTab",tab==="units"],["adminEnchantsTab",tab==="enchants"],["adminHomeArtTab",tab==="homeArt"]]) {
+      $(id).classList.toggle("active",active);
+      $(id).setAttribute("aria-selected",String(active));
+    }
   }
 
   $("adminUnitsTab").addEventListener("click",()=>setTab("units"));
   $("adminEnchantsTab").addEventListener("click",()=>setTab("enchants"));
+  $("adminHomeArtTab").addEventListener("click",()=>setTab("homeArt"));
+  $("adminHomeArtList").addEventListener("submit",saveHomeCover);
+  $("adminHomeArtList").addEventListener("input",(event)=>{
+    const form=event.target.closest("[data-cover-form]");
+    if(form && event.target.name==="cover_url") coverFormPreview(form);
+  });
+  $("adminHomeArtList").addEventListener("change",(event)=>{
+    const form=event.target.closest("[data-cover-form]");
+    if(form && event.target.name==="cover_file") coverFormPreview(form);
+  });
+  $("adminHomeArtList").addEventListener("click",(event)=>{
+    const button=event.target.closest("[data-cover-auto]");
+    if(!button) return;
+    const form=button.closest("[data-cover-form]");
+    if(!form) return;
+    form.elements.cover_url.value="";
+    form.elements.cover_file.value="";
+    coverFormPreview(form);
+    form.requestSubmit();
+  });
   $("adminNewUnit").addEventListener("click",()=>openUnit());
   $("adminCancelUnit").addEventListener("click",closeUnit);
   $("adminSaveUnit").addEventListener("click",()=>{});
