@@ -30,6 +30,20 @@ Only these seven rarities are accepted by the Supabase database and shown in the
 
 The examples are **rarity references**, not automatically published units. Add their actual images, ticket values and demand before listing them as tradable units. The Glitched animation respects reduced-motion preferences.
 
+## Homepage artwork and rarity covers
+
+The **Main Page** now has a cinematic hero using the existing Nightfront header artwork and a real featured unit portrait (or the Nightfront logo if no unit portrait is available). It displays the current unit count and links to All Units and the W/F/L calculator. It does not invent character artwork for rarities without uploaded portraits.
+
+Each official rarity has a cover slot (Common, Uncommon, Rare, Epic, Mythic, Secret and Glitched). The live site resolves a cover in this order:
+
+1. An owner-uploaded or URL-supplied cover from `public.homepage_rarity_artwork`.
+2. A real unit portrait from the **same rarity**, if that rarity has one with a usable `image_url`.
+3. A designed rarity-colored emblem and an **AWAITING UNITS** message. It is an abstract placeholder, not official unit artwork.
+
+**To set cover art:** After claiming your existing Q&A owner account, go to `https://loreseekerl.github.io/nightfront-td-values/?admin=1#admin` → **HOMEPAGE ART**. Choose a rarity, upload a PNG/JPG/WebP/GIF (max 5 MB) or paste an HTTPS image URL, and click **SAVE COVER**. **USE AUTO** saves a blank cover and switches the homepage back to its same-rarity unit portrait or emblem. You do not need to edit the GitHub source to change the images. Uploads use the existing owner-restricted `nightfront-unit-art` Storage bucket.
+
+**Permissions:** This table can be read by everyone. Only the single verified owner from `public.qa_editors` can update its image URLs. Visitors can't upload files or change covers. Cover changes do not touch unit values, shiny data, or the W/F/L calculator.
+
 ## Owner-only website Admin Dashboard
 
 **Private dashboard URL:** `https://loreseekerl.github.io/nightfront-td-values/?admin=1#admin`
