@@ -23,7 +23,7 @@ const state = {
   rarity: "", sort: "name", shinyCards: new Set(),
   offers: { yours: [], theirs: [] }, nextItemId: 1,
   enchants: [], enchantsLoading: true, enchantsError: "",
-  homeArt: {}
+  homeArt: {}, fetchingUnits:false, hasLoadedUnits:false, animateCards:false
 };
 
 const $ = (id) => document.getElementById(id);
@@ -219,6 +219,35 @@ function renderFeatured() {
   )).join("");
 }
 
+
+function unitCardSkeletons() {
+  return Array.from({length:8},(_,i)=>
+    '<div class="unit-skeleton" aria-hidden="true" style="--sk-index:' + i + '">' +
+      '<div class="unit-skeleton-art"><span class="unit-skeleton-stamp"></span></div>' +
+      '<div class="unit-skeleton-body"><span class="unit-skeleton-line name"></span>' +
+        '<span class="unit-skeleton-line rarity"></span>' +
+        '<div class="unit-skeleton-details"><span class="unit-skeleton-line price"></span>' +
+        '<span class="unit-skeleton-line demand"></span></div>' +
+        '<span class="unit-skeleton-line footer"></span></div>' +
+    '</div>').join("");
+}
+function unitLoadStatus() {
+  const status=$("unitsLoadStatus");
+  if (!status) return;
+  if (state.loading) {
+    status.hidden=false;
+    status.textContent = state.units.length ?
+      "CHECKING FOR NEW VALUES · You can keep browsing the list." :
+      "LOADING THE NIGHTFRONT UNIT LIST…";
+  } else if (state.error && state.units.length) {
+    status.hidden=false;
+    status.textContent="Couldn't check for new values. Showing the last loaded list.";
+  } else {
+    status.hidden=true;
+    status.textContent="";
+  }
+}
+
 function renderUnits() {
   if (!$("unitsGrid")) return;
   renderRarityLegend();
@@ -226,13 +255,17 @@ function renderUnits() {
   $("search").value = state.search;
   syncRarityDropdown();
   $("sort").value = state.sort;
-  if (state.loading) {
-    grid.innerHTML = '<div class="empty">Loading unit values…</div>';
-    $("resultCount").textContent = "Loading…";
+  unitLoadStatus();
+  grid.setAttribute("aria-busy",String(state.loading));
+  if (state.loading && !state.units.length) {
+    grid.innerHTML = unitCardSkeletons();
+    $("resultCount").textContent = "Loading units…";
     return;
   }
-  if (state.error) {
-    grid.innerHTML = '<div class="error">' + escapeHtml(state.error) + '</div>';
+  if (state.error && !state.units.length) {
+    grid.innerHTML = '<div class="error unit-load-error"><strong>THE LIST DIDN\'T LOAD</strong>' +
+      '<p>' + escapeHtml(state.error) + '</p>' +
+      '<button type="button" data-retry-units>TRY AGAIN ↻</button></div>';
     $("resultCount").textContent = "Unable to load units";
     return;
   }
@@ -242,16 +275,20 @@ function renderUnits() {
   }).sort((a,b) => state.sort === "highest" ? Number(b.value) - Number(a.value) :
                   state.sort === "lowest" ? Number(a.value) - Number(b.value) :
                   a.name.localeCompare(b.name));
-  $("resultCount").textContent = filtered.length + " unit" + (filtered.length === 1 ? "" : "s") + " found";
+  $("resultCount").textContent = filtered.length + " unit" + (filtered.length === 1 ? "" : "s") +
+    (state.loading ? " · refreshing…" : " found");
   if (!filtered.length) {
     grid.innerHTML = '<div class="empty">' + (state.units.length ? "No matching units. Try another filter." : "No units listed yet. Add your first unit in the Supabase Table Editor.") + '</div>';
     return;
   }
-  grid.innerHTML = filtered.map((unit) => {
+  grid.innerHTML = filtered.map((unit,index) => {
     const shiny = state.shinyCards.has(unit.id);
     const value = shiny ? unit.shiny_value : unit.value;
     const shinyAvailable = canPreviewShiny(unit);
-    return '<article class="unit-card' + (shiny ? ' is-shiny' : '') + '"><div class="unit-art">' +
+    const enter = state.animateCards && index < 8 ? ' card-enter' : '';
+    const order = state.animateCards && index < 8 ? ' style="--card-delay:' + index + '"' : '';
+    return '<article class="unit-card' + (shiny ? ' is-shiny' : '') + enter + '"' + order + '>' +
+      '<div class="unit-art"><span class="unit-art-file" aria-hidden="true">NF / UNIT FILE</span>' +
       imageHtml(unit, "★", shiny) + shinyOverlay(shiny) +
       '<button type="button" class="shiny-button ' + (shiny ? 'active' : '') +
       '" data-shiny-id="' + escapeHtml(unit.id) + '" title="' +
@@ -259,12 +296,16 @@ function renderUnits() {
       (shinyAvailable ? ("Show " + (shiny ? "normal" : "shiny") + " appearance for ") : "Shiny not available for ") +
       escapeHtml(unit.name) + '" aria-pressed="' + shiny + '"' +
       (shinyAvailable ? '' : ' disabled') +
-      '>★</button></div><div class="unit-details"><h3>' +
-      escapeHtml(unit.name) + '</h3><div class="unit-sub">' +
-      rarityBadge(unit.rarity) + '</div><div class="unit-value">' +
+      '>★</button></div>' +
+      '<div class="unit-details"><div class="unit-name-row"><h3>' + escapeHtml(unit.name) + '</h3>' +
+      '<span class="unit-variant">' + (shiny ? 'SHINY' : 'NORMAL') + '</span></div>' +
+      '<div class="unit-sub">' + rarityBadge(unit.rarity) + '</div>' +
+      '<div class="unit-stat-row"><div class="unit-price-block">' +
+      '<span class="unit-stat-label">VALUE</span><div class="unit-value">' +
       (hasValue(value) ? fmt(value) : 'Not listed') +
-      ' <small>tickets</small></div><div class="unit-demand">Demand: <b>' +
-      escapeHtml(unit.demand || "Unknown") + '</b></div>' +
+      ' <small>tickets</small></div></div>' +
+      '<div class="unit-demand"><span class="unit-stat-label">DEMAND</span><b>' +
+      escapeHtml(unit.demand || "Unknown") + '</b></div></div>' +
       (window.NightfrontTrends?.cardBadges(unit,shiny) || '') +
       '<button type="button" class="unit-history-link" data-history-id="' +
       escapeHtml(unit.id) + '">↗ Value history</button></div></article>';
