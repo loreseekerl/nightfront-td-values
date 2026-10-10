@@ -22,14 +22,15 @@ const state = {
   units: [], loading: true, error: "", search: "",
   rarity: "", sort: "name", shinyCards: new Set(),
   offers: { yours: [], theirs: [] }, nextItemId: 1,
-  enchants: [], enchantsLoading: true, enchantsError: ""
+  enchants: [], enchantsLoading: true, enchantsError: "",
+  homeArt: {}
 };
 
 const $ = (id) => document.getElementById(id);
 // Broken or blocked image URLs show a clean placeholder instead of an image error.
 document.addEventListener("error", (event) => {
   const target = event.target;
-  if (!(target instanceof HTMLImageElement) || !target.closest(".unit-art, .category-art, .spotlight-art, .picker-unit-art, .offer-unit-art, .recent-unit-image")) return;
+  if (!(target instanceof HTMLImageElement) || !target.closest(".unit-art, .category-art, .gallery-portrait, .home-feature-unit, .spotlight-art, .picker-unit-art, .offer-unit-art, .recent-unit-image")) return;
   const placeholder = document.createElement("span");
   placeholder.className = "placeholder-art";
   placeholder.textContent = "★";
@@ -79,6 +80,7 @@ async function loadUnits() {
     state.loading = false;
     renderCategories();
     renderFeatured();
+    renderHomeHero();
     renderUnits();
     renderCalculator();
     renderLastUpdated();
@@ -113,23 +115,74 @@ async function loadEnchants() {
 
 // Browse the actual Nightfront rarity tiers. Character portraits appear when
 // an image-backed unit for that rarity exists in the shared Supabase table.
+// Covers are owner-editable. If no custom art exists, feature a real unit
+// portrait of the matching rarity. Other rarities show an abstract emblem,
+// never fabricated or incorrectly labeled character artwork.
 function renderCategories() {
   const grid = $("categories");
-  const names = RARITIES;
-  grid.innerHTML = names.map((rarity) => {
-    const unitsInRarity = state.units.filter((unit) => unit.rarity === rarity);
-    const featured = unitsInRarity.find((unit) => validImage(unit.image_url));
+  grid.innerHTML = RARITIES.map((rarity) => {
+    const matching = state.units.filter(unit => unit.rarity === rarity);
+    const featured = matching.find(unit => validImage(unit.image_url));
+    const override = validImage(state.homeArt[rarity]);
+    const art = override || validImage(featured?.image_url);
     const slug = rarity.toLowerCase();
-    const media = featured
-      ? '<span class="gallery-portrait">' + imageHtml(featured) + '</span>'
-      : '<span class="gallery-lettering" aria-hidden="true">' + escapeHtml(rarity) + '</span>';
+    const media = art
+      ? '<span class="gallery-portrait"><img loading="lazy" src="' +
+        escapeHtml(art) + '" alt="' + escapeHtml(rarity) +
+        ' rarity cover artwork"></span>'
+      : '<span class="gallery-empty-mark" aria-hidden="true">✦</span>' +
+        '<span class="gallery-lettering" aria-hidden="true">' + escapeHtml(rarity) + '</span>';
+    const count = matching.length;
     return '<button type="button" class="gallery-tile" data-gallery-rarity="' +
-      escapeHtml(rarity) + '" aria-label="Browse ' + escapeHtml(rarity) + ' units">' +
-      '<span class="gallery-media gallery-' + slug + '">' + media + '</span>' +
+      escapeHtml(rarity) + '" aria-label="Browse ' + escapeHtml(rarity) +
+      ' rarity, ' + count + ' listed units">' +
+      '<span class="gallery-media gallery-' + slug + '">' +
+      '<span class="gallery-art-top">' + (art ? 'NIGHTFRONT · COVER ART' : 'RARITY · ' + escapeHtml(rarity.toUpperCase())) + '</span>' +
+      media + '<span class="gallery-art-bottom">' +
+      (count ? count + (count === 1 ? ' UNIT LISTED' : ' UNITS LISTED') : 'AWAITING UNITS') +
+      '</span></span>' +
       '<span class="gallery-caption"><span class="gallery-rarity-label rarity-' +
       slug + '">' + escapeHtml(rarity) + '</span>' +
-      '</span></button>';
+      '<span class="gallery-caption-arrow" aria-hidden="true">↗</span></span></button>';
   }).join("");
+}
+
+function renderHomeHero() {
+  const portrait = $("homeHeroUnit");
+  if (!portrait) return;
+  $("homeTotalUnits").textContent = state.loading ? "—" : fmt(state.units.length);
+  const unit = state.units.find(item => validImage(item.image_url));
+  if (!unit) {
+    portrait.innerHTML = '<img src="./assets/nftd-brand.webp" width="250" height="250" alt="Nightfront TD logo">';
+    $("homeFeaturedLabel").textContent = "OFFICIAL NIGHTFRONT ARTWORK";
+    return;
+  }
+  portrait.innerHTML = imageHtml(unit);
+  $("homeFeaturedLabel").textContent = 'FEATURED · ' + unit.name.toUpperCase() +
+    ' · ' + fmt(unit.value) + ' TICKETS';
+}
+
+async function loadHomeArtwork() {
+  try {
+    const result = await fetch(SUPABASE_URL +
+      "/rest/v1/homepage_rarity_artwork?select=rarity,image_url",{
+        headers:{apikey:SUPABASE_PUBLISHABLE_KEY}
+      });
+    if (!result.ok) throw Error("Homepage cover request failed (" + result.status + ")");
+    const items = await result.json();
+    if (!Array.isArray(items)) throw Error("Invalid cover response");
+    const map = {};
+    for (const item of items) {
+      if (RARITIES.includes(item.rarity)) map[item.rarity] = item.image_url || "";
+    }
+    state.homeArt = map;
+  } catch(error) {
+    // A temporary cover-art error should not stop public unit values loading.
+    console.warn("Homepage rarity covers unavailable; using unit portraits.", error);
+  } finally {
+    renderCategories();
+    renderHomeHero();
+  }
 }
 
 function syncRarityDropdown() {
@@ -688,5 +741,7 @@ $("menuToggle").addEventListener("click", () => {
 window.addEventListener("hashchange", route);
 renderCategories();
 route();
+renderHomeHero();
 loadUnits();
 loadEnchants();
+loadHomeArtwork();
