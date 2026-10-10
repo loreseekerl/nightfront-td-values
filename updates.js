@@ -165,6 +165,9 @@
     state.loading=true;
     $("updatesRefresh").disabled=true;
     $("updatesStatus").textContent="Checking the latest updates…";
+    $("updatesStatus").classList.add("is-loading");
+    if(!state.loaded) $("updatesFeed").innerHTML =
+      Array.from({length:3},()=>'<div class="updates-entry-skeleton" aria-hidden="true"></div>').join("");
     const headers={apikey:SUPABASE_PUBLISHABLE_KEY};
     try {
       const base=SUPABASE_URL+"/rest/v1/";
@@ -202,6 +205,7 @@
     }finally{
       state.loading=false;
       $("updatesRefresh").disabled=false;
+      $("updatesStatus").classList.remove("is-loading");
     }
   }
   function resetAndRender(){
