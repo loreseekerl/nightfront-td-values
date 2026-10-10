@@ -205,7 +205,7 @@
         <div class="qa-loading">Loading questions…</div>
       </div>
 
-      <details id="qaOwnerTools" class="qa-owner-tools">
+      <details id="qaOwnerTools" class="qa-owner-tools" hidden>
         <summary><span aria-hidden="true">✎</span> Edit Q&amp;A <small>(owner only)</small></summary>
         <div class="qa-owner-body">
           <p class="qa-owner-help">Only approved editors can change the live Q&amp;A. Visitors can read it, but cannot edit it.</p>
@@ -217,14 +217,25 @@
               <input id="qaLoginEmail" name="email" type="email" autocomplete="email" placeholder="Email for a sign-in link" required>
               <button type="submit" class="qa-primary-btn">Email me a login link</button>
             </div>
-            <p class="qa-owner-hint">A secure Supabase email link is used. Your account must also be approved as an editor.</p>
+            <p class="qa-owner-hint">Sign in with a secure email link. If this Q&amp;A is not yet claimed, you can enter your private one-time owner code.</p>
           </form>
           <div id="qaSessionTools" class="qa-session-tools" hidden>
             <span id="qaLoggedEmail"></span>
             <button type="button" id="qaLogoutButton">Sign out</button>
           </div>
+          <div id="qaClaimPanel" class="qa-claim-panel" hidden>
+            <h3>Claim Q&amp;A ownership</h3>
+            <p class="qa-owner-hint">Use your one-time owner code to claim this editor. Once claimed, nobody else can claim it, see your controls, or edit the Q&amp;A.</p>
+            <form id="qaClaimForm" class="qa-claim-form">
+              <label for="qaClaimCode">Private one-time owner code</label>
+              <div class="qa-claim-row">
+                <input id="qaClaimCode" name="claim_code" type="password" autocomplete="off" required minlength="24" placeholder="Enter your owner claim code">
+                <button type="submit" class="qa-primary-btn">Claim ownership</button>
+              </div>
+            </form>
+          </div>
           <div id="qaNotAuthorized" class="qa-message qa-warning" hidden>
-            Signed in, but this account is not approved to edit yet. Tell me which email you used in ChatGPT so I can authorize your account.
+            This Q&amp;A already has an owner. Only that account can open the editor.
           </div>
           <div id="qaEditorPanel" class="qa-editor-panel" hidden>
             <h2>Manage questions</h2>
