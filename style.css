@@ -595,3 +595,31 @@ body.picker-open{overflow:hidden}
   .qa-entry{font-size:13px;padding:13px 12px}
   .qa-owner-body{padding:14px}
 }
+
+
+/* Hide owner controls by default; only the private setup route or the verified
+   owner account can reveal them. HTML's hidden attribute wins over layout CSS. */
+[hidden] { display: none !important; }
+#qaOwnerTools[hidden],
+#qaClaimPanel[hidden] { display: none !important; }
+.qa-claim-panel {
+  margin:18px 0 6px;padding:18px 20px;
+  background:#111a29;border:1px solid #5072b0;border-radius:9px;
+}
+.qa-claim-panel h3 {
+  color:#dbe9ff;font:900 19px/1.35 'Courier New',monospace;margin:0 0 8px;
+}
+.qa-claim-form>label {
+  display:block;font-weight:bold;font-size:13px;color:#c8d7f1;margin:10px 0 9px;
+}
+.qa-claim-row { display:flex;gap:10px;align-items:stretch;flex-wrap:wrap; }
+.qa-claim-row input {
+  flex:1;min-width:195px;max-width:520px;margin:0;
+  background:#070b14;color:#f6f8ff;border:1px solid #475677;
+  border-radius:7px;padding:11px 12px;
+}
+.qa-claim-row button { min-width:145px; }
+@media(max-width:500px) {
+  .qa-claim-panel{padding:14px 12px}
+  .qa-claim-row button{width:100%}
+}
