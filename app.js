@@ -343,7 +343,9 @@ function confirmPicker() {
 }
 function route() {
   const hash = location.hash.split("?")[0];
-  const page = ["#units", "#calculator", "#about"].includes(hash) ? hash.slice(1) : "home";
+  const page = ["#units", "#calculator", "#about", "#qa"].includes(hash)
+    ? hash.slice(1)
+    : (new URLSearchParams(location.search).get("qa") === "edit" ? "qa" : "home");
   document.querySelectorAll(".view").forEach((view) => view.hidden = view.id !== "view-" + page);
   document.querySelectorAll(".nav a").forEach((link) => link.classList.toggle("active", link.getAttribute("href") === "#" + page));
   $("nav").classList.remove("open");
