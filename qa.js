@@ -213,7 +213,7 @@
     const button = event.target.querySelector('button[type="submit"]');
     button.disabled = true;
     message("Sending a secure login link…");
-    const redirect = location.origin + location.pathname + "?qa=edit";
+    const redirect = "https://loreseekerl.github.io/nightfront-td-values/?qa=edit";
     try {
       const { error } = await state.client.auth.signInWithOtp({
         email,
