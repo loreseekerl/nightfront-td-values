@@ -10,6 +10,7 @@
   <script src="./app.js?v=enchant-icons-2" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
   <script src="./qa.js?v=auth-redirect-fix-2" defer></script>
+  <script src="./admin.js?v=owner-dashboard-1" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -207,6 +208,101 @@
     </div>
   </div>
 
+  <section class="view" id="view-admin" aria-label="Owner dashboard" hidden>
+    <div class="container admin-page">
+      <div class="page-heading admin-heading">
+        <span class="eyebrow">PRIVATE OWNER TOOLS</span>
+        <h1>NIGHTFRONT ADMIN</h1>
+        <p>Manage live units, images, ticket values, rarity, demand and enchant bonuses. Only your verified owner account can save changes.</p>
+      </div>
+
+      <div id="adminStatus" class="admin-status" role="status" aria-live="polite">Checking secure access…</div>
+      <div id="adminLoginBox" class="admin-auth" hidden>
+        <h2>OWNER SIGN-IN</h2>
+        <p>Use the same Supabase account as your Developer Q&amp;A owner. If you haven't claimed it yet, claim your Q&amp;A first.</p>
+        <a href="./?qa=edit#qa" class="outline-btn">CLAIM / MANAGE Q&amp;A OWNER</a>
+        <form id="adminLoginForm" class="admin-login-form">
+          <label>Email address <input id="adminEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+          <button type="submit" class="admin-primary">Email sign-in link</button>
+        </form>
+        <p class="admin-help">The email link returns to the private Q&amp;A page. After signing in, open this dashboard again. No password or secret keys are saved here.</p>
+      </div>
+      <div id="adminDeniedBox" class="admin-auth" hidden>
+        <h2>OWNER ACCESS REQUIRED</h2>
+        <p>You're signed in, but this isn't the claimed owner account. Only the Q&amp;A owner can edit the value list.</p>
+        <a class="outline-btn" href="./?qa=edit#qa">MANAGE Q&amp;A OWNERSHIP</a>
+        <button type="button" id="adminDeniedLogout" class="admin-outline">Sign out</button>
+      </div>
+
+      <div id="adminDashboard" hidden>
+        <div class="admin-toolbar">
+          <div><strong>Owner dashboard</strong><small id="adminOwnerEmail"></small></div>
+          <div class="admin-toolbar-actions">
+            <button id="adminReload" type="button" class="admin-outline">Refresh data</button>
+            <button id="adminLogout" type="button" class="admin-outline">Sign out</button>
+          </div>
+        </div>
+        <div class="admin-tabs" role="tablist" aria-label="Admin editor sections">
+          <button type="button" class="admin-tab active" id="adminUnitsTab" aria-selected="true">UNITS &amp; IMAGES</button>
+          <button type="button" class="admin-tab" id="adminEnchantsTab" aria-selected="false">ENCHANT BONUSES</button>
+        </div>
+
+        <div id="adminUnitsPanel" class="admin-panel">
+          <div class="admin-section-heading">
+            <h2>UNIT VALUE EDITOR</h2>
+            <button type="button" id="adminNewUnit" class="admin-primary">+ ADD UNIT</button>
+          </div>
+          <input id="adminSearch" type="search" class="admin-search" placeholder="Find a unit to edit…" aria-label="Find unit">
+          <div id="adminUnitsList" class="admin-units-list"></div>
+
+          <form id="adminUnitForm" class="admin-unit-form" hidden>
+            <div class="admin-form-heading">
+              <h3 id="adminUnitFormTitle">ADD UNIT</h3>
+              <button id="adminCancelUnit" type="button" class="admin-outline">Cancel</button>
+            </div>
+            <div class="admin-form-grid">
+              <label>Unit name <input id="adminUnitName" type="text" required maxlength="100" placeholder="Freddy"></label>
+              <label>Rarity
+                <select id="adminUnitRarity" required>
+                  <option>Common</option><option>Uncommon</option><option>Rare</option>
+                  <option>Epic</option><option>Mythic</option><option>Secret</option><option>Glitched</option>
+                </select>
+              </label>
+              <label>Normal value (tickets) <input id="adminUnitValue" type="number" min="0" max="1000000000" step="any" required></label>
+              <label>Shiny value (tickets, optional) <input id="adminUnitShinyValue" type="number" min="0" max="1000000000" step="any" placeholder="Leave blank if unknown"></label>
+              <label>Demand <input id="adminUnitDemand" type="text" maxlength="50" placeholder="1/10"></label>
+            </div>
+            <div class="admin-art-grid">
+              <div class="admin-art-panel">
+                <h4>NORMAL IMAGE</h4>
+                <div class="admin-image-preview" id="adminNormalPreview">NO IMAGE</div>
+                <label>Image URL <input id="adminUnitImage" type="text" placeholder="https://… or ./assets/…"></label>
+                <label>Or upload from PC <input id="adminNormalFile" type="file" accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif"></label>
+              </div>
+              <div class="admin-art-panel">
+                <h4>SHINY IMAGE (OPTIONAL)</h4>
+                <div class="admin-image-preview" id="adminShinyPreview">NO IMAGE</div>
+                <label>Image URL <input id="adminUnitShinyImage" type="text" placeholder="https://… or ./assets/…"></label>
+                <label>Or upload from PC <input id="adminShinyFile" type="file" accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif"></label>
+              </div>
+            </div>
+            <p class="admin-help">Uploading a file replaces that image URL when saved. Only PNG, JPG, WebP, or GIF files up to 5 MB are allowed. Clear a URL and save to remove an image. Existing files are not automatically deleted from Storage.</p>
+            <div class="admin-form-actions">
+              <button id="adminSaveUnit" type="submit" class="admin-primary">SAVE UNIT</button>
+              <button type="button" id="adminDeleteUnit" class="admin-danger" hidden>DELETE UNIT</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="adminEnchantsPanel" class="admin-panel" hidden>
+          <h2>ENCHANTMENT BONUS EDITOR</h2>
+          <p class="admin-help">Each bonus adds tickets per unit in the W/F/L calculator. Values update for visitors after they refresh.</p>
+          <div id="adminEnchantsList" class="admin-enchants-list"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="view" id="view-qa" aria-label="Developer Q&A" hidden>
     <div class="container developer-qa-page">
       <div class="qa-heading-frame">
@@ -250,6 +346,7 @@
             This Q&amp;A already has an owner. Only that account can open the editor.
           </div>
           <div id="qaEditorPanel" class="qa-editor-panel" hidden>
+            <a href="./?admin=1#admin" class="outline-btn admin-qalink">OPEN PRIVATE VALUE LIST ADMIN →</a>
             <h2>Manage questions</h2>
             <p class="qa-owner-hint">Edit the entries below. Changes go straight to the shared database. Uncheck Published to hide a question from visitors.</p>
             <div id="qaEditorList" class="qa-editor-list"></div>
