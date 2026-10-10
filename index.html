@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#050506">
   <meta name="description" content="Nightfront TD Values — community unit values, demand and a W/F/L trade calculator.">
   <title>Nightfront TD Values</title>
-  <link rel="stylesheet" href="./style.css?v=qa-owner-lock-1">
-  <script src="./app.js?v=developer-qa-1" defer></script>
+  <link rel="stylesheet" href="./style.css?v=shiny-variants-1">
+  <script src="./app.js?v=shiny-variants-1" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
   <script src="./qa.js?v=auth-redirect-fix-2" defer></script>
 </head>
@@ -77,7 +77,7 @@
       <div class="page-heading">
         <div class="eyebrow">Community value list</div>
         <h1>ALL UNIT VALUES</h1>
-        <p>Find the latest units added to the Nightfront TD list. Click ★ on a unit to switch between its normal and shiny ticket values.</p>
+        <p>Find the latest units added to the Nightfront TD list. Click ★ on an available shiny unit to switch its look and ticket value. Shiny stars and artwork rotate with a rainbow glow.</p>
       </div>
       <div class="controls">
         <input id="search" class="field search-field" type="search" placeholder="Search units by name…" aria-label="Search units">
@@ -188,7 +188,7 @@
           <label class="picker-quantity-label" for="pickerQty">Amount
             <input id="pickerQty" type="number" min="1" max="99" step="1" value="1">
           </label>
-          <label class="picker-shiny"><input id="pickerShiny" type="checkbox" disabled> Shiny ★</label>
+          <label class="picker-shiny"><input id="pickerShiny" type="checkbox" disabled> Shiny ★ <small>(needs shiny value)</small></label>
           <button type="button" id="pickerConfirm" class="picker-confirm" disabled>ADD UNIT</button>
         </div>
       </div>
