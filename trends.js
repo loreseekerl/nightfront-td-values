@@ -186,6 +186,9 @@
     state.loading=true;
     $("trendsRefresh").disabled=true;
     $("trendsStatus").textContent="Loading value & demand trends…";
+    $("trendsStatus").classList.add("is-loading");
+    if(!state.loaded) $("trendsGrid").innerHTML =
+      Array.from({length:6},()=>'<div class="trends-unit-skeleton" aria-hidden="true"></div>').join("");
     try {
       const base=SUPABASE_URL+"/rest/v1/";
       const headers={apikey:SUPABASE_PUBLISHABLE_KEY};
@@ -208,6 +211,7 @@
     } finally {
       state.loading=false;
       $("trendsRefresh").disabled=false;
+      $("trendsStatus").classList.remove("is-loading");
       if(state.loaded) render();
       refreshCards();
     }
