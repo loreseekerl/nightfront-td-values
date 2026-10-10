@@ -79,9 +79,30 @@ The Nightfront-style calculator is at `#calculator`:
 1. Open **W/F/L CALCULATOR**, then press **+** in the **ME** or **YOU** panel.
 2. Search for a unit, optionally filter by rarity, and click its tile.
 3. Choose a quantity (1–99). Shiny can be selected only if the unit has a shiny ticket value.
-4. Click **Add to ME / Add to YOU**. Remove a unit using its × button when necessary.
-5. Compare the tickets shown below each offer. **W** means their offer is higher; **F** means equal; **L** means your offer is higher.
-6. Use **Copy** in the **Trade Text** section to share the two offers.
+4. Open the **Enchantment** menu and choose No Enchantment, Engineered, Pizza Party, Phantom, Fazbear Entertainment, or Afton Robotics. This choice is separate from Shiny.
+5. Click **Add to ME / Add to YOU**. Remove a unit using its × button when necessary.
+6. Compare the tickets shown below each offer. **W** means their offer is higher; **F** means equal; **L** means your offer is higher.
+7. Use **Copy** in the **Trade Text** section to share the two offers, including any enchantment names.
+
+### Enchantment ticket bonuses
+
+A unit can carry **one enchantment**. Each enchantment adds a flat ticket bonus **per unit** to the normal or shiny value:
+
+| Enchantment | Extra tickets per unit |
+| --- | ---: |
+| No Enchantment | +0 |
+| Engineered | +20 |
+| Pizza Party | +50 |
+| Phantom | +60 |
+| Fazbear Entertainment | +100 |
+| Afton Robotics | +1,000 |
+
+Trade total formula: `(normal OR shiny unit ticket value + enchant ticket bonus) × quantity`.
+For example, two 10-ticket Freddys each with Pizza Party are worth `(10 + 50) × 2 = 120` tickets; a 25-ticket Shiny Freddy with Afton Robotics is worth `25 + 1000 = 1025` tickets. W/F/L automatically includes both sides' bonuses. No Enchantment uses the base value.
+
+**Edit enchant bonuses in Supabase:** Open [Supabase Table Editor](https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/editor), then `public.enchants`. Change `bonus_tickets` to update the live calculator for everyone (they can reload/refresh). `sort_order` changes the menu order. Don't change an enchant's `id` unless you also intend to change the identifier the site stores for that enchant.
+
+The public site only has permission to **read** enchantments. Website visitors cannot change enchant values through the browser. These are additional ticket values, not shiny values, and they do not alter the unit's database `value`.
 
 The **Last Updated** section uses `units.updated_at`, automatically set by a Supabase trigger whenever a unit record is edited.
 
