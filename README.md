@@ -81,39 +81,31 @@ The homepage features the official **seven Nightfront rarity tiers** (Common, Un
 
 The old FNTD collection filters (Developer/ARG, Forgottens, Apexes, and similar) are no longer part of the website. The **All Units** page has one custom dropdown for the official seven rarities, plus matching rarity chips.
 
-## Developer Q&A — owner-editable
+## Developer Q&A — exclusive owner
 
-The **MORE → Developer Q&A** page is powered by `public.qa_entries` in Supabase, not hardcoded website text.
+The **MORE → Developer Q&A** page is powered by `public.qa_entries` in Supabase. Regular visitors can see **published** questions, but they **cannot see the owner editor controls**. The owner signs in with the private link `https://loreseekerl.github.io/nightfront-td-values/?qa=edit` and only a verified owner session unlocks **Edit Q&A**.
 
-### Fastest editing method (works right away)
+### One-time owner claim
 
-Open the [Supabase Table Editor](https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/editor) and choose `qa_entries`. Insert or edit a row:
+1. Go to [Supabase Auth URL Configuration](https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/auth/url-configuration). Set the site URL to `https://loreseekerl.github.io/nightfront-td-values/` and add the exact redirect URL `https://loreseekerl.github.io/nightfront-td-values/?qa=edit`.
+2. Visit the **private editor URL** `https://loreseekerl.github.io/nightfront-td-values/?qa=edit#qa` and sign in by email.
+3. After sign-in, enter the **one-time owner claim code**, which must be delivered privately to the owner. **Never commit or share the code in GitHub.**
+4. Once a valid claim is made, the one and only owner account can edit the Q&A. All other logged-in accounts are denied, and the claim form disappears after ownership has been claimed.
 
-- `question`: the question in red (3–220 characters)
-- `answer`: white answer text (1–5,000 characters)
-- `sort_order`: smaller numbers appear first
-- `published`: turn off to hide a question from the public page
-- `id`, `created_at`, `updated_at`: leave their automatically generated values alone
+Ownership is enforced in Supabase, not merely by hiding the edit button. A unique database index permits **exactly one** `qa_editors` record. The owner-claim code's hash is stored in a private non-public schema and is invalidated on first successful claim.
 
-Visitors see published changes after refreshing the Q&A page. Owner-only editing is also built into the website, but requires an approved Supabase Auth account.
+### Editing questions after claiming
 
-### Activate the website editor
+The owner can add, edit, delete, reorder, and publish/unpublish Q&A items from the website. They can also use the authenticated [Supabase Table Editor](https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/editor) to maintain `qa_entries`:
 
-1. In [Supabase Auth URL Configuration](https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/auth/url-configuration), set **Site URL** to `https://loreseekerl.github.io/nightfront-td-values/` and add this exact **Redirect URL**: `https://loreseekerl.github.io/nightfront-td-values/?qa=edit`.
-2. On the website, open **MORE → Developer Q&A → Edit Q&A (owner only)** and request an email sign-in link.
-3. Open the sign-in link, then approve that exact Supabase Auth user ID. A privileged editor in the Supabase SQL Editor can run the following, with the owner's email substituted:
+- `question`: 3–220 characters; red on the public page
+- `answer`: 1–5,000 characters; white on the public page
+- `sort_order`: smaller values appear earlier
+- `published`: false hides an entry from the public page
 
-   ```sql
-   insert into public.qa_editors (user_id)
-   select id from auth.users where email = 'owner@example.com'
-   on conflict (user_id) do nothing;
-   ```
+Optional inline color tags `[green]text[/green]`, `[red]text[/red]`, `[orange]text[/orange]`, and `[blue]text[/blue]` are supported; the site escapes arbitrary HTML.
 
-4. Refresh the Q&A page. The website editor then offers **Add**, **Save changes**, **Delete**, **Order**, and **Published** controls.
-
-For inline color accents in answers, optional tags `[green]text[/green]`, `[red]text[/red]`, `[orange]text[/orange]`, and `[blue]text[/blue]` are supported. The website escapes all other HTML.
-
-**Security:** `public.qa_editors` is owner-managed and cannot be written by visitors. RLS on `public.qa_entries` allows public read of published entries only; only approved authenticated users may insert, update, or delete Q&A entries. The publishable key in browser code is not an admin secret. Never add a `service_role` key to GitHub.
+**Security:** Public sessions may read published `qa_entries` only. The unique, privately claimed authenticated owner alone has database permission to insert, update, or delete through row-level security. No private Supabase keys or claim codes are shipped in website assets. Changing website CSS cannot bypass these permissions.
 
 ## Security
 
