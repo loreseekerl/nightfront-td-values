@@ -61,7 +61,7 @@
     }
     if ((baseline && row.new_shiny_value !== null) ||
         (!baseline && row.old_shiny_value !== row.new_shiny_value)) {
-      changes.push('<div class="history-change-row"><span>Shiny tickets</span><div>' +
+      changes.push('<div class="history-change-row"><span>Shiny value</span><div>' +
         transition(row.old_shiny_value,row.new_shiny_value,baseline) + '</div></div>');
     }
     if (baseline || row.old_demand !== row.new_demand) {
@@ -140,7 +140,7 @@
       escape(date(data[0].date).split(",")[0]) + '</text><text x="' + (W-right) +
       '" y="' + (H-16) + '" text-anchor="end" fill="#96a4c0" font-size="13">' +
       escape(date(data[data.length-1].date).split(",")[0]) + '</text>';
-    $("historyChart").innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Recorded normal and shiny ticket values for '+
+    $("historyChart").innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Recorded ticket values for normal and shiny versions of '+
       escape(name)+'" xmlns="http://www.w3.org/2000/svg">' + yTicks +
       series("normal","#4dd7ff") + series("shiny","#c788ff") + labels + '</svg>';
   }
