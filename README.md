@@ -30,6 +30,26 @@ Only these seven rarities are accepted by the Supabase database and shown in the
 
 The examples are **rarity references**, not automatically published units. Add their actual images, ticket values and demand before listing them as tradable units. The Glitched animation respects reduced-motion preferences.
 
+## Owner-only website Admin Dashboard
+
+**Private dashboard URL:** `https://loreseekerl.github.io/nightfront-td-values/?admin=1#admin`
+
+Only a verified Supabase Auth account already listed in `public.qa_editors` (the single claimed **Q&A owner**) can open the editor or write changes. The normal navigation does not expose the admin dashboard. A verified Q&A owner will also see a private dashboard shortcut in the **Q&A owner editor**.
+
+**IMPORTANT — Claim ownership first:** If the owner hasn't completed the one-time Q&A claim, the site has **no authorized admin** yet. Visit `https://loreseekerl.github.io/nightfront-td-values/?qa=edit#qa`, sign in with the email used for the Q&A, and use the existing privately supplied one-time owner claim code. Then open the private dashboard. Do not put the claim code into GitHub, source code, or public documentation.
+
+**Editing units from the website**
+
+1. Open the private dashboard URL, sign in using the same Supabase email as your Q&A owner account if necessary, and wait for owner verification.
+2. On **Units & Images**, click **Edit** on an existing unit or **+ Add Unit** to create one.
+3. Edit its name, official rarity, normal ticket value, optional shiny ticket value, demand, and normal/shiny image URLs.
+4. You can instead select a PNG/JPG/WebP/GIF (5 MB max) from your PC for each image. The owner-only upload saves public artwork in the Supabase Storage bucket `nightfront-unit-art` and fills the image link when saving the unit.
+5. **Save Unit** updates the shared value list immediately. **Delete Unit** asks for confirmation; it removes the database row but does not automatically delete uploaded artwork.
+
+On **Enchant Bonuses**, edit and save the bonus ticket value for any of the five existing enchantments. Those changes affect the W/F/L calculator for visitors when the list refreshes.
+
+**Security / permissions:** Read access stays public on `units` and `enchants`. Supabase RLS checks authenticated membership in `public.qa_editors` for unit INSERT/UPDATE/DELETE, enchant bonus UPDATE and artwork uploads. Anonymous and other logged-in users have no write access. The admin JS bundle is public like all GitHub Pages source; secrecy of the URL alone is *not* security. No private API keys or service-role keys belong in the browser. The normal and shiny ticket fields are separate from enchant bonuses.
+
 ## Adding or editing units
 
 1. Sign in to the [Supabase Table Editor](https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/editor).
