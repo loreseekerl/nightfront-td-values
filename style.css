@@ -638,10 +638,6 @@ body.picker-open{overflow:hidden}
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-@keyframes nftd-shiny-portrait-turn {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
 @keyframes nftd-shiny-pulse {
   0%,100% { opacity: .75; }
   50% { opacity: 1; }
@@ -686,8 +682,8 @@ body.picker-open{overflow:hidden}
 .unit-card.is-shiny .unit-art > img {
   position: absolute;
   z-index: 2;
-  transform-origin: center center;
-  animation: nftd-shiny-portrait-turn 14s linear infinite;
+  transform: none;
+  animation: none;
   filter: drop-shadow(0 0 12px #a282ffb5);
 }
 .unit-card.is-shiny .unit-details {
