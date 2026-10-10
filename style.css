@@ -128,3 +128,57 @@
 .unit-card:has(.rarity-glitched){border-color:#6346b0;box-shadow:0 0 17px #4735c12e}
 .spotlight-card:has(.rarity-glitched){border-color:#6346b0}
 @media(max-width:700px){.rarity-guide{align-items:flex-start;flex-direction:column}.rarity-legend{gap:8px}}
+
+
+/* Nightfront TD logo watermark across the top navigation header */
+.site-header {
+  isolation: isolate;
+  background: #05060c;
+  overflow: visible;
+}
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("./assets/nightfront-header.webp");
+  background-repeat: no-repeat;
+  background-position: 22% 50%;
+  background-size: auto 112px;
+  opacity: .42;
+}
+.site-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    rgba(4, 5, 12, .20) 0%,
+    rgba(4, 5, 12, .24) 38%,
+    rgba(4, 5, 12, .88) 75%,
+    rgba(4, 5, 12, .94) 100%);
+}
+.site-header .header-inner {
+  position: relative;
+  z-index: 2;
+  min-height: 86px;
+}
+.site-header .brand,
+.site-header .nav a {
+  text-shadow: 0 2px 7px #000, 0 0 13px #000;
+}
+@media (max-width: 700px) {
+  .site-header::before {
+    background-position: 24% center;
+    background-size: auto 93px;
+    opacity: .27;
+  }
+  .site-header::after {
+    background: linear-gradient(90deg, rgba(4,5,12,.3), rgba(4,5,12,.82));
+  }
+  .site-header .header-inner {
+    min-height: 74px;
+  }
+}
