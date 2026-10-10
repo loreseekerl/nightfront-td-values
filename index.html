@@ -41,7 +41,7 @@
       <div class="feature-band">
         <div class="feature">
           <h3>SEARCH ALL UNITS</h3>
-          <p>Look up individual units, regular and shiny values, demand, and rarity.</p>
+          <p>Look up individual units, regular and shiny ticket values, demand, and rarity.</p>
           <a class="outline-btn" href="#units" data-all-units>ALL UNITS →</a>
         </div>
         <div class="feature">
@@ -58,7 +58,7 @@
       <div class="page-heading">
         <div class="eyebrow">Community value list</div>
         <h1>ALL UNIT VALUES</h1>
-        <p>Find the latest units added to the Nightfront TD list. Click ★ on a unit to switch between its normal and shiny value.</p>
+        <p>Find the latest units added to the Nightfront TD list. Click ★ on a unit to switch between its normal and shiny ticket values.</p>
       </div>
       <div class="controls">
         <input id="search" class="field search-field" type="search" placeholder="Search units by name…" aria-label="Search units">
@@ -100,7 +100,7 @@
       <div class="page-heading">
         <div class="eyebrow">Trade checker</div>
         <h1>VALUE W/F/L CALCULATOR</h1>
-        <p>Add units to both sides of a trade. We'll calculate a win, fair, or loss based on their current listed values.</p>
+        <p>Add units to both sides of a trade. We'll calculate a win, fair, or loss based on their current listed ticket values. 1 ticket = 1 value.</p>
       </div>
       <div class="notice-inline">The calculator uses values from Supabase. Shiny units only work when a shiny value has been entered for them. Results don't guarantee a trade is good; consider demand too.</div>
       <div class="calc-grid">
@@ -115,7 +115,7 @@
             <button class="primary-btn" id="add-yours" type="button">+ Add</button>
           </div>
           <ul class="line-items" id="items-yours"></ul>
-          <div class="trade-total"><span>Total value</span><span id="total-yours">0</span></div>
+          <div class="trade-total"><span>Total tickets</span><span id="total-yours">0</span></div>
         </section>
         <section class="trade-panel theirs" aria-label="Their offer">
           <h2>THEIR OFFER</h2>
@@ -128,7 +128,7 @@
             <button class="primary-btn" id="add-theirs" type="button">+ Add</button>
           </div>
           <ul class="line-items" id="items-theirs"></ul>
-          <div class="trade-total"><span>Total value</span><span id="total-theirs">0</span></div>
+          <div class="trade-total"><span>Total tickets</span><span id="total-theirs">0</span></div>
         </section>
       </div>
       <div class="trade-result" id="tradeResult" aria-live="polite">
@@ -152,6 +152,6 @@
     </div>
   </section>
 </main>
-<footer class="footer">NIGHTFRONT TD VALUES · Community project · Trading values are estimates</footer>
+<footer class="footer">NIGHTFRONT TD VALUES · Community project · 1 ticket = 1 value · Trading values are estimates</footer>
 </body>
 </html>
