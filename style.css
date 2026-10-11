@@ -2881,3 +2881,27 @@ body{overflow-x:clip}
 .unit-card.is-shiny .unit-art-credit {
   color:#e8ddff;border-color:#9582bb;background:#0e0b24e8;
 }
+
+
+/* Owner's portrait upload checklist for verified Nightfront roster entries. */
+.admin-art-pending-filter {
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin:12px 0 14px;padding:11px 13px;
+  border:1px solid #3e4b63;border-radius:3px;background:#111a29;
+  cursor:pointer;color:#d8e3f7;
+  font:900 11px/1.5 Consolas,'Courier New',monospace;
+}
+.admin-art-pending-filter input {
+  min-height:19px;width:19px;height:19px;flex:0 0 19px;margin:0;
+  accent-color:#95adfb;
+}
+.admin-art-pending-filter b {
+  margin-left:7px;color:#f0cfa0;font-size:10px;
+  white-space:nowrap;
+}
+.admin-no-art {
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;min-height:46px;width:100%;
+  color:#acbada;font:900 9px/1.2 Consolas,'Courier New',monospace;
+  letter-spacing:.05em;
+}
