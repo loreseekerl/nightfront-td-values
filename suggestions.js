@@ -7,6 +7,10 @@
     char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
   const fmt = v => Number(v).toLocaleString("en-US",{maximumFractionDigits:2});
   const valueLabel = v => v === null || v === undefined || v === "" ? "N/A" : fmt(v) + " tickets";
+  const demandLabel = v => {
+    const label=String(v ?? "").trim();
+    return !label || /^(unknown|n\/?a)$/i.test(label) ? "N/A" : label;
+  };
   const state = {units:[],loaded:false,loading:false,sending:false,targetId:null,lastSent:0};
 
   function status(message,error=false,success=false) {
@@ -27,11 +31,12 @@
     }
     const variant=$("suggestVariant").value;
     const chosen=variant==="shiny" ? unit.shiny_value : unit.value;
+    const shownDemand=variant==="shiny" ? unit.shiny_demand : unit.demand;
     wrapper.innerHTML='<div class="suggestion-unit-head"><strong>'+esc(unit.name)+
       '</strong><small>'+esc(unit.rarity)+' · '+(variant==="shiny"?"SHINY":"NORMAL")+'</small></div>'+
       '<div class="suggestion-unit-numbers"><span>LISTED VALUE <b>'+
       esc(valueLabel(chosen))+'</b></span><span>DEMAND <b>'+
-      esc(unit.demand || "Unknown")+'</b></span></div>';
+      esc(demandLabel(shownDemand))+'</b></span></div>';
   }
   function renderOptions() {
     const select=$("suggestUnit");
@@ -59,7 +64,7 @@
     status("Loading units from the Nightfront value list…");
     try{
       const response=await fetch(SUPABASE_URL+
-        "/rest/v1/units?select=id,name,rarity,value,shiny_value,demand&order=name.asc&limit=1000",{
+        "/rest/v1/units?select=id,name,rarity,value,shiny_value,demand,shiny_demand&order=name.asc&limit=1000",{
           headers:{apikey:SUPABASE_PUBLISHABLE_KEY},cache:"no-store"
         });
       if(!response.ok)throw Error("Unit list request failed ("+response.status+")");
