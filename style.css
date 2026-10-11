@@ -2475,7 +2475,7 @@ body{overflow-x:clip}
   border-top:1px solid #3b4052;padding-top:8px;
 }
 .unit-card-actions .unit-history-link,.unit-card-actions .unit-suggestion-link{
-  min-width:0;min-height:40px;display:flex;align-items:center;justify-content:center;
+  min-width:0;min-height:40px;margin:0;width:100%;display:flex;align-items:center;justify-content:center;
   padding:8px 5px;font:800 10px/1.35 Arial,Helvetica,sans-serif;
   text-align:center;cursor:pointer;overflow-wrap:anywhere;
   border:1px solid #4c5369;border-radius:3px;background:#171c29;
