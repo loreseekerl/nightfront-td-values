@@ -3,7 +3,8 @@ const SUPABASE_URL = "https://edmijiqrwtuakmpqnepw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_fz8-97xMhNiBYgSr346Akw_HFK9Gul0";
 
 // Official Nightfront TD rarity tiers.
-const RARITIES = ["Common", "Uncommon", "Rare", "Epic", "Mythic", "Secret", "Glitched"];
+// Highest-tier rarities come first throughout the unit list, filters and gallery.
+const RARITIES = ["Glitched", "Secret", "Mythic", "Epic", "Rare", "Uncommon", "Common"];
 const rarityClass = (rarity) => RARITIES.includes(rarity) ? "rarity-" + rarity.toLowerCase() : "rarity-unknown";
 const rarityBadge = (rarity) =>
   '<span class="rarity-badge ' + rarityClass(rarity) + '">' + escapeHtml(rarity || "Unknown") + '</span>';
@@ -20,7 +21,7 @@ function renderRarityLegend() {
 
 const state = {
   units: [], loading: true, error: "", search: "",
-  rarity: "", sort: "name", shinyCards: new Set(),
+  rarity: "", sort: "rarity", shinyCards: new Set(),
   offers: { yours: [], theirs: [] }, nextItemId: 1,
   enchants: [], enchantsLoading: true, enchantsError: "",
   homeArt: {}, fetchingUnits:false, hasLoadedUnits:false, animateCards:false, unitsShown:60
@@ -318,6 +319,13 @@ function renderUnits() {
     return (!state.search || unit.name.toLowerCase().includes(state.search.toLowerCase())) &&
       (!state.rarity || unit.rarity === state.rarity);
   }).sort((a,b) => {
+    if (state.sort === "rarity") {
+      const aRank = RARITIES.indexOf(a.rarity);
+      const bRank = RARITIES.indexOf(b.rarity);
+      const rankDiff = (aRank < 0 ? RARITIES.length : aRank) -
+                       (bRank < 0 ? RARITIES.length : bRank);
+      return rankDiff || a.name.localeCompare(b.name);
+    }
     if (state.sort === "name") return a.name.localeCompare(b.name);
     // Unknown values stay after priced units in either numeric sort.
     const aKnown = hasValue(a.value), bKnown = hasValue(b.value);
@@ -1052,7 +1060,7 @@ document.addEventListener("click", (event) => {
 $("search").addEventListener("input", (e) => { state.search = e.target.value; state.unitsShown=60; renderUnits(); });
 $("sort").addEventListener("change", (e) => { state.sort = e.target.value; state.unitsShown=60; renderUnits(); });
 $("clearFilters").addEventListener("click", () => {
-  state.search = ""; state.rarity = ""; state.sort = "name"; state.unitsShown=60; renderUnits();
+  state.search = ""; state.rarity = ""; state.sort = "rarity"; state.unitsShown=60; renderUnits();
 });
 $("refreshUnits").addEventListener("click", () => { loadUnits(); loadEnchants(); window.NightfrontTrends?.refresh(); });
 $("loadMoreUnits").addEventListener("click", () => {
