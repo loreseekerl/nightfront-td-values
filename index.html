@@ -150,7 +150,7 @@
       <div class="page-heading history-heading">
         <span class="eyebrow">NIGHTFRONT TD · VALUE TRACKER</span>
         <h1>VALUE HISTORY</h1>
-        <p>Real recorded unit value and demand changes from Supabase. See when tickets rise, drop or stay the same.</p>
+        <p>Real recorded unit value changes plus separate normal and shiny demand changes from Supabase.</p>
         <p class="history-disclaimer">History starts when tracking was enabled. Older changes before that date cannot be recovered.</p>
       </div>
       <div class="history-controls">
@@ -162,7 +162,8 @@
             <option value="">All changes</option>
             <option value="normal">Normal tickets</option>
             <option value="shiny">Shiny value</option>
-            <option value="demand">Demand</option>
+            <option value="demand">Normal demand</option>
+            <option value="shiny-demand">Shiny demand</option>
           </select>
         </label>
         <button type="button" class="history-refresh" id="historyRefresh">↻ Refresh history</button>
@@ -293,7 +294,7 @@
       <div class="page-heading trends-heading">
         <span class="eyebrow">NIGHTFRONT TD · COMMUNITY MARKET</span>
         <h1>DEMAND &amp; VALUE TRENDS</h1>
-        <p>Follow ticket-value changes and demand movement separately. Rising, Stable and Dropping are based only on recorded changes—not predictions.</p>
+        <p>Follow normal and shiny ticket values and their separate demand ratings. Blank demand appears as N/A; trends use recorded changes, not predictions.</p>
         <p class="trends-explainer">Comparisons use changes recorded in the past 30 days. New units show Stable by default until recorded updates establish movement.</p>
       </div>
       <div class="trends-toolbar">
@@ -440,7 +441,7 @@
       <div class="page-heading admin-heading">
         <span class="eyebrow">PRIVATE OWNER TOOLS</span>
         <h1>NIGHTFRONT ADMIN</h1>
-        <p>Manage live units, images, ticket values, rarity, demand and enchant bonuses. Only your verified owner account can save changes.</p>
+        <p>Manage live units, images, ticket values, rarity, separate normal/shiny demand ratings, and enchant bonuses. Only your verified owner account can save changes.</p>
       </div>
 
       <div id="adminStatus" class="admin-status" role="status" aria-live="polite">Checking secure access…</div>
@@ -526,7 +527,8 @@
               </label>
               <label>Normal value (tickets, optional) <input id="adminUnitValue" type="number" min="0" max="1000000000" step="any" placeholder="Leave blank for N/A"></label>
               <label>Shiny value (tickets, optional) <input id="adminUnitShinyValue" type="number" min="0" max="1000000000" step="any" placeholder="Leave blank for N/A"></label>
-              <label>Demand <input id="adminUnitDemand" type="text" maxlength="50" placeholder="1/10"></label>
+              <label>Normal demand (optional) <input id="adminUnitDemand" type="text" maxlength="50" placeholder="Leave blank for N/A"></label>
+              <label>Shiny demand (optional) <input id="adminUnitShinyDemand" type="text" maxlength="50" placeholder="Leave blank for N/A"></label>
             </div>
             <div class="admin-art-grid">
               <div class="admin-art-panel">
@@ -684,7 +686,7 @@
         <p>Nightfront TD Values is a community project to help players compare units and estimate trading value. Values may change, so always double-check before trading.</p>
         <h2>How can I add units?</h2>
         <p>The list is managed through a protected Supabase database. Site visitors can read values, but cannot edit or delete units. The verified owner can manage units, artwork and enchants through the private Admin Dashboard or through Supabase.</p>
-        <p>To add a unit, open your Supabase project → Table Editor → <strong>units</strong> → Insert row. Enter a name, rarity, numeric ticket value, optional shiny value, demand, and a public image URL.</p>
+        <p>To add a unit, open your Supabase project → Table Editor → <strong>units</strong> → Insert row. Enter a name, rarity, normal and shiny values, separate normal and shiny demand ratings, and a public image URL. Leave unknown values or demand blank for N/A.</p>
         <p>Don't paste private Supabase keys into your public website. Unit artwork will appear automatically once an image URL is saved.</p>
         <a class="outline-btn" href="#units" data-all-units>EXPLORE ALL UNITS →</a>
       </div>
