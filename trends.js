@@ -9,6 +9,7 @@
   const fmt = n => Number(n).toLocaleString("en-US",{maximumFractionDigits:2});
   const numeric = value => value === null || value === undefined || value === ""
     ? null : Number.isFinite(Number(value)) ? Number(value) : null;
+  const ticketLabel = value => numeric(value) === null ? "N/A" : fmt(value) + " tickets";
   const demandScore = raw => {
     const match = String(raw ?? "").trim().match(/^(10|[1-9])\s*\/\s*10$/);
     return match ? Number(match[1]) : null;
@@ -47,6 +48,8 @@
       event.event_type === "baseline" || event.event_type === "created");
     const validCurrent = kind === "demand" ?
       demandScore(currentValue) !== null : numeric(currentValue) !== null;
+    // A currently unavailable value has no meaningful current price direction.
+    if (!validCurrent) return {status:"unknown",delta:null,lastChanged:null};
     const startingStatus = hasStartingRecord && validCurrent ?
       {status:"stable",delta:0,lastChanged:null,defaultStable:true} :
       {status:"unknown",delta:null,lastChanged:null};
@@ -145,7 +148,12 @@
       const av=state.map.get(String(a.id));
       const bv=state.map.get(String(b.id));
       if(sort==="demand") return (bv?.rating??-1)-(av?.rating??-1) || a.name.localeCompare(b.name);
-      if(sort==="value") return Number(b.value)-Number(a.value) || a.name.localeCompare(b.name);
+      if(sort==="value") {
+        const aa=numeric(a.value), bb=numeric(b.value);
+        if(aa===null || bb===null) return aa===null && bb===null ?
+          a.name.localeCompare(b.name) : aa===null ? 1 : -1;
+        return bb-aa || a.name.localeCompare(b.name);
+      }
       if(sort==="movement") return (bv?.normal.delta??-Infinity)-(av?.normal.delta??-Infinity) ||
         a.name.localeCompare(b.name);
       return a.name.localeCompare(b.name);
@@ -165,8 +173,8 @@
         '<div class="trends-unit-head">' +
         '<div class="trends-portrait">'+(pic?'<img loading="lazy" src="'+esc(pic)+'" alt="'+esc(unit.name)+' artwork">':'<span aria-hidden="true">★</span>')+'</div>' +
         '<div class="trends-unit-title"><strong>'+esc(unit.name)+'</strong><small>'+esc(unit.rarity)+'</small></div></div>' +
-        '<div class="trends-ticket-values"><div><small>Normal</small><strong>'+fmt(unit.value)+' tickets</strong></div>'+
-        '<div><small>Shiny</small><strong>'+(numeric(unit.shiny_value)===null?"Not listed":fmt(unit.shiny_value)+" tickets")+'</strong></div></div>' +
+        '<div class="trends-ticket-values"><div><small>Normal</small><strong>'+ticketLabel(unit.value)+'</strong></div>'+
+        '<div><small>Shiny</small><strong>'+ticketLabel(unit.shiny_value)+'</strong></div></div>' +
         '<div class="trends-demand-info"><div><span>DEMAND</span><strong>'+esc(unit.demand||"Unknown")+'</strong></div>' +
         '<div class="trends-demand-meter" role="img" aria-label="'+
         esc(score===null?"Demand score not rated from 1 to 10":"Demand rating "+score+" out of 10")+
