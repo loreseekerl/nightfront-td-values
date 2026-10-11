@@ -1,0 +1,508 @@
+{
+  "artworks": {
+    "104563385352607": {
+      "owners": [
+        {
+          "name": "Golden Cupcake",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/104563385352607.png",
+      "sha256": "1221746149ce6b3d46048a8674c1a1efe23dfb594912031a08cbe0365a279bdd"
+    },
+    "111922466126642": {
+      "owners": [
+        {
+          "name": "Shadow Bonnie",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/111922466126642.png",
+      "sha256": "a29106a1f24dae62fbbd6e70796537022d9de50ae2ac8daefa18ec7a87564972"
+    },
+    "112810467637995": {
+      "owners": [
+        {
+          "name": "Phantom Cupcake",
+          "variant": "normal"
+        },
+        {
+          "name": "Phantom Cupcake",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/112810467637995.png",
+      "sha256": "a9603633446dcae927e2f75e3420b16519783bfd94bfa1b0b55acc13aa865a3f"
+    },
+    "112861582062664": {
+      "owners": [
+        {
+          "name": "Ignited Chica",
+          "variant": "normal"
+        },
+        {
+          "name": "Ignited Chica",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/112861582062664.png",
+      "sha256": "55d6cea05099fce5ccfee306b8e9c266293bb605da97913a9c523854bb6d65db"
+    },
+    "113251065571911": {
+      "owners": [
+        {
+          "name": "Trapped Phantom Chica",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/113251065571911.png",
+      "sha256": "e7b23d33e5524cab89736007553b9610a1b5b695be3fe5f101dc7c02da8d4529"
+    },
+    "119787484636557": {
+      "owners": [
+        {
+          "name": "Green Bear",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/119787484636557.png",
+      "sha256": "80f5cde3504d3e651203b328b2d930949168c137890bcd9b5155d2d50ebff79c"
+    },
+    "119797184389012": {
+      "owners": [
+        {
+          "name": "Golden Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/119797184389012.png",
+      "sha256": "17e75080a3c4d5c1f142ec5be3bae1c0c516e664d9d4384e5a82946297ec5045"
+    },
+    "120905436557169": {
+      "owners": [
+        {
+          "name": "Phantom Freddy",
+          "variant": "normal"
+        },
+        {
+          "name": "Phantom Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/120905436557169.png",
+      "sha256": "2f5f3af7ec4e7ae0e14a29272c85cc67648ab4d4ed3af175ab91fc97314996f9"
+    },
+    "124106911511020": {
+      "owners": [
+        {
+          "name": "Golden Freddy",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/124106911511020.png",
+      "sha256": "cf2c8831174a1d0a80d34f9663272f483fc8772e0ebedbc371cee599111e32df"
+    },
+    "124700711398876": {
+      "owners": [
+        {
+          "name": "Withered Golden Freddy",
+          "variant": "normal"
+        },
+        {
+          "name": "Withered Golden Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/124700711398876.png",
+      "sha256": "ba2a104e0f335205dda7b05e09cbdb84c787e49eeddd15b1401f0b77d967ec04"
+    },
+    "125048819673043": {
+      "owners": [
+        {
+          "name": "Chica",
+          "variant": "normal"
+        },
+        {
+          "name": "Chica",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/125048819673043.png",
+      "sha256": "51599d7ef1e68c3163e4f28aff9ef5df049b975d8dd095571c790af2d84786c6"
+    },
+    "126526812754830": {
+      "owners": [
+        {
+          "name": "Toy Freddy",
+          "variant": "normal"
+        },
+        {
+          "name": "Toy Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/126526812754830.png",
+      "sha256": "d9ee641b41aaaa0810af26f1f9a7e378b5108d798636a3058e6f9737402a212c"
+    },
+    "128665824507257": {
+      "owners": [
+        {
+          "name": "Phantom Mangle",
+          "variant": "normal"
+        },
+        {
+          "name": "Phantom Mangle",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/128665824507257.png",
+      "sha256": "62f2398f666a88b43034d32d3a592363cfb55fc4482b87886a018ca2edbd98a6"
+    },
+    "131152819566354": {
+      "owners": [
+        {
+          "name": "Fallen Star Golden Freddy",
+          "variant": "normal"
+        },
+        {
+          "name": "Fallen Star Golden Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/131152819566354.png",
+      "sha256": "52cb25971e5221da8811a76c643d9b905001c7ddd566d73e00b1151c4cac1da0"
+    },
+    "134785209260482": {
+      "owners": [
+        {
+          "name": "Golden Cupcake",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/134785209260482.png",
+      "sha256": "13e33540fa44ebb851ae8e8146e2b5b33341545bf5cebd28bcc00608aaee8264"
+    },
+    "134791282725882": {
+      "owners": [
+        {
+          "name": "Phantom Endo",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/134791282725882.png",
+      "sha256": "3d5745c63d2938153504699d1148358154a01af535ee50ad2eb519e2624a4772"
+    },
+    "136552005521646": {
+      "owners": [
+        {
+          "name": "Puppet",
+          "variant": "normal"
+        },
+        {
+          "name": "Puppet",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/136552005521646.png",
+      "sha256": "9b0bc8775910a2b6a031a40e404aeaaf5f6681657e5532652db52fcf770ede51"
+    },
+    "71478729321126": {
+      "owners": [
+        {
+          "name": "The White Rabbit",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/71478729321126.png",
+      "sha256": "ac3cd60772108633b857f3c7ce7b4b9f10ff9a9d9265b3fa3ac9692ab85ba2a0"
+    },
+    "71790702802734": {
+      "owners": [
+        {
+          "name": "Phantom BB",
+          "variant": "normal"
+        },
+        {
+          "name": "Phantom BB",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/71790702802734.png",
+      "sha256": "cfc8eee65b93832081f62692911e97769e92662cf1db067facd200c733bab7f1"
+    },
+    "73007397664573": {
+      "owners": [
+        {
+          "name": "Phantom Foxy",
+          "variant": "normal"
+        },
+        {
+          "name": "Phantom Foxy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/73007397664573.png",
+      "sha256": "5415fe98959832706060b8ddc65cddb5aef0d2bd16c89ea611d6471fca131810"
+    },
+    "76930918382285": {
+      "owners": [
+        {
+          "name": "Shadow Freddy",
+          "variant": "normal"
+        },
+        {
+          "name": "Shadow Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/76930918382285.png",
+      "sha256": "ad1e1fb89c8f2ac5c6aef27ec066516a467296fc4c033fdc29fb630e5d6e86ae"
+    },
+    "77658201492152": {
+      "owners": [
+        {
+          "name": "Phantom Puppet",
+          "variant": "normal"
+        },
+        {
+          "name": "Phantom Puppet",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/77658201492152.png",
+      "sha256": "8e4805c9366bf8f7465063df64e5715efbd2f05cd91d4a4dd21cb539a824f25c"
+    },
+    "78378742822573": {
+      "owners": [
+        {
+          "name": "Ignited Springtrap",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/78378742822573.png",
+      "sha256": "f3079f6d68afc8238719d5c3a36f82b51dd76f60aed498f359a3f3671ac80a35"
+    },
+    "78411237531253": {
+      "owners": [
+        {
+          "name": "Stand Of Souls",
+          "variant": "normal"
+        },
+        {
+          "name": "Stand Of Souls",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/78411237531253.png",
+      "sha256": "0e27d16ac87c6a75e461e83af78481eeb930e3dacf494952aba1a42ed6a65886"
+    },
+    "79323142673658": {
+      "owners": [
+        {
+          "name": "Withered Freddy",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/79323142673658.png",
+      "sha256": "d5f9a0a6d634c3a49f0b28a8860a114193742a49cc551f35721d2e8fea8fc53f"
+    },
+    "80125341843049": {
+      "owners": [
+        {
+          "name": "Fallen Star Spring Bonnie",
+          "variant": "normal"
+        },
+        {
+          "name": "Fallen Star Spring Bonnie",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/80125341843049.png",
+      "sha256": "fe7d5aae04d002b6c85b5e9adcc7c69368776670135bff35fdd19e2125cd18db"
+    },
+    "86331299508583": {
+      "owners": [
+        {
+          "name": "Phantom Bonnie",
+          "variant": "normal"
+        },
+        {
+          "name": "Phantom Bonnie",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/86331299508583.png",
+      "sha256": "430ca71da90ae11f96a9364c5219b7f372e7a222b2a4c20786ef71207aac429e"
+    },
+    "88318705221720": {
+      "owners": [
+        {
+          "name": "The Creation",
+          "variant": "normal"
+        },
+        {
+          "name": "The Creation",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/88318705221720.png",
+      "sha256": "602cf13b68ae319a5bc4d3d1061653cb809d42161ffc28694c8c70eeb5ea1704"
+    },
+    "88366498889937": {
+      "owners": [
+        {
+          "name": "Rebuilt Bonnie",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/88366498889937.png",
+      "sha256": "ca3a8f166b006eb9b27bf41b17b84c2280745ffa8400cbed1deaa4afd1389938"
+    },
+    "89828333065258": {
+      "owners": [
+        {
+          "name": "Nerdy Rabbit",
+          "variant": "normal"
+        },
+        {
+          "name": "Nerdy Rabbit",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/89828333065258.png",
+      "sha256": "1311292d2e83eab69df2c53b0ca14a06184e339f49b4314d24fab5e2514fa984"
+    },
+    "90752272280164": {
+      "owners": [
+        {
+          "name": "Withered Foxy",
+          "variant": "normal"
+        },
+        {
+          "name": "Withered Foxy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/90752272280164.png",
+      "sha256": "0ad4b7016e9f4491adbaa9e32849d33ee6467075d6dc668aa9babb797d854df7"
+    },
+    "91264185791654": {
+      "owners": [
+        {
+          "name": "Phantom Chica",
+          "variant": "normal"
+        },
+        {
+          "name": "Phantom Chica",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/91264185791654.png",
+      "sha256": "6289e83ad1208ecf5e9f388126f148ff21340531a9f11a7364cc00d1e739a32f"
+    },
+    "95122163888004": {
+      "owners": [
+        {
+          "name": "Ignited Freddy",
+          "variant": "normal"
+        },
+        {
+          "name": "Ignited Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/95122163888004.png",
+      "sha256": "f19281b0a9a4bd0db0a25015e2937aac687510eb2195242094e96915f651bb80"
+    },
+    "96311996169473": {
+      "owners": [
+        {
+          "name": "The Scavenger",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/96311996169473.png",
+      "sha256": "9bbcd48074a25fbea8cec8f2e6cca2b668e23cc873dbd136c5ff1007d648a8d6"
+    },
+    "96325031375038": {
+      "owners": [
+        {
+          "name": "Foxy",
+          "variant": "normal"
+        },
+        {
+          "name": "Foxy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/96325031375038.png",
+      "sha256": "e5b9cf2ad3e878bc3ee46a76e284e93644cbc0b6ae7ce53e2aa66c7a6f4358c0"
+    },
+    "96747727800359": {
+      "owners": [
+        {
+          "name": "Endo 01",
+          "variant": "normal"
+        },
+        {
+          "name": "Endo 01",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/96747727800359.png",
+      "sha256": "b6eb38d1d8974f6a4dbcd225c50f125826ebb240c0ad39ea262e3d582eef6f73"
+    },
+    "97180357860271": {
+      "owners": [
+        {
+          "name": "Phone Head Guy",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/97180357860271.png",
+      "sha256": "bad9e54a88ae2518002cef034f380f3bfbed4702ff879b5c0e9f32ef90ae325b"
+    },
+    "97205457504081": {
+      "owners": [
+        {
+          "name": "Bonnie",
+          "variant": "normal"
+        },
+        {
+          "name": "Bonnie",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/97205457504081.png",
+      "sha256": "b7a9f278a85510d358edeb2471b892ab1f0f250599e9a6f034d99315da9afe96"
+    },
+    "98516895038019": {
+      "owners": [
+        {
+          "name": "Mendo",
+          "variant": "normal"
+        },
+        {
+          "name": "Mendo",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/98516895038019.png",
+      "sha256": "5c407379f328b6b6cd0f94b7661682c44dc924bf057823046ebf19e467d4ac08"
+    },
+    "99973415180788": {
+      "owners": [
+        {
+          "name": "Redbear",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/99973415180788.png",
+      "sha256": "5e37951ce3ef688871f0673ad82376667d38708212a2ab26c5d4c19e679127d5"
+    }
+  },
+  "audited_at": "2026-10-11T15:50:42.526042+00:00",
+  "source_snapshot_id": 9,
+  "suspected_cross_unit_copies": [],
+  "total_checked": 40
+}
