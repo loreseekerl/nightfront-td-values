@@ -14,7 +14,8 @@
   const state = {
     client:null, authorized:false, units:[], enchants:[], homeArt:[], suggestions:[],
     editUnitId:null, busy:false, sessionCheck:0, previews:{normal:null,shiny:null},
-    coverPreviews:{}, otpEmail:null, nextEmailAt:0, emailSending:false, verifyingOtp:false
+    coverPreviews:{}, bulkArtworkFiles:[], bulkArtworkMatches:[],
+    otpEmail:null, nextEmailAt:0, emailSending:false, verifyingOtp:false
   };
 
   function status(message, error=false) {
@@ -58,6 +59,7 @@
     state.homeArt = covers.data || [];
     state.suggestions = suggestions.data || [];
     renderUnits();
+    renderBulkArtwork();
     renderEnchants();
     renderHomeArt();
     renderSuggestions();
@@ -168,6 +170,122 @@
       '<button type="button" class="admin-outline" data-edit-unit="' + safe(unit.id) + '">EDIT</button></div>'
     )).join("") || '<p class="admin-help">No matching units. Try another search or disable the missing-artwork filter.</p>';
   }
+  // Bulk artwork uploads accept real owner-provided files only. Matching a filename
+  // to a known game unit never changes price, rarity, demand or any existing art.
+  function normaliseArtworkName(name) {
+    return String(name || "").normalize("NFKC")
+      .replace(/\.[a-z0-9]{2,5}$/i, "")
+      .toLocaleLowerCase("en-US")
+      .replace(/[^\p{L}\p{N}]+/gu, " ")
+      .trim().replace(/\s+/g, " ");
+  }
+  function matchedBulkArtwork() {
+    const unitsByName=new Map();
+    for(const unit of state.units) {
+      const key=normaliseArtworkName(unit.name);
+      const matches=unitsByName.get(key) || [];
+      matches.push(unit);
+      unitsByName.set(key,matches);
+    }
+    const used=new Set();
+    return state.bulkArtworkFiles.map(file=>{
+      const key=normaliseArtworkName(file.name);
+      const possible=unitsByName.get(key) || [];
+      const unit=possible.length===1 ? possible[0] : null;
+      let stateName="ready", reason="";
+      if(!Object.hasOwn(mimeExt,file.type) || !file.size || file.size>maxFileSize) {
+        stateName="skip"; reason="Unsupported format or file larger than 5 MB";
+      } else if(!unit) {
+        stateName="skip"; reason=possible.length>1 ?
+          "More than one unit matches this filename" : "No matching unit in the value list";
+      } else if(String(unit.image_url || "").trim()) {
+        stateName="skip"; reason="Already has artwork — won't overwrite";
+      } else if(used.has(unit.id)) {
+        stateName="skip"; reason="Duplicate image for this unit";
+      } else {
+        used.add(unit.id);
+      }
+      return {file,unit,state:stateName,reason};
+    });
+  }
+  function renderBulkArtwork() {
+    const items=matchedBulkArtwork();
+    state.bulkArtworkMatches=items;
+    const ready=items.filter(x=>x.state==="ready");
+    const skipped=items.length-ready.length;
+    const target=$("adminBulkArtPreview");
+    if(!items.length){
+      target.textContent="Choose PNG, JPG, WebP or GIF files (5 MB max each) to check their unit names before upload.";
+    } else {
+      target.innerHTML='<div class="admin-bulk-art-count">'+ready.length+
+        ' MATCHED MISSING PORTRAIT'+(ready.length===1?"":"S")+
+        (skipped?' · '+skipped+' skipped':'')+'</div>'+
+        '<div class="admin-bulk-art-match-list">'+items.map(({file,unit,state,reason})=>
+        '<div class="admin-bulk-art-match '+(state==="ready"?"valid":"skipped")+'">'+
+        '<strong>'+safe(file.name)+'</strong>'+
+        '<span>'+(state==="ready"?'✓ '+safe(unit.name)+' · '+safe(unit.rarity):
+          'SKIP · '+safe(reason))+'</span></div>').join("")+'</div>';
+    }
+    $("adminBulkArtSave").disabled = !ready.length || state.busy;
+  }
+  function clearBulkArtwork() {
+    state.bulkArtworkFiles=[];
+    state.bulkArtworkMatches=[];
+    $("adminBulkArtFiles").value="";
+    renderBulkArtwork();
+  }
+  async function uploadBulkArtwork() {
+    requireOwner();
+    if(state.busy)return;
+    // Recompute at click time: skip already-filled or duplicate portraits.
+    const candidates=matchedBulkArtwork().filter(row=>row.state==="ready");
+    if(!candidates.length){
+      $("adminBulkArtStatus").textContent="No missing portraits matched. Check the filenames.";
+      return;
+    }
+    if(!window.confirm("Upload "+candidates.length+" matched real unit portraits? Only missing normal artwork will be filled; existing art and values stay unchanged."))
+      return;
+    state.busy=true;
+    $("adminSaveUnit").disabled=true;
+    $("adminBulkArtSave").disabled=true;
+    let added=0,skipped=0,failed=0;
+    const errors=[];
+    try{
+      for(let i=0;i<candidates.length;i++){
+        const {file,unit}=candidates[i];
+        $("adminBulkArtStatus").textContent="Uploading "+(i+1)+"/"+
+          candidates.length+": "+file.name+"…";
+        try{
+          // An atomic UPDATE ... WHERE image_url IS NULL prevents overwriting
+          // an owner portrait saved from another device during this operation.
+          const url=await uploadImage(file);
+          const {data,error}=await state.client.from("units")
+            .update({image_url:url}).eq("id",unit.id)
+            .is("image_url",null).select("id").maybeSingle();
+          if(error)throw error;
+          if(data)added++;
+          else skipped++;
+        }catch(error){
+          failed++;
+          errors.push(file.name+": "+String(error?.message||error));
+        }
+      }
+      try{await refreshData();}
+      catch(error){errors.push("List refresh: "+String(error?.message||error));}
+      if(typeof window.loadUnits==="function")window.loadUnits();
+      clearBulkArtwork();
+      const summary=added+" portraits saved"+(skipped?" · "+skipped+" already set":"")+
+        (failed?" · "+failed+" failed":"")+".";
+      $("adminBulkArtStatus").textContent=summary+
+        (errors.length?" "+errors.slice(0,3).join(" | "):"");
+      status("Bulk unit artwork: "+summary,Boolean(failed));
+    }finally{
+      state.busy=false;
+      $("adminSaveUnit").disabled=false;
+      $("adminBulkArtSave").disabled=true;
+    }
+  }
+
   function renderEnchants() {
     $("adminEnchantsList").innerHTML = state.enchants.map(enchant => (
       '<form class="admin-enchant-row" data-enchant-form="' + safe(enchant.id) + '">' +
@@ -512,6 +630,18 @@
   $("adminDeleteUnit").addEventListener("click",deleteUnit);
   $("adminSearch").addEventListener("input",renderUnits);
   $("adminMissingArtworkOnly").addEventListener("change",renderUnits);
+  $("adminBulkArtFiles").addEventListener("change",()=>{
+    state.bulkArtworkFiles=[...($("adminBulkArtFiles").files || [])];
+    renderBulkArtwork();
+    $("adminBulkArtStatus").textContent="Review the name matches before uploading. Existing portraits are protected.";
+  });
+  $("adminBulkArtClear").addEventListener("click",clearBulkArtwork);
+  $("adminBulkArtSave").addEventListener("click",()=>{
+    uploadBulkArtwork().catch(error=>{
+      $("adminBulkArtStatus").textContent="Bulk upload failed: "+String(error?.message||error);
+      status("Bulk artwork upload failed: "+String(error?.message||error),true);
+    });
+  });
   $("adminUnitsList").addEventListener("click",(event)=>{
     const button = event.target.closest("[data-edit-unit]");
     if (button) openUnit(button.dataset.editUnit);
