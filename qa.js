@@ -221,7 +221,7 @@
       return "That code expired or was already used. Request a new code when the email limit allows, and use only the latest email.";
     return raw;
   }
-  const emailRedirect = "https://loreseekerl.github.io/nightfront-td-values/?qa=edit#qa";
+  const emailRedirect = "https://loreseekerl.github.io/nightfront-td-values/?qa=edit";
   el("qaLoginForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!state.client) return;
@@ -241,7 +241,7 @@
       if (error) throw error;
       el("qaLoginPassword").value = "";
       if (data?.session) await setSession(data.session);
-      message("Signed in. Checking owner access…");
+      else message("Signed in. Checking owner access…");
     } catch (error) {
       message("Password login failed: " + readableAuthError(error), true);
     } finally { button.disabled = false; }
