@@ -446,7 +446,7 @@
     try {
       const {error}=await state.client.auth.signInWithOtp({
         email,options:{
-          emailRedirectTo:"https://loreseekerl.github.io/nightfront-td-values/?qa=edit#qa",
+          emailRedirectTo:"https://loreseekerl.github.io/nightfront-td-values/?qa=edit",
           shouldCreateUser:true
         }
       });
