@@ -14,6 +14,7 @@
   <script src="./history.js?v=na-values-1" defer></script>
   <script src="./updates.js?v=na-values-1" defer></script>
   <script src="./trends.js?v=na-values-1" defer></script>
+  <script src="./suggestions.js?v=suggestions-v1" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -34,6 +35,7 @@
           <a href="#history">Value History</a>
           <a href="#updates">Update History</a>
           <a href="#trends">Demand &amp; Trends</a>
+          <a href="#suggestions">Suggest a Value</a>
         </div>
       </div>
     </nav>
@@ -90,6 +92,7 @@
           <a href="#trends"><span class="quicklink-number">02</span><strong>Demand &amp; trends</strong><small>See what's rising or dropping</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
           <a href="#updates"><span class="quicklink-number">03</span><strong>Update history</strong><small>New units, values and enchants</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
           <a href="#qa"><span class="quicklink-number">04</span><strong>Developer Q&amp;A</strong><small>Answers from the team</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
+          <a href="#suggestions"><span class="quicklink-number">05</span><strong>Suggest a value</strong><small>Help keep the list accurate</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
         </div>
       </section>
     </div>
@@ -100,7 +103,7 @@
       <div class="page-heading">
         <div class="eyebrow">Community value list</div>
         <h1>ALL UNIT VALUES</h1>
-        <p>Search the list by name or rarity. Tap ★ on a unit to see its shiny version when a shiny value is available.</p>
+        <p>Search the list by name or rarity. Tap ★ to preview shiny—even if its value is N/A. Missing values are never counted as 0 tickets.</p>
       </div>
       <div class="controls">
         <input id="search" class="field search-field" type="search" enterkeyhint="search" placeholder="Search units by name…" aria-label="Search units">
@@ -176,6 +179,72 @@
       </section>
       <div class="history-list-heading"><h2>RECORDED UPDATES</h2><span id="historyResultCount">0 events</span></div>
       <div id="historyTimeline" class="history-timeline" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-suggestions" aria-label="Player value suggestions" hidden>
+    <div class="container suggestion-page">
+      <div class="suggestion-heading">
+        <span class="section-index">NIGHTFRONT TRADING BOARD <span>/</span> COMMUNITY INPUT</span>
+        <h1>SUGGEST A VALUE<span>_</span></h1>
+        <p>Think a unit is worth more, less, or just listed wrong? Send us your take. The owner reviews each report before anything changes on the live list.</p>
+      </div>
+      <div class="suggestion-layout">
+        <div class="suggestion-paper">
+          <div class="suggestion-paper-heading">
+            <strong>VALUE REPORT FORM</strong>
+            <span>NO ACCOUNT NEEDED</span>
+          </div>
+          <form id="valueSuggestionForm" class="suggestion-form">
+            <label for="suggestUnitSearch">FIND A UNIT
+              <input id="suggestUnitSearch" type="search" placeholder="Search the unit list…" autocomplete="off" enterkeyhint="search">
+            </label>
+            <label for="suggestUnit">UNIT <span class="suggest-required">*</span>
+              <select id="suggestUnit" required>
+                <option value="">Loading units…</option>
+              </select>
+            </label>
+            <div id="suggestionUnitPreview" class="suggestion-unit-preview" aria-live="polite">Choose a unit to see its current values.</div>
+            <div class="suggestion-form-grid">
+              <label for="suggestKind">WHAT'S THE ISSUE? <span class="suggest-required">*</span>
+                <select id="suggestKind" required>
+                  <option value="value_suggestion">Suggest a ticket value</option>
+                  <option value="incorrect_value">Report an incorrect value</option>
+                </select>
+              </label>
+              <label for="suggestVariant">UNIT VERSION <span class="suggest-required">*</span>
+                <select id="suggestVariant" required>
+                  <option value="normal">Normal</option>
+                  <option value="shiny">Shiny ★</option>
+                </select>
+              </label>
+            </div>
+            <label for="suggestProposedValue" id="suggestPriceLabel">YOUR SUGGESTED VALUE (TICKETS) <span class="suggest-required">*</span>
+              <input id="suggestProposedValue" type="number" min="0" max="1000000000" step="any" inputmode="decimal" placeholder="e.g. 250" required>
+              <small>Leave this blank for an incorrect-value report if you aren't sure of the right number. Blank listed values are N/A, not zero.</small>
+            </label>
+            <label for="suggestReason">WHY SHOULD IT CHANGE? <span class="suggest-required">*</span>
+              <textarea id="suggestReason" rows="5" minlength="12" maxlength="500" placeholder="Tell us why the value should change, or what looks wrong with the listing…" required></textarea>
+            </label>
+            <div class="suggestion-form-bottom">
+              <span id="suggestReasonCount">0 / 500 characters</span>
+              <span>Only suggestions are submitted. Live values stay unchanged.</span>
+            </div>
+            <div class="suggestion-trap" aria-hidden="true">
+              <label for="suggestWebsite">Website <input id="suggestWebsite" type="text" tabindex="-1" autocomplete="off"></label>
+            </div>
+            <button id="suggestSend" type="submit" class="suggestion-submit">SEND FOR REVIEW ↗</button>
+            <p id="suggestionStatus" class="suggestion-form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+        <aside class="suggestion-rules" aria-label="How value suggestions work">
+          <div class="section-index">HOW THIS WORKS</div>
+          <div><span>01</span><strong>Pick a unit</strong><p>Choose the normal or shiny version. Both use regular tickets.</p></div>
+          <div><span>02</span><strong>Explain your suggestion</strong><p>Include a suggested ticket value or describe what's wrong.</p></div>
+          <div><span>03</span><strong>The owner reviews it</strong><p>Only the verified owner can approve changes. Nothing updates automatically.</p></div>
+          <p class="suggestion-aside-note">Please don't include passwords, email addresses, or other private information. Suggestions are private and aren't published on this page.</p>
+        </aside>
+      </div>
     </div>
   </section>
 
@@ -431,6 +500,7 @@
           <button type="button" class="admin-tab active" id="adminUnitsTab" aria-selected="true">UNITS &amp; IMAGES</button>
           <button type="button" class="admin-tab" id="adminEnchantsTab" aria-selected="false">ENCHANT BONUSES</button>
           <button type="button" class="admin-tab" id="adminHomeArtTab" aria-selected="false">HOMEPAGE ART</button>
+          <button type="button" class="admin-tab" id="adminSuggestionsTab" aria-selected="false">VALUE SUGGESTIONS <span id="adminSuggestionsBadge"></span></button>
         </div>
 
         <div id="adminUnitsPanel" class="admin-panel">
@@ -484,6 +554,29 @@
           <h2>ENCHANTMENT BONUS EDITOR</h2>
           <p class="admin-help">Each bonus adds tickets per unit in the W/F/L calculator. Values update for visitors after they refresh.</p>
           <div id="adminEnchantsList" class="admin-enchants-list"></div>
+        </div>
+        <div id="adminSuggestionsPanel" class="admin-panel" hidden>
+          <div class="admin-section-heading">
+            <div><h2>COMMUNITY VALUE SUGGESTIONS</h2>
+              <p class="admin-help">Player submissions are private until you review them. Approving a suggested value updates the live unit and its history automatically. Rejecting never changes a value.</p>
+            </div>
+            <button id="adminSuggestionsReload" type="button" class="admin-outline">↻ REFRESH QUEUE</button>
+          </div>
+          <div class="admin-suggestions-toolbar">
+            <label for="adminSuggestionFilter">STATUS
+              <select id="adminSuggestionFilter">
+                <option value="pending">Pending review</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="all">All submissions</option>
+              </select>
+            </label>
+            <label for="adminSuggestionSearch">FIND UNIT
+              <input id="adminSuggestionSearch" type="search" placeholder="Search submitted unit names…" autocomplete="off">
+            </label>
+          </div>
+          <p id="adminSuggestionsStatus" class="admin-help" role="status" aria-live="polite"></p>
+          <div id="adminSuggestionsList" class="admin-suggestions-list"></div>
         </div>
         <div id="adminHomeArtPanel" class="admin-panel" hidden>
           <h2>HOMEPAGE RARITY COVERS</h2>
