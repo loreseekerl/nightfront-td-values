@@ -58,15 +58,15 @@ const demandLabel = value => {
 // W/F/L trading remains restricted by canTradeShiny, which needs a real value.
 const canPreviewShiny = (unit) => !!unit;
 const canTradeShiny = (unit) => hasValue(unit?.shiny_value);
-const rarityCoverForUnit = unit => {
+const rarityCoverForUnit = (unit, shiny=false) => {
   // Rarity covers are owner-uploaded gallery illustrations, not verified portraits
   // of this particular unit. Keep the real unit image database field untouched.
-  if (!unit || validImage(unit.image_url) || validImage(unit.shiny_image_url)) return "";
+  if (!unit || (shiny && validImage(unit.shiny_image_url)) || validImage(unit.image_url)) return "";
   return validImage(state.homeArt[unit.rarity]);
 };
 const imageHtml = (unit, placeholder="★", shiny=false) => {
   const exactImage = (shiny && validImage(unit?.shiny_image_url)) || validImage(unit?.image_url);
-  const coverImage = exactImage ? "" : rarityCoverForUnit(unit);
+  const coverImage = exactImage ? "" : rarityCoverForUnit(unit,shiny);
   const image = exactImage || coverImage;
   const alt = exactImage
     ? (unit?.name || "Unit artwork") + (shiny ? " (shiny)" : "")
@@ -349,7 +349,7 @@ function renderUnits() {
     return '<article class="unit-card' + (shiny ? ' is-shiny' : '') + enter + '"' + order + '>' +
       '<div class="unit-art"><span class="unit-art-file" aria-hidden="true">NF / UNIT FILE</span>' +
       imageHtml(unit, "★", shiny) + shinyOverlay(shiny) +
-      (rarityCoverForUnit(unit) ? '<span class="unit-art-credit" title="This is a rarity cover, not the unit-specific portrait">RARITY ART</span>' : '') +
+      (rarityCoverForUnit(unit,shiny) ? '<span class="unit-art-credit" title="This is a rarity cover, not the unit-specific portrait">RARITY ART</span>' : '') +
       '<button type="button" class="shiny-button ' + (shiny ? 'active' : '') +
       '" data-shiny-id="' + escapeHtml(unit.id) + '" title="' +
       (shinyAvailable ? "Toggle shiny appearance" : "Shiny appearance not listed yet") + '" aria-label="' +
