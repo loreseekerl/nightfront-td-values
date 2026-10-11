@@ -57,6 +57,23 @@ Each official rarity has a cover slot (Common, Uncommon, Rare, Epic, Mythic, Sec
 
 **Permissions:** This table can be read by everyone. Only the single verified owner from `public.qa_editors` can update its image URLs. Visitors can't upload files or change covers. Cover changes do not touch unit values, shiny data, or the W/F/L calculator.
 
+## Owner sign-in — email code + password (October 2026)
+
+The Q&A owner editor and private Admin Dashboard share one Supabase Auth session and a single protected owner membership in `public.qa_editors`. An unclaimed owner code is **not** an authenticated account: you must verify your email and then claim ownership using the previously issued one-time code. The owner code and any passwords must never be committed to GitHub.
+
+### First-time setup
+
+1. Open [Supabase Authentication → Email Templates → Magic Link](https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/auth/templates). Add `Sign-in code: {{ .Token }}` to the Magic Link email body, and **keep its existing `{{ .ConfirmationURL }}` login link**. Save. This is a project setting and cannot be changed through the website's public publishable key.
+2. Confirm [Auth URL Configuration](https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/auth/url-configuration): Site URL `https://loreseekerl.github.io/nightfront-td-values/`; redirect URL `https://loreseekerl.github.io/nightfront-td-values/?qa=edit` allowed.
+3. Visit `https://loreseekerl.github.io/nightfront-td-values/?qa=edit#qa`. Enter your own email and click **EMAIL ME A SIGN-IN CODE**. Use the *latest* six-digit code in the same browser. If the email contains only a link, that link is still supported. Do not spam the send button: Supabase's built-in SMTP has strict email rate limits.
+4. Once signed in, the Q&A owner tools will show **Claim Q&A ownership** if ownership is still unclaimed. Enter the **existing private one-time owner code**. This claim is secured by a restricted database RPC and can happen only once.
+5. As the verified owner, open **SET OR CHANGE YOUR OWNER PASSWORD** in Q&A or Admin, choose a unique password of at least 12 characters, and save it.
+6. Visit `https://loreseekerl.github.io/nightfront-td-values/?admin=1#admin`. Use **SIGN IN WITH PASSWORD** on later visits. If you forgot it, use the email-code/link option once you regain email access.
+
+**Important:** Installing these changes does **not** automatically claim your owner account, sign you in, send email or change Supabase email templates. The owner personally completes those steps in the Supabase dashboard/browser. Both auth pages also contain a collapsed reminder of the exact email template variable.
+
+**Security:** The public website holds only a Supabase publishable key. Email codes are verified by Supabase via `verifyOtp({email,token,type:"email"})`. Password sign-in uses `signInWithPassword`, and the verified owner can set a password through `updateUser`. Credentials are never saved in the repository. The owner must also be a member of `qa_editors` before any dashboard write is authorized by RLS.
+
 ## Owner-only website Admin Dashboard
 
 **Private dashboard URL:** `https://loreseekerl.github.io/nightfront-td-values/?admin=1#admin`
