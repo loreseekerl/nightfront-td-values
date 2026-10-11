@@ -424,6 +424,211 @@ function totalFor(side) {
   return unknown ? null : base + enchants;
 }
 const formatTicketTotal = value => value == null ? "N/A" : fmt(value) + " tickets";
+
+// Demand is an independent 0–10 community rating, never a ticket multiplier.
+// Unset or non-standard text remains unrated; N/A is NOT a 0/10 rating.
+const demandScore = raw => {
+  const match=String(raw ?? "").trim().match(/^(10|[0-9])\s*\/\s*10$/);
+  return match ? Number(match[1]) : null;
+};
+const demandForEntry = entry => {
+  const unit=getEntryUnit(entry);
+  return unit ? (entry.shiny ? unit.shiny_demand : unit.demand) : null;
+};
+function demandSummary(side) {
+  const result={average:null,ratedQty:0,unknownQty:0,totalQty:0,
+    weightedTotal:0,weight:0,lowQty:0,lowUnits:[]};
+  for(const entry of state.offers[side]) {
+    const unit=getEntryUnit(entry);
+    const qty=Number(entry.qty);
+    if(!Number.isFinite(qty) || qty<=0) continue;
+    result.totalQty+=qty;
+    const rating=demandScore(demandForEntry(entry));
+    if(rating===null){result.unknownQty+=qty;continue;}
+    // Weight by the unit's BASE ticket value and quantity. Enchants don't
+    // influence demand; minimum weight 1 keeps zero-ticket units represented.
+    const base=unit ? (entry.shiny ? unit.shiny_value : unit.value) : null;
+    const weight=Math.max(1,hasValue(base) ? Number(base) : 1)*qty;
+    result.ratedQty+=qty;
+    result.weightedTotal+=rating*weight;
+    result.weight+=weight;
+    if(rating<=3){
+      result.lowQty+=qty;
+      result.lowUnits.push({
+        label:(unit?.name||"Unavailable unit")+(entry.shiny?" ★":""),
+        rating,qty
+      });
+    }
+  }
+  if(result.weight>0) result.average=result.weightedTotal/result.weight;
+  result.complete=result.totalQty>0 && result.unknownQty===0;
+  return result;
+}
+const demandDisplay=summary=>summary.average===null ? "N/A" :
+  summary.average.toFixed(1)+"/10"+(summary.unknownQty>0?" · PARTIAL":"");
+function tradeInsights(){
+  const yours=demandSummary("yours");
+  const theirs=demandSummary("theirs");
+  const yoursTickets=totalFor("yours"),theirsTickets=totalFor("theirs");
+  const both=state.offers.yours.length>0 && state.offers.theirs.length>0;
+  const allRated=yours.complete && theirs.complete;
+  const gap=allRated ? theirs.average-yours.average : null;
+  const alerts=[];
+  if(theirs.lowQty>0){
+    const names=theirs.lowUnits.slice(0,3).map(u=>u.label+" ("+u.rating+"/10)").join(", ");
+    alerts.push({kind:"warning",text:"LOW-DEMAND ALERT — You would receive "+names+
+      (theirs.lowUnits.length>3?" and other low-demand units":"")+
+      ". These may be harder to trade again."});
+  }
+  if(yours.lowQty>0){
+    const names=yours.lowUnits.slice(0,3).map(u=>u.label+" ("+u.rating+"/10)").join(", ");
+    alerts.push({kind:"note",text:"Your offer contains low-demand units: "+names+
+      (yours.lowUnits.length>3?" and others":"")+
+      ". Consider whether the units you receive are easier to trade."});
+  }
+  if(both && (yours.unknownQty>0 || theirs.unknownQty>0)){
+    alerts.push({kind:"note",text:"DEMAND DATA INCOMPLETE — "+
+      (yours.unknownQty+theirs.unknownQty)+" of "+
+      (yours.totalQty+theirs.totalQty)+" unit(s) have N/A or unrecognized demand. "+
+      "Unknown demand is not counted as low demand; a full comparison isn't possible."});
+  }
+  let title="ADD UNITS TO BOTH SIDES";
+  let description="Build both offers to see demand warnings and a recommendation.";
+  let status="neutral";
+  if(both && (yoursTickets===null || theirsTickets===null)){
+    title="CANNOT RECOMMEND — VALUE N/A";
+    description="At least one unit's ticket value is N/A. "+
+      "Demand warnings may still help, but the trade's ticket result is unknown.";
+    status="caution";
+  }else if(both){
+    const difference=Math.abs(theirsTickets-yoursTickets);
+    if(theirsTickets>yoursTickets){
+      if(theirs.lowQty>0){
+        title="TICKET WIN · LOW-DEMAND RISK";
+        description="You gain "+fmt(difference)+
+          " tickets by listed value, but you would receive low-demand units. "+
+          "Consider requesting stronger-demand units instead of accepting based only on tickets.";
+        status="caution";
+      }else if(!allRated){
+        title="TICKET WIN · VERIFY DEMAND";
+        description="You gain "+fmt(difference)+
+          " tickets, but demand data is incomplete. "+
+          "Check how easy the incoming units are to trade before deciding.";
+        status="caution";
+      }else if(gap<=-1.5){
+        title="TICKET WIN · WEAKER DEMAND";
+        description="You gain "+fmt(difference)+" tickets, but incoming demand averages "+
+          demandDisplay(theirs)+" versus "+demandDisplay(yours)+" for your offer. "+
+          "The higher ticket total may be harder to re-trade.";
+        status="caution";
+      }else if(gap>=1.5){
+        title="FAVORABLE · VALUE + DEMAND";
+        description="You gain "+fmt(difference)+" tickets and the incoming offer has "+
+          "higher rated demand ("+demandDisplay(theirs)+" vs "+demandDisplay(yours)+"). "+
+          "Check current trading conditions before confirming.";
+        status="favorable";
+      }else{
+        title="FAVORABLE BY LISTED DATA";
+        description="You gain "+fmt(difference)+" tickets, and the incoming units "+
+          "have similar demand with no low-demand flags. "+
+          "That supports the ticket win, but doesn't guarantee an easy future trade.";
+        status="favorable";
+      }
+    }else if(theirsTickets<yoursTickets){
+      if(theirs.lowQty>0){
+        title="AVOID · VALUE + DEMAND RISK";
+        description="You give "+fmt(difference)+
+          " more tickets and receive low-demand units. "+
+          "You may be overpaying for items that are harder to move.";
+        status="risk";
+      }else if(!allRated){
+        title="TICKET LOSS · CHECK DEMAND";
+        description="You give "+fmt(difference)+
+          " more tickets. Demand is incomplete, so there isn't enough evidence "+
+          "to justify that overpay on tradability.";
+        status="caution";
+      }else if(gap>=1.5){
+        title="VALUE LOSS · DEMAND UPSIDE";
+        description="You give "+fmt(difference)+
+          " more tickets, but incoming demand is higher ("+
+          demandDisplay(theirs)+" vs "+demandDisplay(yours)+"). "+
+          "Only consider that tradeoff if better tradability matters to you.";
+        status="caution";
+      }else{
+        title="LIKELY OVERPAY";
+        description="You give "+fmt(difference)+
+          " more tickets without a meaningful demand advantage in return. "+
+          "Consider asking for additional value or changing the offer.";
+        status="risk";
+      }
+    }else{
+      if(theirs.lowQty>0){
+        title="FAIR TICKETS · LOW-DEMAND RISK";
+        description="Ticket values match, but you receive low-demand units. "+
+          "A fair ticket total doesn't make that trade equally easy to re-trade.";
+        status="caution";
+      }else if(!allRated){
+        title="FAIR TICKETS · DEMAND UNKNOWN";
+        description="Both sides have equal listed tickets, but at least one "+
+          "demand rating is missing. Compare tradability before calling it fair overall.";
+        status="caution";
+      }else if(gap>=1.5){
+        title="FAIR VALUE · BETTER DEMAND";
+        description="Tickets are equal, but your incoming offer has stronger "+
+          "demand ("+demandDisplay(theirs)+" vs "+demandDisplay(yours)+"). "+
+          "That could make it easier to trade later.";
+        status="favorable";
+      }else if(gap<=-1.5){
+        title="FAIR VALUE · WEAKER DEMAND";
+        description="Tickets are equal, but incoming demand is weaker ("+
+          demandDisplay(theirs)+" vs "+demandDisplay(yours)+"). "+
+          "Consider requesting units with stronger demand.";
+        status="caution";
+      }else{
+        title="FAIR VALUE · SIMILAR DEMAND";
+        description="Both sides have equal ticket totals and broadly similar "+
+          "rated demand. Other factors and changing trading conditions still matter.";
+        status="neutral";
+      }
+    }
+  }
+  return {yours,theirs,alerts,title,description,status,both,allRated,
+    yoursTickets,theirsTickets};
+}
+function renderTradeDemand(){
+  const insight=tradeInsights();
+  for(const [side,data] of [["Yours",insight.yours],["Theirs",insight.theirs]]){
+    $("tradeDemand"+side).textContent=demandDisplay(data);
+    $("tradeDemand"+side+"Detail").textContent=data.totalQty===0 ?
+      "Add units to see demand." :
+      data.ratedQty+" / "+data.totalQty+" unit(s) rated"+
+      (data.unknownQty>0?" · incomplete":" · complete");
+    const meter=$("tradeDemand"+side+"Meter");
+    const fill=$("tradeDemand"+side+"Fill");
+    const coverage=data.totalQty>0 ? data.ratedQty+"/"+data.totalQty+" rated" : "no units";
+    meter.setAttribute("aria-label",(side==="Yours"?"Your offer: ":"Their offer: ")+
+      demandDisplay(data)+" demand; "+coverage);
+    fill.style.width=data.average===null?"0%":
+      Math.max(0,Math.min(100,data.average*10)).toFixed(1)+"%";
+    meter.classList.toggle("is-unknown",data.average===null);
+  }
+  const warningBox=$("tradeDemandAlerts");
+  warningBox.innerHTML=insight.alerts.map(w=>
+    '<div class="trade-demand-alert '+escapeHtml(w.kind)+'">'+
+      '<span aria-hidden="true">'+(w.kind==="warning"?"!":"i")+'</span>'+
+      '<p>'+escapeHtml(w.text)+'</p></div>').join("");
+  if(insight.both && !insight.alerts.length){
+    warningBox.innerHTML='<div class="trade-demand-alert clear">'+
+      '<span aria-hidden="true">✓</span>'+
+      '<p>No low-demand flags in the listed ratings on either side.</p></div>';
+  }
+  const recommendation=$("tradeRecommendation");
+  recommendation.className="trade-recommendation "+insight.status;
+  $("tradeRecommendationLabel").textContent="TRADE RECOMMENDATION · COMMUNITY DATA";
+  $("tradeRecommendationTitle").textContent=insight.title;
+  $("tradeRecommendationText").textContent=insight.description;
+}
+
 function offerText(side) {
   const names = state.offers[side].map((entry) => {
     const unit = getEntryUnit(entry);
@@ -435,15 +640,23 @@ function offerText(side) {
   return names.length ? names.join(", ") : "None";
 }
 function getTradeText() {
-  const yours = totalFor("yours"), theirs = totalFor("theirs");
+  const insight=tradeInsights();
+  const yours=insight.yoursTickets,theirs=insight.theirsTickets;
   return "Trading:\n" + offerText("yours") + "\nTotal: " + formatTicketTotal(yours) +
+    "\nDemand: " + demandDisplay(insight.yours) +
     "\n\nLooking for:\n" + offerText("theirs") +
     "\nTotal: " + formatTicketTotal(theirs) +
-    (state.offers.yours.length && state.offers.theirs.length ?
+    "\nDemand: " + demandDisplay(insight.theirs) +
+    (insight.both ?
       (yours === null || theirs === null ?
         "\n\nResult: N/A — a unit value is not available." :
         "\n\nDifference: " + fmt(Math.abs(yours - theirs)) + " tickets (" +
-        (theirs > yours ? "W" : theirs < yours ? "L" : "F") + ")") : "");
+        (theirs > yours ? "W" : theirs < yours ? "L" : "F") + ")") +
+      "\nRecommendation: " + insight.title +
+      "\n" + insight.description +
+      (insight.alerts.length ? "\nWarnings: " +
+        insight.alerts.map(item=>item.text).join(" ") : "") :
+      "");
 }
 function renderCalculator() {
   for (const side of ["yours", "theirs"]) {
