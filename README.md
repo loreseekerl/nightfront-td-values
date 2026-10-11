@@ -47,7 +47,7 @@ The game's own `rbxassetid://` image asset identifiers were exported to proper P
 - `.github/workflows/sync-nightfront-art.yml` safely runs the export on future source changes or manual dispatch.
 - `roblox-art-result.json` records which asset thumbnails were exported, blocked, or still pending.
 
-The first export saved **67 of 70 distinct image assets**, covering **60 of the 62 public unit portraits** when combined with existing manually uploaded art. Roblox still reports the images for **Fallen Star Golden Freddy** and **Fallen Star Spring Bonnie** as `Pending`. Their in-game IDs remain connected to the asset endpoint so the artwork can become available later; the site shows its normal fallback rather than substituting unrelated imagery. Green Bear's pending in-game asset does not affect its already owner-uploaded portrait.
+The first export saved **67 of 70 distinct image assets**, covering **60 of the 62 public unit portraits** when combined with existing manually uploaded art. Roblox still reports the images for **Fallen Star Golden Freddy** and **Fallen Star Spring Bonnie** as `Pending`. Until Roblox returns real images, their unit-specific `image_url` remains blank and the site displays each rarity's existing artwork with an explicit **RARITY ART** label. Their exact in-game asset IDs remain in `roblox-art-sync.json` for a later retry. Green Bear's pending in-game asset does not affect its already owner-uploaded portrait.
 
 To replace any portrait, use the private Admin Dashboard → **UNITS & IMAGES** and upload a verified image. A future game snapshot may contain additional units; importing more units requires reviewing and exporting the updated genuine unit list, not inventing unit names, rarities or values.
 
