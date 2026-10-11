@@ -30,15 +30,26 @@ Only these seven rarities are accepted by the Supabase database and shown in the
 | Secret | Red/orange | Ignited Freddy |
 | Glitched | Animated rotating dark-blue/purple gradient | The Creation |
 
-The owner-provided rarity-reference units **Ignited Chica, Ignited Foxy, Ignited Bonnie, Ignited Freddy, and The Creation** were added to the live database on October 11, 2026, alongside already-listed Freddy, Greenbear, and Chica. Their normal/shiny ticket values and demands were deliberately stored as **NULL / N/A** until the owner verifies the prices. The Glitched animation respects reduced-motion preferences.
+The site retains exactly those seven in-game unit rarity tiers. **62 game-confirmed units** now populate them, with market values and demands left **N/A** wherever unverified. The Glitched animation respects reduced-motion preferences.
 
-## More genuine units, without invented portraits
+## Game-confirmed unit roster and real artwork
 
-Nightfront currently has eight listed units across all seven rarity categories. The five newly published Ignited/The Creation entries use the owner's confirmed names and rarities but **not invented ticket numbers**. Their unit-specific `image_url` and `shiny_image_url` remain blank because an authentic picture for each unit has not yet been verified.
+The live value list now includes **62 real unit records**, recovered from the Nightfront Roblox game's latest server-synced Supabase snapshot (snapshot ID 9, October 11, 2026). The snapshot contained 101 ItemStats records, of which **63 were actual units**; **Passive Test Unit** was excluded. The other records are boxes/presents, passes, currencies, materials and titles, not tradeable unit records.
 
-On the public All Units list, an entry awaiting its own portrait temporarily displays that rarity's **owner-uploaded homepage cover** (when available) with a visible **RARITY ART** label. The image's alt text also identifies it as generic rarity cover artwork. This is **not** saved to the unit's image fields and **not** presented as an official picture of the character. Once the owner uploads the real portrait, it automatically takes precedence over the fallback.
+**All seven supported unit rarities remain:** Common, Uncommon, Rare, Epic, Mythic, Secret, Glitched. The snapshot's `Legendary`-rarity items were **game passes**, not units; there is no Legendary unit tier on this site. Unit rarities were taken from each actual game's `type="Unit"` record and were not guessed.
 
-To finish genuine unit portraits: visit the private Admin Dashboard → **UNITS & IMAGES**, enable **ONLY UNITS NEEDING PORTRAITS**, click **EDIT** beside the relevant unit, and upload a verified PNG/JPG/WebP/GIF or paste an HTTPS image URL. Clear this filter to review all units. The same editor supports normal and shiny pictures separately.
+54 missing units were inserted, preserving the eight units already on the website. Existing ticket values, demand ratings, rarity labels and owner-uploaded portraits were preserved. Newly discovered units have **N/A** for ticket value and normal/shiny demand, because placement/upgrade prices in the game's combat stats are *not* trading-market ticket values.
+
+The game's own `rbxassetid://` image asset identifiers were exported to proper PNG/JPEG/WebP/GIF files using the public Roblox thumbnails API. The website serves successfully exported files directly from `assets/roblox-units/`, not by placing an unsupported `rbxassetid://` URI into an HTML `img`. This avoids third-party CORS issues and keeps the source artwork associated with the correct unit. Owner-provided manual portraits are never replaced. Distinct real shiny portraits are saved where the game supplied separate valid art; otherwise the normal art is reused with the shiny frame.
+
+- `roblox-art-sync.json` is the sanitized list of actual units and their Roblox normal/shiny image asset IDs.
+- `scripts/sync_nightfront_art.py` fetches thumbnails, validates their state and image bytes, and saves only genuine downloadable image data.
+- `.github/workflows/sync-nightfront-art.yml` safely runs the export on future source changes or manual dispatch.
+- `roblox-art-result.json` records which asset thumbnails were exported, blocked, or still pending.
+
+The first export saved **67 of 70 distinct image assets**, covering **60 of the 62 public unit portraits** when combined with existing manually uploaded art. Roblox still reports the images for **Fallen Star Golden Freddy** and **Fallen Star Spring Bonnie** as `Pending`. Their in-game IDs remain connected to the asset endpoint so the artwork can become available later; the site shows its normal fallback rather than substituting unrelated imagery. Green Bear's pending in-game asset does not affect its already owner-uploaded portrait.
+
+To replace any portrait, use the private Admin Dashboard → **UNITS & IMAGES** and upload a verified image. A future game snapshot may contain additional units; importing more units requires reviewing and exporting the updated genuine unit list, not inventing unit names, rarities or values.
 
 ## Unpriced units: N/A
 
