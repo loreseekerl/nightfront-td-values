@@ -14,7 +14,7 @@
   const state = {
     client:null, authorized:false, units:[], enchants:[], homeArt:[],
     editUnitId:null, busy:false, sessionCheck:0, previews:{normal:null,shiny:null},
-    coverPreviews:{}
+    coverPreviews:{}, otpEmail:null, nextEmailAt:0, emailSending:false, verifyingOtp:false
   };
 
   function status(message, error=false) {
@@ -400,22 +400,112 @@
   $("adminReload").addEventListener("click",()=>refreshData().catch(e=>status(e.message,true)));
   $("adminLogout").addEventListener("click",signOut);
   $("adminDeniedLogout").addEventListener("click",signOut);
+  function readableAuthError(error) {
+    const raw = String(error?.message || "Please try again.");
+    if (/rate limit|too many requests|429/i.test(raw))
+      return "Email limit reached. Wait before asking for another message (often around an hour), or use your saved owner password.";
+    if (/token.*(expired|invalid)|otp.*(expired|invalid)/i.test(raw))
+      return "That code has expired or was already used. Request a fresh email once the limit allows, then use only its newest code.";
+    return raw;
+  }
   $("adminLoginForm").addEventListener("submit",async(event)=>{
     event.preventDefault();
     if (!state.client) return;
     const email = $("adminEmail").value.trim();
+    const password = $("adminLoginPassword").value;
     if (!email) return;
-    const button = event.target.querySelector('button[type="submit"]');
+    if (!password) {
+      status("Enter your password, or choose EMAIL A SIGN-IN CODE for your first login.",true);
+      $("adminLoginPassword").focus();
+      return;
+    }
+    const button = $("adminPasswordLoginButton");
     button.disabled = true;
-    status("Sending sign-in link…");
+    status("Signing in with password…");
     try {
-      const {error} = await state.client.auth.signInWithOtp({
-        email,options:{emailRedirectTo:"https://loreseekerl.github.io/nightfront-td-values/?qa=edit",shouldCreateUser:true}
+      const {data,error} = await state.client.auth.signInWithPassword({email,password});
+      if (error) throw error;
+      $("adminLoginPassword").value = "";
+      if (data?.session) await checkSession(data.session);
+    } catch(error) { status("Password sign-in failed: " + readableAuthError(error),true); }
+    finally {button.disabled = false;}
+  });
+  $("adminEmailCodeButton").addEventListener("click",async()=>{
+    if (!state.client || state.emailSending) return;
+    const emailInput=$("adminEmail");
+    if (!emailInput.reportValidity()) return;
+    if (Date.now() < state.nextEmailAt) {
+      status("Wait before sending another email. Use the newest message already sent.",true);
+      return;
+    }
+    const email=emailInput.value.trim();
+    const button=$("adminEmailCodeButton");
+    state.emailSending=true;
+    button.disabled=true;
+    status("Requesting one sign-in email…");
+    try {
+      const {error}=await state.client.auth.signInWithOtp({
+        email,options:{
+          emailRedirectTo:"https://loreseekerl.github.io/nightfront-td-values/?qa=edit#qa",
+          shouldCreateUser:true
+        }
       });
       if (error) throw error;
-      status("Check your email. Sign in on the Q&A owner page, then return to this dashboard.");
-    } catch(error) { status("Could not send email: " + error.message,true); }
-    finally {button.disabled = false;}
+      state.otpEmail=email;
+      state.nextEmailAt=Date.now()+60000;
+      $("adminEmailCodeForm").hidden=false;
+      $("adminEmailCode").value="";
+      status("Email requested. Enter the six-digit code from your latest email, or click its sign-in link once. Links return through the Q&A owner page.");
+      $("adminEmailCode").focus();
+    } catch(error) {status("Could not send email: "+readableAuthError(error),true);}
+    finally {
+      state.emailSending=false;
+      if(state.nextEmailAt>Date.now())setTimeout(()=>{button.disabled=false;},state.nextEmailAt-Date.now());
+      else button.disabled=false;
+    }
+  });
+  $("adminEmailCodeForm").addEventListener("submit",async(event)=>{
+    event.preventDefault();
+    if(!state.client || !state.otpEmail || state.verifyingOtp)return;
+    const token=$("adminEmailCode").value.trim();
+    if(!/^\d{6}$/.test(token)){
+      status("Enter all six digits from the newest email.",true);
+      return;
+    }
+    const button=event.target.querySelector('button[type="submit"]');
+    button.disabled=true;
+    state.verifyingOtp=true;
+    status("Verifying your email code…");
+    try {
+      const {data,error}=await state.client.auth.verifyOtp({
+        email:state.otpEmail,token,type:"email"
+      });
+      if(error)throw error;
+      state.otpEmail=null;
+      $("adminEmailCode").value="";
+      $("adminEmailCodeForm").hidden=true;
+      if(data?.session)await checkSession(data.session);
+    } catch(error) {status("Email code failed: "+readableAuthError(error),true);}
+    finally {state.verifyingOtp=false;button.disabled=false;}
+  });
+  $("adminPasswordForm").addEventListener("submit",async(event)=>{
+    event.preventDefault();
+    if(!state.authorized || !state.client)return;
+    const password=$("adminNewPassword").value;
+    if(password.length<12 || password!==$("adminConfirmPassword").value){
+      status("Password must be at least 12 characters and both entries must match.",true);
+      return;
+    }
+    const button=event.target.querySelector('button[type="submit"]');
+    button.disabled=true;
+    status("Saving your owner password…");
+    try {
+      const {error}=await state.client.auth.updateUser({password});
+      if(error)throw error;
+      event.target.reset();
+      status("Owner password saved! Your next login can use email + password without a new link.");
+    } catch(error) {status("Password setup failed: "+readableAuthError(error),true);}
+    finally {button.disabled=false;}
   });
 
   async function init() {
