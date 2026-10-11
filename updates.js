@@ -7,7 +7,7 @@
   const esc = value => String(value ?? "").replace(/[&<>"']/g,
     ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   const fmt = value => Number(value).toLocaleString("en-US",{maximumFractionDigits:2});
-  const tickets = value => value == null ? "Not listed" : fmt(value) + " tickets";
+  const tickets = value => value == null ? "N/A" : fmt(value) + " tickets";
   const numberChanged = (a,b) => a === null || b === null
     ? a !== b : Number(a) !== Number(b);
   const labels = {
@@ -43,8 +43,8 @@
       (diff>0?"+":"")+esc(fmt(diff))+'</span>';
   }
   function valueRow(title,before,after,showChange=true,suffix="") {
-    const previous=before==null ? "Not listed" : suffix ? String(before)+suffix : tickets(before);
-    const next=after==null ? "Not listed" : suffix ? String(after)+suffix : tickets(after);
+    const previous=before==null ? "N/A" : suffix ? String(before)+suffix : tickets(before);
+    const next=after==null ? "N/A" : suffix ? String(after)+suffix : tickets(after);
     return '<div class="updates-delta-row"><span class="updates-delta-label">'+esc(title)+'</span>'+
       (showChange?'<span class="updates-previous">'+esc(previous)+'</span><span class="updates-to">→</span>':'')+
       '<strong>'+esc(next)+'</strong>'+
