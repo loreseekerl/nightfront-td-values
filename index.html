@@ -550,6 +550,25 @@
             <input type="checkbox" id="adminMissingArtworkOnly">
             <span>ONLY UNITS NEEDING PORTRAITS <b id="adminMissingArtworkCount"></b></span>
           </label>
+          <div class="admin-bulk-art" id="adminBulkArtwork">
+            <div class="admin-bulk-art-heading">
+              <div>
+                <h3>ADD CHARACTER ARTWORK IN BULK</h3>
+                <p>Select the real unit portraits from your PC. Name each file after the unit (example: <code>Toy Bonnie.png</code>). The site matches names automatically and only fills missing normal portraits.</p>
+              </div>
+              <span>OWNER ONLY</span>
+            </div>
+            <label for="adminBulkArtFiles" class="admin-bulk-art-input">
+              CHOOSE UNIT IMAGES
+              <input id="adminBulkArtFiles" type="file" accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif" multiple>
+            </label>
+            <div id="adminBulkArtPreview" class="admin-bulk-art-preview" aria-live="polite">Choose PNG, JPG, WebP or GIF files (5 MB max each) to check their unit names before upload.</div>
+            <div class="admin-bulk-art-actions">
+              <button id="adminBulkArtSave" class="admin-primary" type="button" disabled>UPLOAD MATCHED PORTRAITS</button>
+              <button id="adminBulkArtClear" class="admin-outline" type="button">CLEAR SELECTION</button>
+            </div>
+            <p class="admin-help" id="adminBulkArtStatus" role="status" aria-live="polite">Existing unit images and ticket values are never overwritten by this tool.</p>
+          </div>
           <div id="adminUnitsList" class="admin-units-list"></div>
 
           <form id="adminUnitForm" class="admin-unit-form" hidden>
