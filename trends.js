@@ -10,6 +10,10 @@
   const numeric = value => value === null || value === undefined || value === ""
     ? null : Number.isFinite(Number(value)) ? Number(value) : null;
   const ticketLabel = value => numeric(value) === null ? "N/A" : fmt(value) + " tickets";
+  const demandLabel = raw => {
+    const label=String(raw ?? "").trim();
+    return !label || /^(unknown|n\/?a)$/i.test(label) ? "N/A" : label;
+  };
   const demandScore = raw => {
     const match = String(raw ?? "").trim().match(/^(10|[1-9])\s*\/\s*10$/);
     return match ? Number(match[1]) : null;
@@ -46,7 +50,7 @@
     // historical price movement. Genuine recorded updates override that label.
     const hasStartingRecord = events.some(event =>
       event.event_type === "baseline" || event.event_type === "created");
-    const validCurrent = kind === "demand" ?
+    const validCurrent = (kind === "demand" || kind === "shinyDemand") ?
       demandScore(currentValue) !== null : numeric(currentValue) !== null;
     // A currently unavailable value has no meaningful current price direction.
     if (!validCurrent) return {status:"unknown",delta:null,lastChanged:null};
@@ -62,8 +66,10 @@
     let delta=0,observed=false,lastChanged=null;
     for(const entry of updates) {
       const oldValue = kind==="demand" ? demandScore(entry.old_demand) :
+        kind==="shinyDemand" ? demandScore(entry.old_shiny_demand) :
         numeric(kind==="shiny" ? entry.old_shiny_value : entry.old_value);
       const newValue = kind==="demand" ? demandScore(entry.new_demand) :
+        kind==="shinyDemand" ? demandScore(entry.new_shiny_demand) :
         numeric(kind==="shiny" ? entry.new_shiny_value : entry.new_value);
       if (oldValue===null || newValue===null) continue;
       observed=true;
@@ -89,7 +95,9 @@
         normal:calculateTrend(events,"normal",now,unit.value),
         shiny:calculateTrend(events,"shiny",now,unit.shiny_value),
         demand:calculateTrend(events,"demand",now,unit.demand),
+        shinyDemand:calculateTrend(events,"shinyDemand",now,unit.shiny_demand),
         rating:demandScore(unit.demand),
+        shinyRating:demandScore(unit.shiny_demand),
         latest:events.length ? events[0]?.changed_at : null
       });
     }
@@ -97,10 +105,11 @@
   }
   function badge(kind,trend) {
     const display=status[trend?.status || "unknown"];
-    const label=kind==="value"?"Value":kind==="demand"?"Demand":"Shiny";
+    const label=kind==="value"?"Normal value":kind==="shiny"?"Shiny value":
+      kind==="shinyDemand"?"Shiny demand":"Normal demand";
     const delta=trend?.delta;
     const changes=delta === null || !Number.isFinite(delta) ? "" :
-      (delta===0 ? "" : " " + (delta>0?"+":"") + fmt(delta) + (kind==="demand"?"/10":""));
+      (delta===0 ? "" : " " + (delta>0?"+":"") + fmt(delta) + (kind==="demand"||kind==="shinyDemand"?"/10":""));
     const tooltip=(trend?.defaultStable ?
       "Starting status: Stable until a recorded change establishes movement" :
       display.text==="Not enough history" ?
@@ -117,7 +126,7 @@
     const data=state.map.get(String(unit.id));
     return '<div class="unit-market-badges">' +
       badge(shiny?"shiny":"value",shiny?data?.shiny:data?.normal) +
-      badge("demand",data?.demand) + "</div>";
+      badge(shiny?"shinyDemand":"demand",shiny?data?.shinyDemand:data?.demand) + "</div>";
   }
   const countOf=(field,which)=>state.units.filter(u=>
     state.map.get(String(u.id))?.[field]?.status===which).length;
@@ -137,17 +146,20 @@
     const query=$("trendsSearch").value.toLowerCase().trim();
     const valueFilter=$("trendsValueFilter").value;
     const demandFilter=$("trendsDemandFilter").value;
+    const demandVariant=$("trendsDemandVariant").value;
+    const demandField=demandVariant==="shiny" ? "shinyDemand" : "demand";
+    const ratingField=demandVariant==="shiny" ? "shinyRating" : "rating";
     const sort=$("trendsSort").value;
     const items=state.units.filter(unit=>{
       const trend=state.map.get(String(unit.id));
       return unit.name.toLowerCase().includes(query) &&
         (!valueFilter || trend?.normal.status === valueFilter) &&
-        (!demandFilter || trend?.demand.status === demandFilter);
+        (!demandFilter || trend?.[demandField].status === demandFilter);
     });
     items.sort((a,b)=>{
       const av=state.map.get(String(a.id));
       const bv=state.map.get(String(b.id));
-      if(sort==="demand") return (bv?.rating??-1)-(av?.rating??-1) || a.name.localeCompare(b.name);
+      if(sort==="demand") return (bv?.[ratingField]??-1)-(av?.[ratingField]??-1) || a.name.localeCompare(b.name);
       if(sort==="value") {
         const aa=numeric(a.value), bb=numeric(b.value);
         if(aa===null || bb===null) return aa===null && bb===null ?
@@ -167,19 +179,28 @@
     $("trendsGrid").innerHTML=displayed.map(unit=>{
       const trend=state.map.get(String(unit.id));
       const pic=image(unit.image_url);
-      const score=trend?.rating;
+      const score=trend?.rating ?? null;
+      const shinyScore=trend?.shinyRating ?? null;
       const demandPercent=score===null?0:Math.max(0,Math.min(100,score*10));
+      const shinyDemandPercent=shinyScore===null?0:Math.max(0,Math.min(100,shinyScore*10));
       return '<article class="trends-unit-card">' +
         '<div class="trends-unit-head">' +
         '<div class="trends-portrait">'+(pic?'<img loading="lazy" src="'+esc(pic)+'" alt="'+esc(unit.name)+' artwork">':'<span aria-hidden="true">★</span>')+'</div>' +
         '<div class="trends-unit-title"><strong>'+esc(unit.name)+'</strong><small>'+esc(unit.rarity)+'</small></div></div>' +
         '<div class="trends-ticket-values"><div><small>Normal</small><strong>'+ticketLabel(unit.value)+'</strong></div>'+
         '<div><small>Shiny</small><strong>'+ticketLabel(unit.shiny_value)+'</strong></div></div>' +
-        '<div class="trends-demand-info"><div><span>DEMAND</span><strong>'+esc(unit.demand||"Unknown")+'</strong></div>' +
-        '<div class="trends-demand-meter" role="img" aria-label="'+
-        esc(score===null?"Demand score not rated from 1 to 10":"Demand rating "+score+" out of 10")+
-        '"><span style="width:'+demandPercent+'%"></span></div></div>' +
-        '<div class="trends-badges">'+badge("value",trend?.normal)+badge("shiny",trend?.shiny)+badge("demand",trend?.demand)+'</div>' +
+        '<div class="trends-demand-pair">'+
+          '<div class="trends-demand-info"><div><span>NORMAL DEMAND</span><strong>'+esc(demandLabel(unit.demand))+'</strong></div>' +
+          '<div class="trends-demand-meter" role="img" aria-label="'+
+          esc(score===null?"Normal demand: N/A or not numeric":"Normal demand: "+score+" out of 10")+
+          '"><span style="width:'+demandPercent+'%"></span></div></div>'+
+          '<div class="trends-demand-info"><div><span>SHINY DEMAND ★</span><strong>'+esc(demandLabel(unit.shiny_demand))+'</strong></div>' +
+          '<div class="trends-demand-meter" role="img" aria-label="'+
+          esc(shinyScore===null?"Shiny demand: N/A or not numeric":"Shiny demand: "+shinyScore+" out of 10")+
+          '"><span style="width:'+shinyDemandPercent+'%"></span></div></div>'+
+        '</div>' +
+        '<div class="trends-badges">'+badge("value",trend?.normal)+badge("shiny",trend?.shiny)+
+        badge("demand",trend?.demand)+badge("shinyDemand",trend?.shinyDemand)+'</div>' +
         '<div class="trends-card-footer"><small>Last recorded: '+esc(dateText(trend?.latest)||"No history yet")+'</small>' +
         '<button type="button" data-trend-history="'+esc(unit.id)+'">View history ↗</button></div>' +
         '</article>';
@@ -201,8 +222,8 @@
       const base=SUPABASE_URL+"/rest/v1/";
       const headers={apikey:SUPABASE_PUBLISHABLE_KEY};
       const [unitResponse,histResponse]=await Promise.all([
-        fetch(base+"units?select=id,name,rarity,value,shiny_value,demand,image_url&order=name.asc&limit=1000",{headers}),
-        fetch(base+"unit_value_history?select=id,unit_id,event_type,old_value,new_value,old_shiny_value,new_shiny_value,old_demand,new_demand,changed_at&order=changed_at.desc&limit="+latestLimit,{headers})
+        fetch(base+"units?select=id,name,rarity,value,shiny_value,demand,shiny_demand,image_url&order=name.asc&limit=1000",{headers}),
+        fetch(base+"unit_value_history?select=id,unit_id,event_type,old_value,new_value,old_shiny_value,new_shiny_value,old_demand,new_demand,old_shiny_demand,new_shiny_demand,changed_at&order=changed_at.desc&limit="+latestLimit,{headers})
       ]);
       if(!unitResponse.ok || !histResponse.ok) throw new Error("Supabase response "+(unitResponse.ok?histResponse.status:unitResponse.status));
       const [units,history]=await Promise.all([unitResponse.json(),histResponse.json()]);
@@ -227,6 +248,7 @@
   $("trendsSearch").addEventListener("input",render);
   $("trendsValueFilter").addEventListener("change",render);
   $("trendsDemandFilter").addEventListener("change",render);
+  $("trendsDemandVariant").addEventListener("change",render);
   $("trendsSort").addEventListener("change",render);
   $("trendsRefresh").addEventListener("click",load);
   $("trendsGrid").addEventListener("click",event=>{
