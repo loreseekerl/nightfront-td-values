@@ -44,6 +44,17 @@ On the private Admin Dashboard's **Units & Images** editor, the **Normal value**
 
 The database migrations made `public.units.value` and `public.unit_value_history.new_value` nullable and removed the normal-value default of 0. The existing nonnegative checks, history trigger, owner-only edit permissions, and all existing ticket values remain unchanged.
 
+## Separate normal and shiny demand
+
+Each unit now has **two independently editable demand ratings**: `public.units.demand` for **Normal**, and `public.units.shiny_demand` for **Shiny ★**. The owner controls both from **Admin → Units & Images**, in the **Normal demand** and **Shiny demand** fields.
+
+- Both demand inputs are optional. Leave either blank to save **NULL**, which displays **N/A** on that version's unit card, homepage normal-demand summary, suggestions-page unit preview, and Demand & Value Trends. No demand is copied automatically between variants.
+- Previously recorded **normal** demand ratings are preserved. Existing shiny demand starts as **N/A** until manually set. The ticket values, enchant bonuses, artwork, and W/F/L prices are separate and unchanged.
+- Tapping ★ on All Units switches **both the displayed ticket value and the displayed demand** independently. Even if a shiny ticket value is N/A, the preview works; an unpriced variant still cannot be added to the W/F/L calculator.
+- The separate **normal/shiny demand** values are visible together on Demand & Value Trends, with independent demand meters and recorded movement badges. Demand Trend and Highest Demand sorting can target either variant using **Demand Version**.
+- The existing Supabase unit history trigger records normal or shiny demand edits independently, without backdating historical records. Value History can filter **Normal demand** or **Shiny demand** changes; Update History shows which variant changed.
+- Missing demand is not a numeric zero rating; trends show **Not enough history** when no valid `1/10` through `10/10` demand value exists. Other custom demand text remains displayable without a numerical trend.
+
 ## Player value suggestions and owner approval
 
 **Public page:** `#suggestions` (MORE → **Suggest a Value**), plus a shortcut on each All Units card and on the homepage. Players don't need an account. They choose an existing unit, **normal** or **shiny**, and either:
@@ -143,7 +154,8 @@ On **Enchant Bonuses**, edit and save the bonus ticket value for any of the five
 | `value` | `10` or *(leave blank)* | Numeric ticket value; blank = N/A (NULL), not 0. |
 | `shiny_value` | *(leave blank until known)* | Optional value for the shiny version (in tickets); required for adding a shiny unit to a trade. |
 | `shiny_image_url` | *(leave blank or use a public HTTPS image link)* | Optional artwork shown only when shiny is selected. |
-| `demand` | `1/10` | Displayed as text. |
+| `demand` | `1/10` or *(blank)* | Normal demand; blank = N/A. |
+| `shiny_demand` | `3/10` or *(blank)* | Independent shiny demand; blank = N/A. |
 | `image_url` | `https://.../assets/freddy.webp` | Public HTTPS URL for artwork. |
 
 Do **not** manually fill `id` or `created_at`; the database generates them.
