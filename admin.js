@@ -38,7 +38,7 @@
     requireOwner();
     const [u,e,covers,suggestions] = await Promise.all([
       state.client.from("units")
-        .select("id,name,rarity,value,shiny_value,demand,shiny_demand,image_url,shiny_image_url,updated_at")
+        .select("id,name,rarity,value,shiny_value,demand,shiny_demand,normal_value_status,shiny_value_status,normal_value_evidence,shiny_value_evidence,released_on,image_url,shiny_image_url,updated_at")
         .order("name", {ascending:true}),
       state.client.from("enchants")
         .select("id,name,bonus_tickets,sort_order")
@@ -376,6 +376,11 @@
     $("adminUnitShinyValue").value = unit?.shiny_value ?? "";
     $("adminUnitDemand").value = unit?.demand ?? "";
     $("adminUnitShinyDemand").value = unit?.shiny_demand ?? "";
+    $("adminNormalValueStatus").value = unit?.normal_value_status || "Estimated";
+    $("adminShinyValueStatus").value = unit?.shiny_value_status || "Estimated";
+    $("adminNormalEvidence").value = unit?.normal_value_evidence || "";
+    $("adminShinyEvidence").value = unit?.shiny_value_evidence || "";
+    $("adminUnitReleaseDate").value = unit?.released_on || "";
     $("adminUnitImage").value = unit?.image_url || "";
     $("adminUnitShinyImage").value = unit?.shiny_image_url || "";
     $("adminDeleteUnit").hidden = !unit;
@@ -409,14 +414,32 @@
     const shinyValue = rawShiny === "" ? null : Number(rawShiny);
     const demand = $("adminUnitDemand").value.trim() || null;
     const shinyDemand = $("adminUnitShinyDemand").value.trim() || null;
+    const normalStatus = $("adminNormalValueStatus").value;
+    const shinyStatus = $("adminShinyValueStatus").value;
+    const normalEvidence = $("adminNormalEvidence").value.trim() || null;
+    const shinyEvidence = $("adminShinyEvidence").value.trim() || null;
+    const releaseDate = $("adminUnitReleaseDate").value.trim() || null;
     if (!name || name.length > 100) throw Error("Enter a unit name (up to 100 characters).");
     if (!rarities.includes(rarity)) throw Error("Select a valid rarity.");
     if (rawValue !== "" && (!Number.isFinite(value) || value < 0 || value > 1e9))
       throw Error("Normal value must be blank (N/A) or between 0 and 1 billion.");
     if (rawShiny !== "" && (!Number.isFinite(shinyValue) || shinyValue < 0 || shinyValue > 1e9))
       throw Error("Shiny value must be blank or between 0 and 1 billion.");
+    if (!["Estimated","Verified"].includes(normalStatus) ||
+        !["Estimated","Verified"].includes(shinyStatus))
+      throw Error("Choose Estimated or Verified for each unit version.");
+    if (normalStatus === "Verified" && (value === null || !normalEvidence || normalEvidence.length < 8))
+      throw Error("Verified normal values require a listed ticket amount and evidence (at least 8 characters).");
+    if (shinyStatus === "Verified" && (shinyValue === null || !shinyEvidence || shinyEvidence.length < 8))
+      throw Error("Verified shiny values require a listed ticket amount and evidence (at least 8 characters).");
+    if (releaseDate && (!/^\d{4}-\d{2}-\d{2}$/.test(releaseDate) ||
+      Number.isNaN(Date.parse(releaseDate)) || releaseDate > new Date().toISOString().slice(0,10)))
+      throw Error("Enter a real confirmed release date that is not in the future.");
     return {
       name, rarity, value, shiny_value:shinyValue, demand, shiny_demand:shinyDemand,
+      normal_value_status:normalStatus, shiny_value_status:shinyStatus,
+      normal_value_evidence:normalEvidence, shiny_value_evidence:shinyEvidence,
+      released_on:releaseDate,
       image_url:imageURL($("adminUnitImage").value),
       shiny_image_url:imageURL($("adminUnitShinyImage").value)
     };
