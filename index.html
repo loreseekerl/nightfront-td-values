@@ -380,10 +380,22 @@
         <p>Use the same Supabase account as your Developer Q&amp;A owner. If you haven't claimed it yet, claim your Q&amp;A first.</p>
         <a href="./?qa=edit#qa" class="outline-btn">CLAIM / MANAGE Q&amp;A OWNER</a>
         <form id="adminLoginForm" class="admin-login-form">
-          <label>Email address <input id="adminEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
-          <button type="submit" class="admin-primary">Email sign-in link</button>
+          <label>Email address <input id="adminEmail" type="email" autocomplete="email" placeholder="Your owner email" required></label>
+          <label>Password <input id="adminLoginPassword" type="password" autocomplete="current-password" placeholder="Your owner password"></label>
+          <div class="admin-login-actions">
+            <button type="submit" id="adminPasswordLoginButton" class="admin-primary">SIGN IN WITH PASSWORD</button>
+            <button type="button" id="adminEmailCodeButton" class="admin-outline">EMAIL A SIGN-IN CODE</button>
+          </div>
         </form>
-        <p class="admin-help">The email link returns to the private Q&amp;A page. After signing in, open this dashboard again. No password or secret keys are saved here.</p>
+        <form id="adminEmailCodeForm" class="owner-otp-form" hidden>
+          <label for="adminEmailCode">6-DIGIT EMAIL CODE</label>
+          <div class="owner-otp-row">
+            <input id="adminEmailCode" name="token" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required>
+            <button type="submit" class="admin-primary">VERIFY &amp; SIGN IN</button>
+          </div>
+          <p>Use the code from the latest email. If that email only contains a link, the link can still sign you in.</p>
+        </form>
+        <p class="admin-help">First login? Use the email option, claim ownership from Q&amp;A, then set a password. No admin keys or passwords are saved in the website code.</p>
       </div>
       <div id="adminDeniedBox" class="admin-auth" hidden>
         <h2>OWNER ACCESS REQUIRED</h2>
@@ -400,6 +412,15 @@
             <button id="adminLogout" type="button" class="admin-outline">Sign out</button>
           </div>
         </div>
+        <details class="admin-password-settings">
+          <summary>SET OR CHANGE OWNER PASSWORD <span aria-hidden="true">↘</span></summary>
+          <p>Choose a strong password (12 characters minimum). Next time, sign in here without waiting for an email.</p>
+          <form id="adminPasswordForm" class="owner-password-form">
+            <label>New password <input id="adminNewPassword" type="password" autocomplete="new-password" required minlength="12"></label>
+            <label>Confirm password <input id="adminConfirmPassword" type="password" autocomplete="new-password" required minlength="12"></label>
+            <button type="submit" class="admin-primary">SAVE OWNER PASSWORD</button>
+          </form>
+        </details>
         <div class="admin-tabs" role="tablist" aria-label="Admin editor sections">
           <button type="button" class="admin-tab active" id="adminUnitsTab" aria-selected="true">UNITS &amp; IMAGES</button>
           <button type="button" class="admin-tab" id="adminEnchantsTab" aria-selected="false">ENCHANT BONUSES</button>
@@ -485,11 +506,22 @@
           <div id="qaAuthStatus" class="qa-message" role="status"></div>
           <form id="qaLoginForm" class="qa-login-form">
             <label for="qaLoginEmail">Owner email</label>
-            <div class="qa-login-row">
-              <input id="qaLoginEmail" name="email" type="email" autocomplete="email" placeholder="Email for a sign-in link" required>
-              <button type="submit" class="qa-primary-btn">Email me a login link</button>
+            <input id="qaLoginEmail" name="email" type="email" autocomplete="email" placeholder="Your owner email" required>
+            <label for="qaLoginPassword">Password (if you've already set one)</label>
+            <input id="qaLoginPassword" type="password" autocomplete="current-password" placeholder="Your password">
+            <div class="qa-login-actions">
+              <button type="submit" id="qaPasswordLoginButton" class="qa-primary-btn">SIGN IN WITH PASSWORD</button>
+              <button type="button" id="qaEmailCodeButton" class="qa-secondary-btn">EMAIL ME A SIGN-IN CODE</button>
             </div>
-            <p class="qa-owner-hint">Sign in with a secure email link. If this Q&amp;A is not yet claimed, you can enter your private one-time owner code.</p>
+            <p class="qa-owner-hint">First time? Use your email, then enter your one-time owner claim code after signing in. The email link also works if your message doesn't include a number.</p>
+          </form>
+          <form id="qaEmailCodeForm" class="owner-otp-form" hidden>
+            <label for="qaEmailCode">6-DIGIT EMAIL CODE</label>
+            <div class="owner-otp-row">
+              <input id="qaEmailCode" name="token" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required>
+              <button type="submit" class="qa-primary-btn">VERIFY &amp; SIGN IN</button>
+            </div>
+            <p>Enter the code from the newest email. If it only has a sign-in link, open that link instead.</p>
           </form>
           <div id="qaSessionTools" class="qa-session-tools" hidden>
             <span id="qaLoggedEmail"></span>
@@ -511,6 +543,15 @@
           </div>
           <div id="qaEditorPanel" class="qa-editor-panel" hidden>
             <a href="./?admin=1#admin" class="outline-btn admin-qalink">OPEN PRIVATE VALUE LIST ADMIN →</a>
+            <details class="qa-password-settings">
+              <summary>SET OR CHANGE YOUR OWNER PASSWORD</summary>
+              <p class="qa-owner-hint">After claiming ownership, set a strong password so future dashboard logins won't require another email.</p>
+              <form id="qaPasswordForm" class="owner-password-form">
+                <label>New password <input id="qaNewPassword" type="password" autocomplete="new-password" required minlength="12"></label>
+                <label>Confirm password <input id="qaConfirmPassword" type="password" autocomplete="new-password" required minlength="12"></label>
+                <button type="submit" class="qa-primary-btn">SAVE OWNER PASSWORD</button>
+              </form>
+            </details>
             <h2>Manage questions</h2>
             <p class="qa-owner-hint">Edit the entries below. Changes go straight to the shared database. Uncheck Published to hide a question from visitors.</p>
             <div id="qaEditorList" class="qa-editor-list"></div>
