@@ -177,7 +177,7 @@ function renderHomeHero() {
   }
   portrait.innerHTML = imageHtml(unit);
   $("homeFeaturedLabel").textContent = 'SPOTLIGHT / ' + unit.name.toUpperCase() +
-    ' · ' + fmt(unit.value) + ' TICKETS';
+    ' · ' + (hasValue(unit.value) ? fmt(unit.value) + ' TICKETS' : 'N/A');
 }
 
 async function loadHomeArtwork() {
@@ -233,7 +233,7 @@ function renderFeatured() {
       '<span class="spotlight-details"><strong>' + escapeHtml(unit.name) + '</strong>' +
       '<span class="spotlight-meta">' + rarityBadge(unit.rarity) +
       '<small>' + escapeHtml(unit.demand || "Unknown") + ' demand</small></span>' +
-      '<b>' + (hasValue(unit.value) ? fmt(unit.value) : "Not listed") + ' tickets</b></span></a>'
+      '<b>' + (hasValue(unit.value) ? fmt(unit.value) + ' tickets' : 'N/A') + '</b></span></a>'
   )).join("");
 }
 
@@ -291,9 +291,16 @@ function renderUnits() {
   const filtered = state.units.filter((unit) => {
     return (!state.search || unit.name.toLowerCase().includes(state.search.toLowerCase())) &&
       (!state.rarity || unit.rarity === state.rarity);
-  }).sort((a,b) => state.sort === "highest" ? Number(b.value) - Number(a.value) :
-                  state.sort === "lowest" ? Number(a.value) - Number(b.value) :
-                  a.name.localeCompare(b.name));
+  }).sort((a,b) => {
+    if (state.sort === "name") return a.name.localeCompare(b.name);
+    // Unknown values stay after priced units in either numeric sort.
+    const aKnown = hasValue(a.value), bKnown = hasValue(b.value);
+    if (aKnown !== bKnown) return aKnown ? -1 : 1;
+    if (!aKnown) return a.name.localeCompare(b.name);
+    const difference = state.sort === "highest"
+      ? Number(b.value) - Number(a.value) : Number(a.value) - Number(b.value);
+    return difference || a.name.localeCompare(b.name);
+  });
   const countVisible = Math.min(state.unitsShown,filtered.length);
   $("resultCount").textContent = filtered.length > countVisible ?
     "Showing " + countVisible + " of " + filtered.length + " units" :
@@ -327,8 +334,8 @@ function renderUnits() {
       '<div class="unit-sub">' + rarityBadge(unit.rarity) + '</div>' +
       '<div class="unit-stat-row"><div class="unit-price-block">' +
       '<span class="unit-stat-label">VALUE</span><div class="unit-value">' +
-      (hasValue(value) ? fmt(value) : 'Not listed') +
-      ' <small>tickets</small></div></div>' +
+      (hasValue(value) ? fmt(value) + ' <small>tickets</small>' : 'N/A') +
+      '</div></div>' +
       '<div class="unit-demand"><span class="unit-stat-label">DEMAND</span><b>' +
       escapeHtml(unit.demand || "Unknown") + '</b></div></div>' +
       (window.NightfrontTrends?.cardBadges(unit,shiny) || '') +
@@ -572,7 +579,8 @@ function renderPicker() {
       '" data-pick-unit="' + escapeHtml(unit.id) + '" aria-pressed="' + selected + '">' +
       '<span class="picker-unit-art">' + imageHtml(unit, "★", displayShiny) + shinyOverlay(displayShiny) + '</span>' +
       '<strong>' + escapeHtml(unit.name) + '</strong>' +
-      rarityBadge(unit.rarity) + '<small>' + fmt(unit.value) + ' tickets</small></button>';
+      rarityBadge(unit.rarity) + '<small>' +
+      (hasValue(unit.value) ? fmt(unit.value) + ' tickets' : 'N/A') + '</small></button>';
   }).join("") : '<div class="picker-no-results">' +
     (state.units.length ? "No matching units found." : "No units available yet.") + '</div>';
   const unit = getUnit(pickerUnitId);
