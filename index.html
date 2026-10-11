@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#090a0e">
   <meta name="description" content="Nightfront TD Values — community unit values, demand and a W/F/L trade calculator.">
   <title>Nightfront TD Values</title>
-  <link rel="stylesheet" href="./style.css?v=unit-bulk-art-20261011">
-  <script src="./app.js?v=rarity-highest-first-2" defer></script>
+  <link rel="stylesheet" href="./style.css?v=market-suite-20261011-1">
+  <script src="./app.js?v=market-suite-20261011-1" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
   <script src="./qa.js?v=owner-login-upgrade-1" defer></script>
-  <script src="./admin.js?v=unit-bulk-art-20261011" defer></script>
+  <script src="./admin.js?v=market-suite-20261011-1" defer></script>
   <script src="./history.js?v=separate-variant-demand-1" defer></script>
   <script src="./updates.js?v=separate-variant-demand-1" defer></script>
   <script src="./trends.js?v=separate-variant-demand-1" defer></script>
@@ -37,7 +37,7 @@
           <a href="#updates">Update History</a>
           <a href="#trends">Demand &amp; Trends</a>
           <a href="#suggestions">Suggest a Value</a>
-          <a href="#watchlist">My Watchlist</a>
+          <a href="#watchlist">My Watchlist <span id="nfWatchedCount" aria-label="Number of watched units">0</span></a>
           <a href="#rankings">Top 10 Leaderboards</a>
           <a href="#releases">Latest Units</a>
         </div>
@@ -577,6 +577,7 @@
             </div>
             <p class="admin-help" id="adminBulkArtStatus" role="status" aria-live="polite">Existing unit images and ticket values are never overwritten by this tool.</p>
           </div>
+          <p id="adminGameSyncStatus" class="admin-help nf-game-sync-status" role="status" aria-live="polite">Checking the latest Roblox game metadata sync…</p>
           <div id="adminUnitsList" class="admin-units-list"></div>
 
           <form id="adminUnitForm" class="admin-unit-form" hidden>
