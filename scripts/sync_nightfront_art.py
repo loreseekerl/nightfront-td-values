@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import datetime as dt
+import hashlib
 import json
 import pathlib
 import re
@@ -16,7 +17,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from collections import Counter
+from collections import Counter, defaultdict
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CONFIG = ROOT / "roblox-art-sync.json"
@@ -25,6 +26,16 @@ DEST = ROOT / "assets" / "roblox-units"
 MAX_BYTES = 5 * 1024 * 1024
 IMAGE_RE = re.compile(r"^[0-9]{8,20}$")
 ALLOWED_HOST = re.compile(r"^(?:tr|t[0-9]+)\.rbxcdn\.com$", re.I)
+# 30 distinct Roblox image asset IDs in the first export produced exactly the
+# same generic 7,737-byte PNG. This Git blob SHA identifies that placeholder,
+# not an individual Nightfront unit portrait.
+GENERIC_GIT_BLOBS = {"6300fa868186197cafd8e79d98b8e0cd8603b1d8"}
+
+
+def git_blob_sha(content: bytes) -> str:
+    return hashlib.sha1(b"blob " + str(len(content)).encode("ascii") +
+                        b"\x00" + content).hexdigest()
+
 HEADERS = {
     "User-Agent": "Nightfront-Values-Public-Art-Sync/1.0",
     "Accept": "application/json,image/png,image/jpeg,image/webp,image/gif;q=0.9,*/*;q=0.5",
@@ -94,9 +105,12 @@ def batch_thumbnails(ids: list[str]) -> dict[str, dict]:
 
 def download_one(item: tuple[str, dict]) -> tuple[str, dict]:
     asset_id, record = item
+    existing = [DEST / (asset_id + ext) for ext in (".png", ".jpg", ".webp", ".gif")]
+    for path in existing:
+        if path.exists() and git_blob_sha(path.read_bytes()) in GENERIC_GIT_BLOBS:
+            path.unlink()  # Delete the generic image, never a unique portrait.
     if record.get("state") != "Completed" or not record.get("image_url"):
         return asset_id, {"state": record.get("state") or "Unavailable"}
-    existing = [DEST / (asset_id + ext) for ext in (".png", ".jpg", ".webp", ".gif")]
     for path in existing:
         if path.exists() and find_image_extension(path.read_bytes()[:20]):
             return asset_id, {"state": "ready", "path": path.relative_to(ROOT).as_posix()}
@@ -106,6 +120,8 @@ def download_one(item: tuple[str, dict]) -> tuple[str, dict]:
             ext = find_image_extension(data)
             if not ext:
                 raise RuntimeError("Roblox CDN did not return an image file")
+            if git_blob_sha(data) in GENERIC_GIT_BLOBS:
+                return asset_id, {"state": "generic_placeholder"}
             target = DEST / (asset_id + ext)
             target.write_bytes(data)
             return asset_id, {
@@ -141,6 +157,20 @@ def main() -> None:
         thumbnails.setdefault(asset, {"state": "No thumbnail found", "image_url": None})
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
         mapped = dict(executor.map(download_one, sorted(thumbnails.items())))
+    # Roblox can label a fallback icon "Completed". Reject any new bitmap
+    # repeatedly returned for 5+ different asset IDs, without treating it as
+    # a real portrait. Owner-uploaded art is not stored in this generated dir.
+    duplicates: dict[str, list[tuple[str, pathlib.Path]]] = defaultdict(list)
+    for asset_id, record in mapped.items():
+        if record.get("state") == "ready":
+            path = ROOT / record["path"]
+            if path.is_file():
+                duplicates[hashlib.sha256(path.read_bytes()).hexdigest()].append((asset_id, path))
+    for matches in duplicates.values():
+        if len(matches) >= 5:
+            for asset_id, path in matches:
+                path.unlink(missing_ok=True)
+                mapped[asset_id] = {"state": "shared_placeholder", "duplicate_count": len(matches)}
     stats = Counter(record["state"] for record in mapped.values())
     results = {
         "sourceSnapshotId": config["snapshotId"],
