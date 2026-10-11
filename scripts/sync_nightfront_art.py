@@ -144,6 +144,7 @@ def main() -> None:
     assert len(units) >= 1
     allowed_rarities = {"Common", "Uncommon", "Rare", "Epic", "Mythic", "Secret", "Glitched"}
     ids: set[str] = set()
+    asset_owners: dict[str, set[str]] = defaultdict(set)
     for unit in units:
         assert unit["rarity"] in allowed_rarities
         assert not re.search(r"\b(?:test|debug|dummy)\b", unit["name"], re.I)
@@ -152,13 +153,36 @@ def main() -> None:
             if asset is not None:
                 assert isinstance(asset, str) and IMAGE_RE.fullmatch(asset)
                 ids.add(asset)
+                asset_owners[asset].add(unit["name"])
+    # The Roblox snapshot has previously reused one image asset ID for
+    # Balloon Boy and several unrelated shiny slots. Never publish a single
+    # auto-imported portrait as different characters just because their
+    # source asset IDs match. Same unit normal/shiny reuse is still allowed.
+    ambiguous_assets = {
+        asset: sorted(unit_names)
+        for asset, unit_names in asset_owners.items()
+        if len(unit_names) > 1
+    }
+    if ambiguous_assets:
+        for asset, names in sorted(ambiguous_assets.items()):
+            print(f"Ambiguous artwork {asset} is assigned to unrelated units: {names}")
     DEST.mkdir(parents=True, exist_ok=True)
     print(f"Checking {len(ids)} actual Roblox image assets for {len(units)} real units.")
     thumbnails = batch_thumbnails(sorted(ids))
     for asset in ids:
         thumbnails.setdefault(asset, {"state": "No thumbnail found", "image_url": None})
+    # Skip downloading ambiguous image IDs; a common source ID cannot establish
+    # which character owns the file, and should never overwrite unique art.
+    for asset in ambiguous_assets:
+        thumbnails[asset] = {"state": "ambiguous_source_asset", "image_url": None}
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
         mapped = dict(executor.map(download_one, sorted(thumbnails.items())))
+    for asset, names in ambiguous_assets.items():
+        # Remove only a generated file from the automatic asset directory.
+        # Owner-uploaded portraits are elsewhere and remain untouched.
+        for ext in (".png", ".jpg", ".webp", ".gif"):
+            (DEST / (asset + ext)).unlink(missing_ok=True)
+        mapped[asset] = {"state": "ambiguous_source_asset", "units": names}
     # Roblox can label a fallback icon "Completed". Reject any new bitmap
     # repeatedly returned for 5+ different asset IDs, without treating it as
     # a real portrait. Owner-uploaded art is not stored in this generated dir.
