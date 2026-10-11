@@ -148,18 +148,25 @@
   }
   function renderUnits() {
     const query = $("adminSearch").value.toLowerCase().trim();
-    const units = state.units.filter((unit) => unit.name.toLowerCase().includes(query));
+    const missingTotal = state.units.filter(unit => !String(unit.image_url || "").trim()).length;
+    $("adminMissingArtworkCount").textContent = missingTotal + " PENDING";
+    const missingOnly = $("adminMissingArtworkOnly").checked;
+    const units = state.units.filter(unit =>
+      unit.name.toLowerCase().includes(query) &&
+      (!missingOnly || !String(unit.image_url || "").trim()));
     $("adminUnitsList").innerHTML = units.map(unit => (
       '<div class="admin-unit-row">' +
       '<span class="admin-list-art">' + (unit.image_url ?
-        '<img alt="" loading="lazy" src="' + safe(unit.image_url) + '">' : '★') + '</span>' +
+        '<img alt="" loading="lazy" src="' + safe(unit.image_url) + '">' :
+        '<span class="admin-no-art" aria-label="Unit portrait not uploaded">ART PENDING</span>') + '</span>' +
       '<div class="admin-list-description"><strong>' + safe(unit.name) + '</strong>' +
       '<small>' + safe(unit.rarity) + ' · ' +
       (unit.value == null ? 'N/A' : Number(unit.value).toLocaleString() + ' tickets') +
       ' · Normal demand ' + safe(unit.demand?.trim() || "N/A") +
-      ' · Shiny demand ' + safe(unit.shiny_demand?.trim() || "N/A") + '</small></div>' +
+      ' · Shiny demand ' + safe(unit.shiny_demand?.trim() || "N/A") +
+      (!unit.image_url ? ' · PORTRAIT PENDING' : '') + '</small></div>' +
       '<button type="button" class="admin-outline" data-edit-unit="' + safe(unit.id) + '">EDIT</button></div>'
-    )).join("") || '<p class="admin-help">No matching units. Use + Add Unit to create one.</p>';
+    )).join("") || '<p class="admin-help">No matching units. Try another search or disable the missing-artwork filter.</p>';
   }
   function renderEnchants() {
     $("adminEnchantsList").innerHTML = state.enchants.map(enchant => (
@@ -504,6 +511,7 @@
   $("adminUnitForm").addEventListener("submit",saveUnit);
   $("adminDeleteUnit").addEventListener("click",deleteUnit);
   $("adminSearch").addEventListener("input",renderUnits);
+  $("adminMissingArtworkOnly").addEventListener("change",renderUnits);
   $("adminUnitsList").addEventListener("click",(event)=>{
     const button = event.target.closest("[data-edit-unit]");
     if (button) openUnit(button.dataset.editUnit);
