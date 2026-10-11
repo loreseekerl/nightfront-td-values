@@ -36,7 +36,7 @@ The site retains exactly those seven in-game unit rarity tiers. **62 game-confir
 
 ## Game-confirmed unit roster and real artwork
 
-The live value list now includes **62 real unit records**, recovered from the Nightfront Roblox game's latest server-synced Supabase snapshot (snapshot ID 9, October 11, 2026). The snapshot contained 101 ItemStats records, of which **63 were actual units**; **Passive Test Unit** was excluded. The other records are boxes/presents, passes, currencies, materials and titles, not tradeable unit records.
+The live value list includes **all 62 catalogue units**, recovered from the Nightfront Roblox game's server-synced snapshot (snapshot ID 9, October 11, 2026) and checked against the connected Studio. The snapshot contained 101 ItemStats records, of which **63 were actual units**; **Passive Test Unit** was excluded. The other records are boxes/presents, passes, currencies, materials and titles. The owner also has an existing extra entry named **???**, which is preserved, making **63 website rows**. VR Toy Freddy was missing from the database and has now been added as Secret with its verified image; its market values, demand and release date remain unknown. The extra owner entry has no matching catalogue portrait, so its explicit fallback remains.
 
 **All seven supported unit rarities remain:** Common, Uncommon, Rare, Epic, Mythic, Secret, Glitched. The snapshot's `Legendary`-rarity items were **game passes**, not units; there is no Legendary unit tier on this site. Unit rarities were taken from each actual game's `type="Unit"` record and were not guessed.
 
