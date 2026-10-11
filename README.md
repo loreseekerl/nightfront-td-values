@@ -31,6 +31,18 @@ Only these seven rarities are accepted by the Supabase database and shown in the
 
 The examples are **rarity references**, not automatically published units. Add their actual images, ticket values and demand before listing them as tradable units. The Glitched animation respects reduced-motion preferences.
 
+## Unpriced units: N/A
+
+On the private Admin Dashboard's **Units & Images** editor, the **Normal value** and **Shiny value** ticket fields can both be left empty. Saving a blank field stores SQL `NULL` in `public.units.value` or `public.units.shiny_value` and shows **N/A** throughout the public website. This is not a new currency and **not zero tickets**.
+
+- A typed **0** is a real numeric zero-ticket value; clearing the input entirely means **N/A**.
+- The homepage featured unit, All Units cards, picker listings, admin list and Demand & Value Trends show N/A where a value is missing, without appending "tickets".
+- The W/F/L picker will not confirm a normal/shiny variant whose own value is N/A, even if an enchant adds bonus tickets. A unit with an N/A **normal** value but a known **shiny** value can still be traded as shiny.
+- If an existing trade contains a unit whose value is subsequently cleared, totals and the trade verdict become **N/A**, never a misleading 0/Fair/Win/Loss result. Other priced entries still calculate with their normal enchant bonuses.
+- Sorting by highest/lowest ticket value puts unpriced units last. History and Update History record N/A as a missing numeric value, while the Value History graph skips missing price points instead of graphing them as zero.
+
+The database migrations made `public.units.value` and `public.unit_value_history.new_value` nullable and removed the normal-value default of 0. The existing nonnegative checks, history trigger, owner-only edit permissions, and all existing ticket values remain unchanged.
+
 ## Mobile & UI polish
 
 The public site keeps the handmade Nightfront trading-board style while improving phone usability:
@@ -106,7 +118,7 @@ On **Enchant Bonuses**, edit and save the bonus ticket value for any of the five
 | `name` | `Freddy` | Must be unique. |
 | `rarity` | `Common` | Displayed under the name. |
 | `category` | `Other` | Legacy database field. No longer used for website filters; you can leave it unchanged. |
-| `value` | `10` | Numeric value in tickets. |
+| `value` | `10` or *(leave blank)* | Numeric ticket value; blank = N/A (NULL), not 0. |
 | `shiny_value` | *(leave blank until known)* | Optional value for the shiny version (in tickets); required for adding a shiny unit to a trade. |
 | `shiny_image_url` | *(leave blank or use a public HTTPS image link)* | Optional artwork shown only when shiny is selected. |
 | `demand` | `1/10` | Displayed as text. |
