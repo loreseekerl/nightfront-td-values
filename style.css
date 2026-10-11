@@ -2358,3 +2358,115 @@ body{overflow-x:clip}
   .units-more-wrap{margin:-37px 0 54px}
   .units-more-btn{width:100%}
 }
+
+
+/* NIGHTFRONT OWNER LOGIN POLISH 2026
+   Same handmade value-board visual language. Never show an owner secret here. */
+.qa-login-form,.admin-login-form{max-width:720px}
+.qa-login-form{display:flex;flex-direction:column;align-items:stretch;gap:9px}
+.qa-login-form>label{margin:0;color:#c8d2e8;font:800 12px/1.4 Arial,Helvetica,sans-serif}
+.qa-login-form>input,.admin-login-form input{
+  min-width:0;width:100%;min-height:45px;border:1px solid #505a70;
+  border-radius:3px;background:#10151f;color:#f4f6ff;
+  padding:10px 12px;font:500 15px/1.4 Arial,Helvetica,sans-serif;
+}
+.qa-login-form>input:focus,.admin-login-form input:focus,
+.owner-otp-row input:focus,.owner-password-form input:focus{
+  outline:2px solid #9ba7d4;outline-offset:2px;
+}
+.qa-login-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:7px}
+.qa-login-actions button{min-height:44px;flex:1 1 180px;border-radius:3px;
+  padding:10px 13px;font:800 12px Arial,Helvetica,sans-serif}
+.qa-primary-btn{border-radius:3px;background:#465caa;border-color:#8597d6}
+.qa-primary-btn:hover:not(:disabled){background:#5770c3}
+.qa-secondary-btn{
+  color:#dbe4fb;background:#1b2334;border:1px solid #667796;
+}
+.qa-secondary-btn:hover:not(:disabled){background:#29354c}
+.qa-secondary-btn:disabled{opacity:.5;cursor:wait}
+.admin-login-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;align-items:end}
+.admin-login-form label{min-width:0}
+.admin-login-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.admin-login-actions button{min-height:44px;flex:1 1 170px}
+.owner-otp-form{
+  max-width:710px;margin:17px 0 15px;padding:18px;
+  border:1px solid #59658a;border-left:3px solid #9da9e8;
+  border-radius:3px;background:#121925;
+}
+.owner-otp-form>label{
+  display:block;margin:0 0 10px;color:#c5d2ef;
+  font:900 11px Consolas,'Courier New',monospace;
+  letter-spacing:.06em;
+}
+.owner-otp-row{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.owner-otp-row input{
+  flex:1 1 155px;min-width:0;max-width:230px;
+  min-height:46px;padding:10px 13px;
+  border:1px solid #67718e;border-radius:3px;
+  background:#080d17;color:#f1f4ff;text-align:center;
+  font:900 20px Consolas,'Courier New',monospace;
+  letter-spacing:.22em;outline-offset:2px;
+}
+.owner-otp-row button{min-height:46px;flex:1 1 170px;border-radius:3px}
+.owner-otp-form p{margin:10px 0 0;color:#b1bdd8;font:500 12px/1.6 Arial,Helvetica,sans-serif}
+.owner-code-help{
+  max-width:720px;margin:18px 0;padding:12px 15px;
+  border:1px solid #39445c;border-radius:3px;background:#0f141e;
+  color:#b6c1d8;
+}
+.owner-code-help summary{
+  cursor:pointer;color:#d2dbee;
+  font:800 12px/1.5 Arial,Helvetica,sans-serif;
+}
+.owner-code-help p{max-width:680px;margin:10px 0;color:#afbad1;font-size:12px;line-height:1.7}
+.owner-code-help code{
+  display:inline-block;max-width:100%;padding:9px 12px;
+  background:#0b0f18;border:1px solid #4c5874;border-radius:3px;
+  color:#c7d5ff;user-select:all;overflow-wrap:anywhere;
+  font:800 13px/1.5 Consolas,'Courier New',monospace;
+}
+.owner-code-help a{color:#bccdff;text-decoration:underline;text-underline-offset:2px}
+.admin-password-settings,.qa-password-settings{
+  margin:19px 0 24px;padding:14px 17px;
+  border:1px solid #434e66;border-left:3px solid #8193c9;
+  border-radius:3px;background:#101621;
+}
+.admin-password-settings summary,.qa-password-settings summary{
+  color:#d4e0ff;cursor:pointer;
+  font:900 12px/1.6 Consolas,'Courier New',monospace;
+}
+.admin-password-settings summary:hover,.qa-password-settings summary:hover{color:#fff}
+.admin-password-settings p,.qa-password-settings p{
+  margin:9px 0 14px;color:#afbdd5;font:500 12px/1.6 Arial,Helvetica,sans-serif;
+}
+.owner-password-form{
+  display:flex;gap:12px;align-items:end;flex-wrap:wrap;
+}
+.owner-password-form label{
+  flex:1 1 190px;min-width:0;
+  display:flex;flex-direction:column;gap:7px;
+  color:#c8d5ed;font:800 12px/1.4 Arial,Helvetica,sans-serif;
+}
+.owner-password-form input{
+  width:100%;min-width:0;min-height:43px;
+  border:1px solid #51617f;border-radius:3px;
+  padding:10px 12px;background:#0b101a;color:#f0f4ff;
+  font:500 14px Arial,Helvetica,sans-serif;
+}
+.owner-password-form button{min-height:43px;flex:1 1 165px}
+@media(max-width:670px){
+  .admin-login-form{grid-template-columns:1fr}
+  .admin-login-actions{grid-column:auto}
+  .qa-login-actions{flex-direction:column;align-items:stretch}
+  .qa-login-actions button,.admin-login-actions button{flex:1 1 auto;min-height:44px;width:100%}
+  .admin-login-actions{flex-direction:column;align-items:stretch}
+  .owner-otp-row{flex-direction:column;align-items:stretch}
+  .owner-otp-row input{width:100%;max-width:none;flex-basis:auto}
+  .owner-otp-row button{flex-basis:auto}
+  .owner-password-form{flex-direction:column;align-items:stretch}
+  .owner-password-form label,.owner-password-form button{width:100%;flex-basis:auto}
+}
+@media(prefers-reduced-motion:reduce){
+  .qa-login-actions button,.owner-otp-row button{transition:none}
+}
