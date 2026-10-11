@@ -32,27 +32,11 @@ jobs:
         run: python -m pip install "Pillow>=10,<13"
       - name: Compare actual imported Roblox artwork
         run: python scripts/audit_nightfront_art.py
-      - name: Prepare contact sheet preview for verification
-        run: |
-          python - <<'PY'
-          import base64
-          from io import BytesIO
-          from pathlib import Path
-          from PIL import Image
-          image = Image.open("assets/roblox-art-audit.jpg")
-          image.thumbnail((1000, 2100))
-          memory = BytesIO()
-          image.save(memory, format="JPEG", quality=56, optimize=True)
-          Path("roblox-art-audit-preview.base64.txt").write_text(
-              base64.b64encode(memory.getvalue()).decode("ascii"), encoding="utf-8"
-          )
-          print("Saved temporary audit preview", memory.tell(), "bytes")
-          PY
       - name: Publish audit report and labeled image sheet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add roblox-art-visual-audit.json assets/roblox-art-audit.jpg roblox-art-audit-preview.base64.txt
+          git add roblox-art-visual-audit.json assets/roblox-art-audit.jpg
           if ! git diff --cached --quiet; then
             git commit -m "Audit Nightfront unit artwork for near-identical portraits"
             # Other approved website edits can land while this audit is running.
