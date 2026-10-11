@@ -115,6 +115,7 @@
       if(!unitResult.ok)throw Error("Unit data unavailable ("+unitResult.status+")");
       const units=await unitResult.json();
       if(!Array.isArray(units))throw Error("Invalid unit list");
+      await window.NightfrontArt?.hydrate?.(units);
       const history=histResult.ok?await histResult.json().catch(()=>[]):[];
       state.units=units;
       state.history=Array.isArray(history)?history:[];
