@@ -24,7 +24,7 @@ RESULTS = ROOT / "roblox-art-result.json"
 DEST = ROOT / "assets" / "roblox-units"
 MAX_BYTES = 5 * 1024 * 1024
 IMAGE_RE = re.compile(r"^[0-9]{8,20}$")
-ALLOWED_HOST = re.compile(r"^(?:tr|t[0-9]+)\\.rbxcdn\\.com$", re.I)
+ALLOWED_HOST = re.compile(r"^(?:tr|t[0-9]+)\.rbxcdn\.com$", re.I)
 HEADERS = {
     "User-Agent": "Nightfront-Values-Public-Art-Sync/1.0",
     "Accept": "application/json,image/png,image/jpeg,image/webp,image/gif;q=0.9,*/*;q=0.5",
@@ -43,9 +43,9 @@ def http_get(url: str, timeout: float = 20.0) -> bytes:
 
 
 def find_image_extension(content: bytes) -> str | None:
-    if content.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+    if content.startswith(b"\x89PNG\r\n\x1a\n"):
         return ".png"
-    if content.startswith(b"\\xff\\xd8\\xff"):
+    if content.startswith(b"\xff\xd8\xff"):
         return ".jpg"
     if content[:4] == b"RIFF" and content[8:12] == b"WEBP":
         return ".webp"
@@ -99,7 +99,7 @@ def download_one(item: tuple[str, dict]) -> tuple[str, dict]:
     existing = [DEST / (asset_id + ext) for ext in (".png", ".jpg", ".webp", ".gif")]
     for path in existing:
         if path.exists() and find_image_extension(path.read_bytes()[:20]):
-            return asset_id, {"state": "ready", "path": str(path.relative_to(ROOT)).replace("\\\\", "/")}
+            return asset_id, {"state": "ready", "path": path.relative_to(ROOT).as_posix()}
     for attempt in range(3):
         try:
             data = http_get(record["image_url"], timeout=25)
@@ -128,7 +128,7 @@ def main() -> None:
     ids: set[str] = set()
     for unit in units:
         assert unit["rarity"] in allowed_rarities
-        assert not re.search(r"\\b(?:test|debug|dummy)\\b", unit["name"], re.I)
+        assert not re.search(r"\b(?:test|debug|dummy)\b", unit["name"], re.I)
         for column in ("image_asset_id", "shiny_image_asset_id"):
             asset = unit.get(column)
             if asset is not None:
@@ -150,7 +150,7 @@ def main() -> None:
         "summary": dict(stats),
         "assets": mapped,
     }
-    RESULTS.write_text(json.dumps(results, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    RESULTS.write_text(json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print("Result:", json.dumps(results["summary"]))
     print("Saved public image files to assets/roblox-units and roblox-art-result.json")
 
