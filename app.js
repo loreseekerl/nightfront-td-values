@@ -64,6 +64,17 @@ const confidenceLabel = (unit,shiny=false) => {
   if(!hasValue(value))return "N/A";
   return (shiny?unit.shiny_value_status:unit.normal_value_status)==="Verified" ? "Verified" : "Estimated";
 };
+// The owner confirmed this teaser unit is upcoming on October 11, 2026.
+// A genuine confirmed release date supersedes the note; other unknown dates do not imply upcoming.
+function isUpcomingUnit(unit) {
+  if (unit?.id !== "bea5fcbb-b411-4443-9e75-1c6d0f13b795") return false;
+  const date = unit.released_on;
+  const parsed = /^\d{4}-\d{2}-\d{2}$/.test(date || "") ? Date.parse(date + "T00:00:00Z") : NaN;
+  return !(Number.isFinite(parsed) && parsed <= Date.now() &&
+    new Date(parsed).toISOString().slice(0,10) === date);
+}
+const upcomingBadge = unit => isUpcomingUnit(unit) ?
+  '<span class="nf-confidence nf-upcoming" title="Owner-confirmed upcoming unit; release date not confirmed">UPCOMING</span>' : '';
 const rarityCoverForUnit = (unit, shiny=false) => {
   // Rarity covers are owner-uploaded gallery illustrations, not verified portraits
   // of this particular unit. Keep the real unit image database field untouched.
@@ -267,7 +278,7 @@ function renderFeatured() {
     '<a href="#units" class="spotlight-card" data-spotlight-id="' + escapeHtml(unit.id) + '">' +
       '<span class="spotlight-art">' + imageHtml(unit) + '</span>' +
       '<span class="spotlight-details"><strong>' + escapeHtml(unit.name) + '</strong>' +
-      '<span class="spotlight-meta">' + rarityBadge(unit.rarity) +
+      '<span class="spotlight-meta">' + rarityBadge(unit.rarity) + upcomingBadge(unit) +
       '<small>' + escapeHtml(demandLabel(unit.demand)) + ' normal demand</small></span>' +
       '<b>' + (hasValue(unit.value) ? fmt(unit.value) + ' tickets' : 'N/A') + '</b></span></a>'
   )).join("");
@@ -376,10 +387,11 @@ function renderUnits() {
       '>★</button></div>' +
       '<div class="unit-details"><div class="unit-name-row"><h3>' + escapeHtml(unit.name) + '</h3>' +
       '<span class="unit-variant">' + (shiny ? 'SHINY' : 'NORMAL') + '</span></div>' +
-      '<div class="unit-sub">' + rarityBadge(unit.rarity) +
+      '<div class="unit-sub">' + rarityBadge(unit.rarity) + upcomingBadge(unit) +
       '<span class="nf-confidence nf-confidence-' + confidenceLabel(unit,shiny).toLowerCase() +
       '" title="Owner-assigned value confidence; not an independent audit">' +
       escapeHtml(confidenceLabel(unit,shiny)) + '</span></div>' +
+      (isUpcomingUnit(unit) ? '<p class="unit-release-note">Release date not confirmed. Listed values are estimates.</p>' : '') +
       '<div class="unit-stat-row"><div class="unit-price-block">' +
       '<span class="unit-stat-label">VALUE</span><div class="unit-value">' +
       (hasValue(value) ? fmt(value) + ' <small>tickets</small>' : 'N/A') +
@@ -777,7 +789,7 @@ function renderCalculator() {
       const enchant = getEnchant(entry.enchantId);
       return '<li class="offer-item' + (entry.shiny ? ' offer-shiny' : '') + '">' +
         '<div class="offer-unit-art">' + imageHtml(unit, "★", entry.shiny) + shinyOverlay(entry.shiny) + '</div>' +
-        '<div class="offer-unit-info"><strong>' + escapeHtml(unit.name) + (entry.shiny ? ' ★' : '') + '</strong>' +
+        '<div class="offer-unit-info"><strong>' + escapeHtml(unit.name) + (entry.shiny ? ' ★' : '') + '</strong>' + upcomingBadge(unit) +
         '<span>' + escapeHtml(unit.rarity) + ' · x' + entry.qty + '</span>' +
         (enchant ? '<span class="offer-enchant">✧ ' + escapeHtml(enchant.name) +
         ' (+' + fmt(enchant.bonus_tickets) + '/unit)</span>' : '') +
@@ -882,7 +894,7 @@ function renderLastUpdated() {
       '" title="See ' + escapeHtml(unit.name) + ' in the value list">' +
       '<span class="recent-unit-image">' + imageHtml(unit) + '</span>' +
       '<span class="recent-unit-details"><strong>' + escapeHtml(unit.name) + '</strong>' +
-      rarityBadge(unit.rarity) + '<small>' + niceDate + '</small></span></button>';
+      rarityBadge(unit.rarity) + upcomingBadge(unit) + '<small>' + niceDate + '</small></span></button>';
   }).join("");
 }
 function openPicker(side, editId=null) {
@@ -940,7 +952,7 @@ function renderPicker() {
       '" data-pick-unit="' + escapeHtml(unit.id) + '" aria-pressed="' + selected + '">' +
       '<span class="picker-unit-art">' + imageHtml(unit, "★", displayShiny) + shinyOverlay(displayShiny) + '</span>' +
       '<strong>' + escapeHtml(unit.name) + '</strong>' +
-      rarityBadge(unit.rarity) + '<small>' +
+      rarityBadge(unit.rarity) + upcomingBadge(unit) + '<small>' +
       (hasValue(unit.value) ? fmt(unit.value) + ' tickets' : 'N/A') + '</small></button>';
   }).join("") : '<div class="picker-no-results">' +
     (state.units.length ? "No matching units found." : "No units available yet.") + '</div>';
@@ -949,7 +961,7 @@ function renderPicker() {
   const availableShiny = unit && canTradeShiny(unit);
   shiny.disabled = !availableShiny;
   if (!availableShiny) shiny.checked = false;
-  $("pickerUnitName").textContent = unit ? unit.name : "Choose a unit above";
+  $("pickerUnitName").textContent = unit ? unit.name + (isUpcomingUnit(unit) ? " · UPCOMING" : "") : "Choose a unit above";
   const selectedDemand = unit ? (shiny.checked ? unit.shiny_demand : unit.demand) : null;
   const parsedDemand = demandScore(selectedDemand);
   $("pickerDemand").textContent = unit ?
@@ -970,6 +982,7 @@ function renderPicker() {
     (bonus > 0 ? fmt(base) + " base + " + fmt(bonus) + " enchant = " +
       fmt(base + bonus) + " tickets each" :
       fmt(base) + " tickets each" + (availableShiny ? " · shiny available" : ""));
+  if (isUpcomingUnit(unit)) $("pickerUnitValue").textContent += " · Release date not confirmed; listed values are estimates.";
   const quantity = Number($("pickerQty").value);
   $("pickerExtendedTotal").textContent = !unit ? "" : !known ?
     "TOTAL: N/A — a ticket value is needed for this trade." :
@@ -1231,3 +1244,4 @@ renderHomeHero();
 loadUnits();
 loadEnchants();
 loadHomeArtwork();
+

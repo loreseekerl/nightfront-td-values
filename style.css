@@ -2992,6 +2992,8 @@ body{overflow-x:clip}
 }
 .nf-confidence-verified{border-color:#5d9e80;background:#142b25;color:#aeedca}
 .nf-confidence-estimated{border-color:#ad9051;background:#292317;color:#efdcaa}
+.nf-upcoming{border-color:#a28acc;background:#241c35;color:#d9c5fa}
+.unit-release-note{margin:8px 0;color:#c2aedb;font:500 11px/1.5 Arial,Helvetica,sans-serif}
 .nf-confidence-n\/a{border-color:#657186;background:#191d26;color:#a3b1c7}
 .unit-card .unit-card-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
 .unit-card .unit-card-actions .nf-save-unit{

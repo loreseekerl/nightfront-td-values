@@ -165,7 +165,10 @@
     return '<article class="nf-mini-unit">'+
       '<div class="nf-mini-art">'+unitArt(u)+'</div>'+
       '<div class="nf-mini-details"><div class="nf-mini-top"><strong>'+esc(u.name)+'</strong>'+
-       '<span class="nf-mini-rarity nf-rarity-'+esc(u.rarity.toLowerCase())+'">'+esc(u.rarity)+'</span></div>'+
+       '<span class="nf-mini-rarity nf-rarity-'+esc(u.rarity.toLowerCase())+'">'+esc(u.rarity)+'</span>'+
+       (typeof upcomingBadge === "function" ? upcomingBadge(u) : '')+'</div>'+
+      (typeof isUpcomingUnit === "function" && isUpcomingUnit(u) ?
+        '<p class="unit-release-note">Release date not confirmed. Listed values are estimates.</p>' : '')+
       '<p class="nf-mini-subtitle">'+esc(subtitle)+'</p>'+
       '<div class="nf-mini-stats"><span>Normal <b>'+esc(tickets(u.value))+'</b><small>'+
         esc(demand(u.demand))+' demand</small></span>'+
@@ -249,7 +252,8 @@
   }
   function renderReleases(){
     if(!$("releasesListings"))return;
-    const trueReleases=state.units.filter(u=>/^\d{4}-\d{2}-\d{2}$/.test(u.released_on||""))
+    const trueReleases=state.units.filter(u=>/^\d{4}-\d{2}-\d{2}$/.test(u.released_on||"") &&
+      !(typeof isUpcomingUnit === "function" && isUpcomingUnit(u)))
       .sort((a,b)=>b.released_on.localeCompare(a.released_on)).slice(0,18);
     $("releasesConfirmed").innerHTML=trueReleases.length ?
       trueReleases.map(u=>miniCard(u,"CONFIRMED IN-GAME RELEASE",
@@ -262,7 +266,7 @@
         "Listed: "+new Date(u.created_at).toLocaleDateString())).join(""):
       '<div class="nf-tool-empty">No dated unit listings yet.</div>';
     $("releasesStatus").textContent=state.units.length+
-      " genuine roster entries · "+trueReleases.length+" displayed confirmed releases · "+
+      " website listings · "+trueReleases.length+" displayed confirmed releases · "+
       latest.length+" recent site additions.";
   }
   function renderAll(){
