@@ -49,6 +49,10 @@ const validImage = (url) => {
   } catch { return ""; }
 };
 const hasValue = (value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
+const demandLabel = value => {
+  const label = String(value ?? "").trim();
+  return !label || /^(unknown|n\/?a)$/i.test(label) ? "N/A" : label;
+};
 // Shiny visuals are separate from any future enchantment system.
 // Previewing the shiny style must work even when the shiny price is N/A.
 // W/F/L trading remains restricted by canTradeShiny, which needs a real value.
@@ -82,7 +86,7 @@ async function loadUnits() {
   setUnitLoading(true);
   renderUnits();
   try {
-    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,value,shiny_value,demand,image_url,shiny_image_url,created_at,updated_at&order=created_at.desc&limit=1000", {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,value,shiny_value,demand,shiny_demand,image_url,shiny_image_url,created_at,updated_at&order=created_at.desc&limit=1000", {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache:"no-store"
     });
     if (!res.ok) throw new Error("Database request failed (" + res.status + ")");
@@ -234,7 +238,7 @@ function renderFeatured() {
       '<span class="spotlight-art">' + imageHtml(unit) + '</span>' +
       '<span class="spotlight-details"><strong>' + escapeHtml(unit.name) + '</strong>' +
       '<span class="spotlight-meta">' + rarityBadge(unit.rarity) +
-      '<small>' + escapeHtml(unit.demand || "Unknown") + ' demand</small></span>' +
+      '<small>' + escapeHtml(demandLabel(unit.demand)) + ' normal demand</small></span>' +
       '<b>' + (hasValue(unit.value) ? fmt(unit.value) + ' tickets' : 'N/A') + '</b></span></a>'
   )).join("");
 }
@@ -318,6 +322,7 @@ function renderUnits() {
   grid.innerHTML = filtered.slice(0,state.unitsShown).map((unit,index) => {
     const shiny = state.shinyCards.has(unit.id);
     const value = shiny ? unit.shiny_value : unit.value;
+    const shownDemand = shiny ? unit.shiny_demand : unit.demand;
     const shinyAvailable = canPreviewShiny(unit);
     const enter = state.animateCards && index < 8 ? ' card-enter' : '';
     const order = state.animateCards && index < 8 ? ' style="--card-delay:' + index + '"' : '';
@@ -339,7 +344,7 @@ function renderUnits() {
       (hasValue(value) ? fmt(value) + ' <small>tickets</small>' : 'N/A') +
       '</div></div>' +
       '<div class="unit-demand"><span class="unit-stat-label">DEMAND</span><b>' +
-      escapeHtml(unit.demand || "Unknown") + '</b></div></div>' +
+      escapeHtml(demandLabel(shownDemand)) + '</b></div></div>' +
       (window.NightfrontTrends?.cardBadges(unit,shiny) || '') +
       '<div class="unit-card-actions"><button type="button" class="unit-history-link" data-history-id="' +
       escapeHtml(unit.id) + '">↗ History</button>' +
