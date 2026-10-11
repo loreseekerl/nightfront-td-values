@@ -228,6 +228,7 @@
       if(!unitResponse.ok || !histResponse.ok) throw new Error("Supabase response "+(unitResponse.ok?histResponse.status:unitResponse.status));
       const [units,history]=await Promise.all([unitResponse.json(),histResponse.json()]);
       if(!Array.isArray(units)||!Array.isArray(history)) throw new Error("Invalid trends data");
+      await window.NightfrontArt?.hydrate?.(units);
       state.units=units;state.history=history;state.error="";
       state.loaded=true;state.fetched=history.length;
       compute();
