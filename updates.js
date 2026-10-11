@@ -8,6 +8,10 @@
     ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   const fmt = value => Number(value).toLocaleString("en-US",{maximumFractionDigits:2});
   const tickets = value => value == null ? "N/A" : fmt(value) + " tickets";
+  const demandText = value => {
+    const label=String(value ?? "").trim();
+    return !label || /^(unknown|n\/?a)$/i.test(label) ? "N/A" : label;
+  };
   const numberChanged = (a,b) => a === null || b === null
     ? a !== b : Number(a) !== Number(b);
   const labels = {
@@ -29,7 +33,8 @@
       numberChanged(entry.old_shiny_value,entry.new_shiny_value) ? "unit-value" : "unit-demand";
   }
   const changesDemand = entry => entry.kind === "unit" && entry.event_type === "updated" &&
-    entry.old_demand !== entry.new_demand;
+    (entry.old_demand !== entry.new_demand ||
+      entry.old_shiny_demand !== entry.new_shiny_demand);
   const changesValue = entry => entry.kind === "unit" && entry.event_type === "updated" &&
     (numberChanged(entry.old_value,entry.new_value) ||
      numberChanged(entry.old_shiny_value,entry.new_shiny_value));
@@ -61,11 +66,16 @@
       if((start && event.new_shiny_value!==null) ||
         (!start && numberChanged(event.old_shiny_value,event.new_shiny_value)))
         parts.push(valueRow("Shiny value",event.old_shiny_value,event.new_shiny_value,!start));
-      if(start || changesDemand(event))
-        parts.push('<div class="updates-delta-row"><span class="updates-delta-label">Demand</span>'+
-          (start?"":'<span class="updates-previous">'+esc(event.old_demand||"Unknown")+
+      if(start || event.old_demand !== event.new_demand)
+        parts.push('<div class="updates-delta-row"><span class="updates-delta-label">Normal demand</span>'+
+          (start?"":'<span class="updates-previous">'+esc(demandText(event.old_demand))+
            '</span><span class="updates-to">→</span>')+
-          '<strong>'+esc(event.new_demand||"Unknown")+'</strong></div>');
+          '<strong>'+esc(demandText(event.new_demand))+'</strong></div>');
+      if(start || event.old_shiny_demand !== event.new_shiny_demand)
+        parts.push('<div class="updates-delta-row"><span class="updates-delta-label">Shiny demand ★</span>'+
+          (start?"":'<span class="updates-previous">'+esc(demandText(event.old_shiny_demand))+
+           '</span><span class="updates-to">→</span>')+
+          '<strong>'+esc(demandText(event.new_shiny_demand))+'</strong></div>');
       return parts.join("");
     }
     const start=event.event_type!=="updated";
@@ -172,7 +182,7 @@
     try {
       const base=SUPABASE_URL+"/rest/v1/";
       const [uResponse,eResponse]=await Promise.all([
-        fetch(base+"unit_value_history?select=id,unit_id,unit_name,rarity,event_type,old_value,new_value,old_shiny_value,new_shiny_value,old_demand,new_demand,changed_at&order=changed_at.desc&limit="+limitPerSource.units,
+        fetch(base+"unit_value_history?select=id,unit_id,unit_name,rarity,event_type,old_value,new_value,old_shiny_value,new_shiny_value,old_demand,new_demand,old_shiny_demand,new_shiny_demand,changed_at&order=changed_at.desc&limit="+limitPerSource.units,
           {headers,cache:"no-store"}),
         fetch(base+"enchant_change_history?select=id,enchant_id,enchant_name,event_type,old_name,old_bonus_tickets,new_bonus_tickets,changed_at&order=changed_at.desc&limit="+limitPerSource.enchants,
           {headers,cache:"no-store"})
