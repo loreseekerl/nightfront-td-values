@@ -396,6 +396,12 @@
           <p>Use the code from the latest email. If that email only contains a link, the link can still sign you in.</p>
         </form>
         <p class="admin-help">First login? Use the email option, claim ownership from Q&amp;A, then set a password. No admin keys or passwords are saved in the website code.</p>
+        <details class="owner-code-help">
+          <summary>Email has a link but no six-digit code?</summary>
+          <p>In Supabase, open <a href="https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/auth/templates" target="_blank" rel="noopener noreferrer">Authentication → Email Templates</a> → <strong>Magic Link</strong>. Add this line to the email body while keeping its existing link:</p>
+          <code>Sign-in code: {{ .Token }}</code>
+          <p>Save the template, then request one new email. The link will continue to work too.</p>
+        </details>
       </div>
       <div id="adminDeniedBox" class="admin-auth" hidden>
         <h2>OWNER ACCESS REQUIRED</h2>
@@ -523,6 +529,12 @@
             </div>
             <p>Enter the code from the newest email. If it only has a sign-in link, open that link instead.</p>
           </form>
+          <details class="owner-code-help">
+            <summary>Email has a link but no six-digit code?</summary>
+            <p>Open <a href="https://supabase.com/dashboard/project/edmijiqrwtuakmpqnepw/auth/templates" target="_blank" rel="noopener noreferrer">Supabase → Authentication → Email Templates</a> → <strong>Magic Link</strong>. Add the following line to its email body, without removing the existing sign-in link:</p>
+            <code>Sign-in code: {{ .Token }}</code>
+            <p>Save and request one new email. Do not keep clicking old links or requesting new emails, because Supabase rate-limits them.</p>
+          </details>
           <div id="qaSessionTools" class="qa-session-tools" hidden>
             <span id="qaLoggedEmail"></span>
             <button type="button" id="qaLogoutButton">Sign out</button>
