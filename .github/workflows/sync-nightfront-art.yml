@@ -7,6 +7,10 @@ on:
       - "roblox-art-sync.json"
       - "scripts/sync_nightfront_art.py"
   workflow_dispatch:
+  # Retry thumbnails which Roblox currently serves only as generic placeholders.
+  # Unchanged exports are stable, so this does not create a new commit every day.
+  schedule:
+    - cron: "27 10 * * *"
 
 permissions:
   contents: write
