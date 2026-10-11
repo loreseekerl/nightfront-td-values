@@ -37,7 +37,7 @@
     requireOwner();
     const [u,e,covers,suggestions] = await Promise.all([
       state.client.from("units")
-        .select("id,name,rarity,value,shiny_value,demand,image_url,shiny_image_url,updated_at")
+        .select("id,name,rarity,value,shiny_value,demand,shiny_demand,image_url,shiny_image_url,updated_at")
         .order("name", {ascending:true}),
       state.client.from("enchants")
         .select("id,name,bonus_tickets,sort_order")
@@ -156,7 +156,8 @@
       '<div class="admin-list-description"><strong>' + safe(unit.name) + '</strong>' +
       '<small>' + safe(unit.rarity) + ' · ' +
       (unit.value == null ? 'N/A' : Number(unit.value).toLocaleString() + ' tickets') +
-      ' · Demand ' + safe(unit.demand || "Unknown") + '</small></div>' +
+      ' · Normal demand ' + safe(unit.demand?.trim() || "N/A") +
+      ' · Shiny demand ' + safe(unit.shiny_demand?.trim() || "N/A") + '</small></div>' +
       '<button type="button" class="admin-outline" data-edit-unit="' + safe(unit.id) + '">EDIT</button></div>'
     )).join("") || '<p class="admin-help">No matching units. Use + Add Unit to create one.</p>';
   }
@@ -248,7 +249,8 @@
     $("adminUnitRarity").value = unit?.rarity || "Common";
     $("adminUnitValue").value = unit?.value ?? "";
     $("adminUnitShinyValue").value = unit?.shiny_value ?? "";
-    $("adminUnitDemand").value = unit?.demand || "";
+    $("adminUnitDemand").value = unit?.demand ?? "";
+    $("adminUnitShinyDemand").value = unit?.shiny_demand ?? "";
     $("adminUnitImage").value = unit?.image_url || "";
     $("adminUnitShinyImage").value = unit?.shiny_image_url || "";
     $("adminDeleteUnit").hidden = !unit;
@@ -280,7 +282,8 @@
     const value = rawValue === "" ? null : Number(rawValue);
     const rawShiny = $("adminUnitShinyValue").value.trim();
     const shinyValue = rawShiny === "" ? null : Number(rawShiny);
-    const demand = $("adminUnitDemand").value.trim() || "Unknown";
+    const demand = $("adminUnitDemand").value.trim() || null;
+    const shinyDemand = $("adminUnitShinyDemand").value.trim() || null;
     if (!name || name.length > 100) throw Error("Enter a unit name (up to 100 characters).");
     if (!rarities.includes(rarity)) throw Error("Select a valid rarity.");
     if (rawValue !== "" && (!Number.isFinite(value) || value < 0 || value > 1e9))
@@ -288,7 +291,7 @@
     if (rawShiny !== "" && (!Number.isFinite(shinyValue) || shinyValue < 0 || shinyValue > 1e9))
       throw Error("Shiny value must be blank or between 0 and 1 billion.");
     return {
-      name, rarity, value, shiny_value:shinyValue, demand,
+      name, rarity, value, shiny_value:shinyValue, demand, shiny_demand:shinyDemand,
       image_url:imageURL($("adminUnitImage").value),
       shiny_image_url:imageURL($("adminUnitShinyImage").value)
     };
