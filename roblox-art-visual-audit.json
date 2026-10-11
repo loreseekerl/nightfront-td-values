@@ -1,5 +1,33 @@
 {
   "artworks": {
+    "101768419325516": {
+      "owners": [
+        {
+          "name": "Dungeon Master Chica",
+          "variant": "normal"
+        },
+        {
+          "name": "Dungeon Master Chica",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/101768419325516.png",
+      "sha256": "618f701639dada6cd51d7f8f9eef084cb05f8f7ab7dc89f6f4411fa591374a5c"
+    },
+    "102386289674645": {
+      "owners": [
+        {
+          "name": "Ignited Bonnie",
+          "variant": "normal"
+        },
+        {
+          "name": "Ignited Bonnie",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/102386289674645.png",
+      "sha256": "5cb46decdc948163f4feddbe2ac581a18f79dfbbd0047a1b27523173450f0f9f"
+    },
     "104563385352607": {
       "owners": [
         {
@@ -9,6 +37,58 @@
       ],
       "path": "assets/roblox-units/104563385352607.png",
       "sha256": "1221746149ce6b3d46048a8674c1a1efe23dfb594912031a08cbe0365a279bdd"
+    },
+    "104973087259686": {
+      "owners": [
+        {
+          "name": "TK-01 Krupa",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/104973087259686.png",
+      "sha256": "1f90d05b3f374341448806559b80023d2361da2dc1779fe2da9e45185eb4d5c1"
+    },
+    "106983049747877": {
+      "owners": [
+        {
+          "name": "Royal Bonnie",
+          "variant": "normal"
+        },
+        {
+          "name": "Royal Bonnie",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/106983049747877.png",
+      "sha256": "30114abb4005f130c2fd3189fff81dd90f54e71d174117dcda0c2bb5ba1cc2a5"
+    },
+    "108222135720610": {
+      "owners": [
+        {
+          "name": "Determined Knight Freddy",
+          "variant": "normal"
+        },
+        {
+          "name": "Determined Knight Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/108222135720610.png",
+      "sha256": "a953028bea645942a3a366baf61502ca4927a36e831043b03a62f3dd426b819d"
+    },
+    "108412858640617": {
+      "owners": [
+        {
+          "name": "Jester Toy Bonnie",
+          "variant": "normal"
+        },
+        {
+          "name": "Jester Toy Bonnie",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/108412858640617.png",
+      "sha256": "e7fc510125388409a53a8410b7d3210ce01306abf1e790d22b37af03acc2dd15"
     },
     "111922466126642": {
       "owners": [
@@ -57,6 +137,48 @@
       ],
       "path": "assets/roblox-units/113251065571911.png",
       "sha256": "e7b23d33e5524cab89736007553b9610a1b5b695be3fe5f101dc7c02da8d4529"
+    },
+    "116552791332437": {
+      "owners": [
+        {
+          "name": "Endo 02",
+          "variant": "normal"
+        },
+        {
+          "name": "Endo 02",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/116552791332437.png",
+      "sha256": "6481e8b2bab693298f84b5097b2791bac4616f369008ac19eb095d65a2c4fda8"
+    },
+    "117570163055009": {
+      "owners": [
+        {
+          "name": "Mangle",
+          "variant": "normal"
+        },
+        {
+          "name": "Mangle",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/117570163055009.png",
+      "sha256": "0ddf63a3b68727abf64afb6eac7a39226f46e944f73ae6bcd89ecf3fdc5cf77d"
+    },
+    "119419950595298": {
+      "owners": [
+        {
+          "name": "Ignited Golden Freddy",
+          "variant": "normal"
+        },
+        {
+          "name": "Ignited Golden Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/119419950595298.png",
+      "sha256": "4e6f769eb9d508c5c71af9395a65bae43bea1e5999bd8d821bdb2ae1d9650ff0"
     },
     "119787484636557": {
       "owners": [
@@ -130,6 +252,16 @@
       "path": "assets/roblox-units/125048819673043.png",
       "sha256": "51599d7ef1e68c3163e4f28aff9ef5df049b975d8dd095571c790af2d84786c6"
     },
+    "125207627821104": {
+      "owners": [
+        {
+          "name": "Phantom Endo",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/125207627821104.png",
+      "sha256": "84253af055d1c0702789e43cc4a87576f5560340d13b1582d86002ed33ec1cc5"
+    },
     "126526812754830": {
       "owners": [
         {
@@ -158,6 +290,34 @@
       "path": "assets/roblox-units/128665824507257.png",
       "sha256": "62f2398f666a88b43034d32d3a592363cfb55fc4482b87886a018ca2edbd98a6"
     },
+    "130138248669258": {
+      "owners": [
+        {
+          "name": "Toy Foxy",
+          "variant": "normal"
+        },
+        {
+          "name": "Toy Foxy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/130138248669258.png",
+      "sha256": "84a79a5db94f8687701c6e793ebcc319be166a91b3d25c49ee72349c7cb228e8"
+    },
+    "130850920774279": {
+      "owners": [
+        {
+          "name": "The Hoax",
+          "variant": "normal"
+        },
+        {
+          "name": "The Hoax",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/130850920774279.png",
+      "sha256": "cbf9173edff4c82940a141bbd7fd7699fa5e1674218310b39de136b20adc656e"
+    },
     "131152819566354": {
       "owners": [
         {
@@ -171,6 +331,20 @@
       ],
       "path": "assets/roblox-units/131152819566354.png",
       "sha256": "52cb25971e5221da8811a76c643d9b905001c7ddd566d73e00b1151c4cac1da0"
+    },
+    "134704881859568": {
+      "owners": [
+        {
+          "name": "Toy Bonnie",
+          "variant": "normal"
+        },
+        {
+          "name": "Toy Bonnie",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/134704881859568.png",
+      "sha256": "16300dfe8130f62a56cc7bff127326688c02c36d76aaf63d2a32304ad2396ea0"
     },
     "134785209260482": {
       "owners": [
@@ -206,6 +380,16 @@
       "path": "assets/roblox-units/136552005521646.png",
       "sha256": "9b0bc8775910a2b6a031a40e404aeaaf5f6681657e5532652db52fcf770ede51"
     },
+    "140660967141168": {
+      "owners": [
+        {
+          "name": "Shadow Bonnie",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/140660967141168.png",
+      "sha256": "967071a6a1ba48af7d19004606241777d3a0fb8a4ea3b67f2cee3a855381a37b"
+    },
     "71478729321126": {
       "owners": [
         {
@@ -230,6 +414,44 @@
       "path": "assets/roblox-units/71790702802734.png",
       "sha256": "cfc8eee65b93832081f62692911e97769e92662cf1db067facd200c733bab7f1"
     },
+    "72474768888266": {
+      "owners": [
+        {
+          "name": "TK-01 Krupa",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/72474768888266.png",
+      "sha256": "eb9e9014cccf01c518e4fced545c303b7338f31e449de37b9b548abe53a4982b"
+    },
+    "72538471981573": {
+      "owners": [
+        {
+          "name": "Freddy",
+          "variant": "normal"
+        },
+        {
+          "name": "Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/72538471981573.png",
+      "sha256": "d38efb2f3b6e4d73270e7d75f6f1ceffaa6d34bd4de83ffde4c3301e5576946b"
+    },
+    "72785072028996": {
+      "owners": [
+        {
+          "name": "Balloon Boy",
+          "variant": "normal"
+        },
+        {
+          "name": "Balloon Boy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/72785072028996.png",
+      "sha256": "66df4d6bfe8535d1bc4652f58a58e9189aafdb949e759ad591ad1917571254d3"
+    },
     "73007397664573": {
       "owners": [
         {
@@ -243,6 +465,50 @@
       ],
       "path": "assets/roblox-units/73007397664573.png",
       "sha256": "5415fe98959832706060b8ddc65cddb5aef0d2bd16c89ea611d6471fca131810"
+    },
+    "74186096703317": {
+      "owners": [
+        {
+          "name": "MECHA-01 Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/74186096703317.png",
+      "sha256": "b373c58d56109765614b76e2f7797522c068440d2ac2807ea7d8538793522c3b"
+    },
+    "75159032330070": {
+      "owners": [
+        {
+          "name": "VR Toy Freddy",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/75159032330070.png",
+      "sha256": "1fb5dbe8de2a36541f2e6d8e8ada2b14d777abd925e9b75e649c2b2864b30441"
+    },
+    "76475757609740": {
+      "owners": [
+        {
+          "name": "Withered Chica",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/76475757609740.png",
+      "sha256": "235687ab59a38233d5fd0a3ea13f937cbe22110c0a403fb69e5c74ef5db93a92"
+    },
+    "76828959388426": {
+      "owners": [
+        {
+          "name": "Phone Guy",
+          "variant": "normal"
+        },
+        {
+          "name": "Phone Guy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/76828959388426.png",
+      "sha256": "e12bd54f62874b989f6cea04d6a1b4a16ec2c78b9a2d71b015e583486be16715"
     },
     "76930918382285": {
       "owners": [
@@ -272,6 +538,20 @@
       "path": "assets/roblox-units/77658201492152.png",
       "sha256": "8e4805c9366bf8f7465063df64e5715efbd2f05cd91d4a4dd21cb539a824f25c"
     },
+    "78204693435241": {
+      "owners": [
+        {
+          "name": "Ravaged Shadow Freddy",
+          "variant": "normal"
+        },
+        {
+          "name": "Ravaged Shadow Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/78204693435241.png",
+      "sha256": "4e4eeb23535ee88e41807fc824a31cc4e22822f3f727c8b736ceb76bc3e191ec"
+    },
     "78378742822573": {
       "owners": [
         {
@@ -281,6 +561,20 @@
       ],
       "path": "assets/roblox-units/78378742822573.png",
       "sha256": "f3079f6d68afc8238719d5c3a36f82b51dd76f60aed498f359a3f3671ac80a35"
+    },
+    "78394427287498": {
+      "owners": [
+        {
+          "name": "Nightshow Bonnie",
+          "variant": "normal"
+        },
+        {
+          "name": "Nightshow Bonnie",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/78394427287498.png",
+      "sha256": "2e2d748aff9b931220861402139feb2bf1882dfdd021519e9ca79e3ba156bef3"
     },
     "78411237531253": {
       "owners": [
@@ -320,6 +614,34 @@
       "path": "assets/roblox-units/80125341843049.png",
       "sha256": "fe7d5aae04d002b6c85b5e9adcc7c69368776670135bff35fdd19e2125cd18db"
     },
+    "80212880711592": {
+      "owners": [
+        {
+          "name": "Sparky",
+          "variant": "normal"
+        },
+        {
+          "name": "Sparky",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/80212880711592.png",
+      "sha256": "f571e1573caf4cbad9bf32e1f5230062fcf6b6a750ed3c8d0cbd78334753b75f"
+    },
+    "80507895949183": {
+      "owners": [
+        {
+          "name": "Ignited Foxy",
+          "variant": "normal"
+        },
+        {
+          "name": "Ignited Foxy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/80507895949183.png",
+      "sha256": "c909e74bb9b4def06edfa91e972066798a8435d19080780d521bbb0e0f4a3ab4"
+    },
     "86331299508583": {
       "owners": [
         {
@@ -333,6 +655,20 @@
       ],
       "path": "assets/roblox-units/86331299508583.png",
       "sha256": "430ca71da90ae11f96a9364c5219b7f372e7a222b2a4c20786ef71207aac429e"
+    },
+    "86942839707626": {
+      "owners": [
+        {
+          "name": "Toy Chica",
+          "variant": "normal"
+        },
+        {
+          "name": "Toy Chica",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/86942839707626.png",
+      "sha256": "d02b3442bbe7f649cba428e1b85095a60d3c1f485f9e5ad39c1dd63c4b5b730d"
     },
     "88318705221720": {
       "owners": [
@@ -400,6 +736,36 @@
       "path": "assets/roblox-units/91264185791654.png",
       "sha256": "6289e83ad1208ecf5e9f388126f148ff21340531a9f11a7364cc00d1e739a32f"
     },
+    "91443589225033": {
+      "owners": [
+        {
+          "name": "MECHA-01 Freddy",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/91443589225033.png",
+      "sha256": "a7e345c6d2ed6752173bba7ca7d2b52ef532f90e2b630bb4394c533ef1cdb8c7"
+    },
+    "94340410478375": {
+      "owners": [
+        {
+          "name": "Withered Chica",
+          "variant": "normal"
+        }
+      ],
+      "path": "assets/roblox-units/94340410478375.png",
+      "sha256": "028482f0d8380ae1e140a871750800aedac53ca8e013a6b9cacc1c86ee15da75"
+    },
+    "94681084291788": {
+      "owners": [
+        {
+          "name": "Withered Freddy",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/94681084291788.png",
+      "sha256": "f3fcaa50c28b020b70206c975f96eda20be04e845b13ebb5ad5f0eac5b309e96"
+    },
     "95122163888004": {
       "owners": [
         {
@@ -437,6 +803,20 @@
       ],
       "path": "assets/roblox-units/96325031375038.png",
       "sha256": "e5b9cf2ad3e878bc3ee46a76e284e93644cbc0b6ae7ce53e2aa66c7a6f4358c0"
+    },
+    "96670074799669": {
+      "owners": [
+        {
+          "name": "Withered Bonnie",
+          "variant": "normal"
+        },
+        {
+          "name": "Withered Bonnie",
+          "variant": "shiny"
+        }
+      ],
+      "path": "assets/roblox-units/96670074799669.png",
+      "sha256": "4169c4ca72329f31085b97d3eafa791391737c2c2f86752545f0c9a3c07e3db4"
     },
     "96747727800359": {
       "owners": [
@@ -501,8 +881,8 @@
       "sha256": "5e37951ce3ef688871f0673ad82376667d38708212a2ab26c5d4c19e679127d5"
     }
   },
-  "audited_at": "2026-10-11T15:55:37.895711+00:00",
+  "audited_at": "2026-10-11T19:54:18.295613+00:00",
   "source_snapshot_id": 9,
   "suspected_cross_unit_copies": [],
-  "total_checked": 40
+  "total_checked": 70
 }
