@@ -2694,3 +2694,32 @@ body{overflow-x:clip}
   .unit-card-actions{gap:5px}
   .unit-card-actions .unit-history-link,.unit-card-actions .unit-suggestion-link{font-size:10px;padding:7px 3px}
 }
+
+
+
+/* Independent normal / shiny demand readouts and history summaries */
+.trends-demand-pair{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:stretch;
+}
+.trends-demand-pair>.trends-demand-info{
+  min-width:0;border:1px solid #334460;background:#111928;
+  border-radius:4px;padding:10px 9px 11px;
+}
+.trends-demand-pair>.trends-demand-info:nth-child(2){
+  border-color:#51456c;background:#1a162a;
+}
+.trends-demand-pair>.trends-demand-info>div:first-child{
+  align-items:flex-start;gap:5px;flex-wrap:wrap;
+}
+.trends-demand-pair>.trends-demand-info span{font-size:9px;letter-spacing:.02em}
+.trends-demand-pair>.trends-demand-info strong{
+  color:#f0ecff;font-size:13px;overflow-wrap:anywhere;
+}
+.trends-demand-pair>.trends-demand-info:nth-child(2) .trends-demand-meter span{
+  background:linear-gradient(90deg,#b273ff,#f6a3da);
+}
+@media(max-width:450px){
+  .trends-demand-pair{gap:6px}
+  .trends-demand-pair>.trends-demand-info{padding:9px 7px}
+  .trends-demand-pair>.trends-demand-info span{font-size:8px}
+}
