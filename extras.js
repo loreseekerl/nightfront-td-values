@@ -313,5 +313,7 @@
     }}
   };
   renderAll();
+  // Reflect saved stars immediately if the All Units script loaded before this one.
+  if(typeof renderUnits==="function")renderUnits();
   load();
 })();
