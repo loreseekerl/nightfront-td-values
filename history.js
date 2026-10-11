@@ -5,7 +5,7 @@
   const escape = (value) => String(value ?? "").replace(/[&<>"']/g, ch =>
     ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   const fmt = (value) => Number(value).toLocaleString("en-US",{maximumFractionDigits:2});
-  const snapshot = (value) => value === null || value === undefined ? "Not listed" : fmt(value) + " tickets";
+  const snapshot = (value) => value === null || value === undefined ? "N/A" : fmt(value) + " tickets";
   const date = (value) => {
     const parsed = new Date(value);
     return Number.isNaN(parsed.getTime()) ? "Unknown date" :
@@ -104,8 +104,15 @@
     const name = all[0]?.unit_name || "Unit";
     $("historyChartTitle").textContent = name.toUpperCase() + " · TICKET HISTORY";
     if (!all.length) { $("historyChart").textContent = "No recorded history for this unit."; return; }
-    const data = all.map(r=>({normal:Number(r.new_value),shiny:r.new_shiny_value === null ? null : Number(r.new_shiny_value),date:r.changed_at}));
-    const allValues = data.flatMap(r => [r.normal,...(r.shiny === null ? [] : [r.shiny])]);
+    const data = all.map(r=>({
+      normal:r.new_value == null ? null : Number(r.new_value),
+      shiny:r.new_shiny_value == null ? null : Number(r.new_shiny_value),
+      date:r.changed_at
+    }));
+    const allValues = data.flatMap(r => [
+      ...(r.normal === null ? [] : [r.normal]),
+      ...(r.shiny === null ? [] : [r.shiny])
+    ]);
     const max = Math.max(...allValues,1);
     const min = Math.min(0,...allValues);
     const W=800,H=250, left=68,right=24,top=24,bottom=52;
@@ -120,7 +127,7 @@
     }).join("");
     const series = (name,color) => {
       const points = data.map((d,i)=>d[name] === null ? null : {x:x(i),y:y(d[name]),v:d[name],time:d.date});
-      // Split paths where shiny isn't available instead of inventing missing values.
+      // Split both normal and shiny paths where values are N/A rather than inventing zeroes.
       let parts=[],part=[];
       for (const p of points) {
         if (!p) {if(part.length)parts.push(part);part=[];} else part.push(p);
