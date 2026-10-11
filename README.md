@@ -30,7 +30,15 @@ Only these seven rarities are accepted by the Supabase database and shown in the
 | Secret | Red/orange | Ignited Freddy |
 | Glitched | Animated rotating dark-blue/purple gradient | The Creation |
 
-The examples are **rarity references**, not automatically published units. Add their actual images, ticket values and demand before listing them as tradable units. The Glitched animation respects reduced-motion preferences.
+The owner-provided rarity-reference units **Ignited Chica, Ignited Foxy, Ignited Bonnie, Ignited Freddy, and The Creation** were added to the live database on October 11, 2026, alongside already-listed Freddy, Greenbear, and Chica. Their normal/shiny ticket values and demands were deliberately stored as **NULL / N/A** until the owner verifies the prices. The Glitched animation respects reduced-motion preferences.
+
+## More genuine units, without invented portraits
+
+Nightfront currently has eight listed units across all seven rarity categories. The five newly published Ignited/The Creation entries use the owner's confirmed names and rarities but **not invented ticket numbers**. Their unit-specific `image_url` and `shiny_image_url` remain blank because an authentic picture for each unit has not yet been verified.
+
+On the public All Units list, an entry awaiting its own portrait temporarily displays that rarity's **owner-uploaded homepage cover** (when available) with a visible **RARITY ART** label. The image's alt text also identifies it as generic rarity cover artwork. This is **not** saved to the unit's image fields and **not** presented as an official picture of the character. Once the owner uploads the real portrait, it automatically takes precedence over the fallback.
+
+To finish genuine unit portraits: visit the private Admin Dashboard → **UNITS & IMAGES**, enable **ONLY UNITS NEEDING PORTRAITS**, click **EDIT** beside the relevant unit, and upload a verified PNG/JPG/WebP/GIF or paste an HTTPS image URL. Clear this filter to review all units. The same editor supports normal and shiny pictures separately.
 
 ## Unpriced units: N/A
 
