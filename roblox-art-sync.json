@@ -1,0 +1,379 @@
+{
+  "schemaVersion": 1,
+  "source": "Nightfront Roblox server-synced unit manifest",
+  "snapshotId": 9,
+  "units": [
+    {
+      "name": "Freddy",
+      "rarity": "Common",
+      "image_asset_id": "72538471981573",
+      "shiny_image_asset_id": "72538471981573"
+    },
+    {
+      "name": "Green Bear",
+      "rarity": "Common",
+      "image_asset_id": "119787484636557",
+      "shiny_image_asset_id": null
+    },
+    {
+      "name": "Endo 01",
+      "rarity": "Epic",
+      "image_asset_id": "96747727800359",
+      "shiny_image_asset_id": "96747727800359"
+    },
+    {
+      "name": "Fallen Star Spring Bonnie",
+      "rarity": "Epic",
+      "image_asset_id": "80125341843049",
+      "shiny_image_asset_id": "80125341843049"
+    },
+    {
+      "name": "Ignited Foxy",
+      "rarity": "Epic",
+      "image_asset_id": "80507895949183",
+      "shiny_image_asset_id": "80507895949183"
+    },
+    {
+      "name": "Phantom Cupcake",
+      "rarity": "Epic",
+      "image_asset_id": "112810467637995",
+      "shiny_image_asset_id": "112810467637995"
+    },
+    {
+      "name": "Phantom Foxy",
+      "rarity": "Epic",
+      "image_asset_id": "73007397664573",
+      "shiny_image_asset_id": "73007397664573"
+    },
+    {
+      "name": "Phone Guy",
+      "rarity": "Epic",
+      "image_asset_id": "76828959388426",
+      "shiny_image_asset_id": "76828959388426"
+    },
+    {
+      "name": "Toy Bonnie",
+      "rarity": "Epic",
+      "image_asset_id": "134704881859568",
+      "shiny_image_asset_id": "134704881859568"
+    },
+    {
+      "name": "Toy Chica",
+      "rarity": "Epic",
+      "image_asset_id": "86942839707626",
+      "shiny_image_asset_id": "86942839707626"
+    },
+    {
+      "name": "Withered Chica",
+      "rarity": "Epic",
+      "image_asset_id": "94340410478375",
+      "shiny_image_asset_id": "76475757609740"
+    },
+    {
+      "name": "Determined Knight Freddy",
+      "rarity": "Glitched",
+      "image_asset_id": "108222135720610",
+      "shiny_image_asset_id": "108222135720610"
+    },
+    {
+      "name": "Ravaged Shadow Freddy",
+      "rarity": "Glitched",
+      "image_asset_id": "78204693435241",
+      "shiny_image_asset_id": "78204693435241"
+    },
+    {
+      "name": "Shadow Bonnie",
+      "rarity": "Glitched",
+      "image_asset_id": "111922466126642",
+      "shiny_image_asset_id": "140660967141168"
+    },
+    {
+      "name": "Shadow Freddy",
+      "rarity": "Glitched",
+      "image_asset_id": "76930918382285",
+      "shiny_image_asset_id": "76930918382285"
+    },
+    {
+      "name": "Stand Of Souls",
+      "rarity": "Glitched",
+      "image_asset_id": "78411237531253",
+      "shiny_image_asset_id": "78411237531253"
+    },
+    {
+      "name": "The Creation",
+      "rarity": "Glitched",
+      "image_asset_id": "88318705221720",
+      "shiny_image_asset_id": "88318705221720"
+    },
+    {
+      "name": "Balloon Boy",
+      "rarity": "Mythic",
+      "image_asset_id": "72785072028996",
+      "shiny_image_asset_id": "72785072028996"
+    },
+    {
+      "name": "Golden Cupcake",
+      "rarity": "Mythic",
+      "image_asset_id": "104563385352607",
+      "shiny_image_asset_id": "134785209260482"
+    },
+    {
+      "name": "Ignited Bonnie",
+      "rarity": "Mythic",
+      "image_asset_id": "102386289674645",
+      "shiny_image_asset_id": "102386289674645"
+    },
+    {
+      "name": "Mangle",
+      "rarity": "Mythic",
+      "image_asset_id": "117570163055009",
+      "shiny_image_asset_id": "117570163055009"
+    },
+    {
+      "name": "Phantom BB",
+      "rarity": "Mythic",
+      "image_asset_id": "71790702802734",
+      "shiny_image_asset_id": "71790702802734"
+    },
+    {
+      "name": "Phantom Freddy",
+      "rarity": "Mythic",
+      "image_asset_id": "120905436557169",
+      "shiny_image_asset_id": "120905436557169"
+    },
+    {
+      "name": "Phone Head Guy",
+      "rarity": "Mythic",
+      "image_asset_id": "97180357860271",
+      "shiny_image_asset_id": "72785072028996"
+    },
+    {
+      "name": "Rebuilt Bonnie",
+      "rarity": "Mythic",
+      "image_asset_id": "88366498889937",
+      "shiny_image_asset_id": "72785072028996"
+    },
+    {
+      "name": "Royal Bonnie",
+      "rarity": "Mythic",
+      "image_asset_id": "106983049747877",
+      "shiny_image_asset_id": "106983049747877"
+    },
+    {
+      "name": "Withered Freddy",
+      "rarity": "Mythic",
+      "image_asset_id": "79323142673658",
+      "shiny_image_asset_id": "94681084291788"
+    },
+    {
+      "name": "Foxy",
+      "rarity": "Rare",
+      "image_asset_id": "96325031375038",
+      "shiny_image_asset_id": "96325031375038"
+    },
+    {
+      "name": "Ignited Chica",
+      "rarity": "Rare",
+      "image_asset_id": "112861582062664",
+      "shiny_image_asset_id": "112861582062664"
+    },
+    {
+      "name": "Phantom Chica",
+      "rarity": "Rare",
+      "image_asset_id": "91264185791654",
+      "shiny_image_asset_id": "91264185791654"
+    },
+    {
+      "name": "Toy Freddy",
+      "rarity": "Rare",
+      "image_asset_id": "126526812754830",
+      "shiny_image_asset_id": "126526812754830"
+    },
+    {
+      "name": "Withered Bonnie",
+      "rarity": "Rare",
+      "image_asset_id": "96670074799669",
+      "shiny_image_asset_id": "96670074799669"
+    },
+    {
+      "name": "Dungeon Master Chica",
+      "rarity": "Secret",
+      "image_asset_id": "101768419325516",
+      "shiny_image_asset_id": "101768419325516"
+    },
+    {
+      "name": "Endo 02",
+      "rarity": "Secret",
+      "image_asset_id": "116552791332437",
+      "shiny_image_asset_id": "116552791332437"
+    },
+    {
+      "name": "Fallen Star Golden Freddy",
+      "rarity": "Secret",
+      "image_asset_id": "131152819566354",
+      "shiny_image_asset_id": "131152819566354"
+    },
+    {
+      "name": "Golden Freddy",
+      "rarity": "Secret",
+      "image_asset_id": "124106911511020",
+      "shiny_image_asset_id": "119797184389012"
+    },
+    {
+      "name": "Ignited Freddy",
+      "rarity": "Secret",
+      "image_asset_id": "95122163888004",
+      "shiny_image_asset_id": "95122163888004"
+    },
+    {
+      "name": "Ignited Golden Freddy",
+      "rarity": "Secret",
+      "image_asset_id": "119419950595298",
+      "shiny_image_asset_id": "119419950595298"
+    },
+    {
+      "name": "Ignited Springtrap",
+      "rarity": "Secret",
+      "image_asset_id": "78378742822573",
+      "shiny_image_asset_id": null
+    },
+    {
+      "name": "Jester Toy Bonnie",
+      "rarity": "Secret",
+      "image_asset_id": "108412858640617",
+      "shiny_image_asset_id": "108412858640617"
+    },
+    {
+      "name": "MECHA-01 Freddy",
+      "rarity": "Secret",
+      "image_asset_id": "91443589225033",
+      "shiny_image_asset_id": "74186096703317"
+    },
+    {
+      "name": "Mendo",
+      "rarity": "Secret",
+      "image_asset_id": "98516895038019",
+      "shiny_image_asset_id": "98516895038019"
+    },
+    {
+      "name": "Nerdy Rabbit",
+      "rarity": "Secret",
+      "image_asset_id": "89828333065258",
+      "shiny_image_asset_id": "89828333065258"
+    },
+    {
+      "name": "Nightshow Bonnie",
+      "rarity": "Secret",
+      "image_asset_id": "78394427287498",
+      "shiny_image_asset_id": "78394427287498"
+    },
+    {
+      "name": "Phantom Bonnie",
+      "rarity": "Secret",
+      "image_asset_id": "86331299508583",
+      "shiny_image_asset_id": "86331299508583"
+    },
+    {
+      "name": "Phantom Endo",
+      "rarity": "Secret",
+      "image_asset_id": "125207627821104",
+      "shiny_image_asset_id": "134791282725882"
+    },
+    {
+      "name": "Phantom Mangle",
+      "rarity": "Secret",
+      "image_asset_id": "128665824507257",
+      "shiny_image_asset_id": "128665824507257"
+    },
+    {
+      "name": "Phantom Puppet",
+      "rarity": "Secret",
+      "image_asset_id": "77658201492152",
+      "shiny_image_asset_id": "77658201492152"
+    },
+    {
+      "name": "Puppet",
+      "rarity": "Secret",
+      "image_asset_id": "136552005521646",
+      "shiny_image_asset_id": "136552005521646"
+    },
+    {
+      "name": "Redbear",
+      "rarity": "Secret",
+      "image_asset_id": "99973415180788",
+      "shiny_image_asset_id": "72785072028996"
+    },
+    {
+      "name": "Sparky",
+      "rarity": "Secret",
+      "image_asset_id": "80212880711592",
+      "shiny_image_asset_id": "80212880711592"
+    },
+    {
+      "name": "The Hoax",
+      "rarity": "Secret",
+      "image_asset_id": "130850920774279",
+      "shiny_image_asset_id": "130850920774279"
+    },
+    {
+      "name": "The Scavenger",
+      "rarity": "Secret",
+      "image_asset_id": "96311996169473",
+      "shiny_image_asset_id": null
+    },
+    {
+      "name": "The White Rabbit",
+      "rarity": "Secret",
+      "image_asset_id": "71478729321126",
+      "shiny_image_asset_id": "72785072028996"
+    },
+    {
+      "name": "TK-01 Krupa",
+      "rarity": "Secret",
+      "image_asset_id": "104973087259686",
+      "shiny_image_asset_id": "72474768888266"
+    },
+    {
+      "name": "Toy Foxy",
+      "rarity": "Secret",
+      "image_asset_id": "130138248669258",
+      "shiny_image_asset_id": "130138248669258"
+    },
+    {
+      "name": "Trapped Phantom Chica",
+      "rarity": "Secret",
+      "image_asset_id": "113251065571911",
+      "shiny_image_asset_id": null
+    },
+    {
+      "name": "VR Toy Freddy",
+      "rarity": "Secret",
+      "image_asset_id": "75159032330070",
+      "shiny_image_asset_id": null
+    },
+    {
+      "name": "Withered Foxy",
+      "rarity": "Secret",
+      "image_asset_id": "90752272280164",
+      "shiny_image_asset_id": "90752272280164"
+    },
+    {
+      "name": "Withered Golden Freddy",
+      "rarity": "Secret",
+      "image_asset_id": "124700711398876",
+      "shiny_image_asset_id": "124700711398876"
+    },
+    {
+      "name": "Bonnie",
+      "rarity": "Uncommon",
+      "image_asset_id": "97205457504081",
+      "shiny_image_asset_id": "97205457504081"
+    },
+    {
+      "name": "Chica",
+      "rarity": "Uncommon",
+      "image_asset_id": "125048819673043",
+      "shiny_image_asset_id": "125048819673043"
+    }
+  ]
+}
