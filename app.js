@@ -58,10 +58,22 @@ const demandLabel = value => {
 // W/F/L trading remains restricted by canTradeShiny, which needs a real value.
 const canPreviewShiny = (unit) => !!unit;
 const canTradeShiny = (unit) => hasValue(unit?.shiny_value);
+const rarityCoverForUnit = unit => {
+  // Rarity covers are owner-uploaded gallery illustrations, not verified portraits
+  // of this particular unit. Keep the real unit image database field untouched.
+  if (!unit || validImage(unit.image_url) || validImage(unit.shiny_image_url)) return "";
+  return validImage(state.homeArt[unit.rarity]);
+};
 const imageHtml = (unit, placeholder="★", shiny=false) => {
-  const image = (shiny && validImage(unit?.shiny_image_url)) || validImage(unit?.image_url);
+  const exactImage = (shiny && validImage(unit?.shiny_image_url)) || validImage(unit?.image_url);
+  const coverImage = exactImage ? "" : rarityCoverForUnit(unit);
+  const image = exactImage || coverImage;
+  const alt = exactImage
+    ? (unit?.name || "Unit artwork") + (shiny ? " (shiny)" : "")
+    : (unit?.rarity || "Unit") + " rarity cover (unit-specific artwork pending)";
   return image
-    ? '<img loading="lazy" decoding="async" src="' + escapeHtml(image) + '" alt="' + escapeHtml(unit?.name || "Unit artwork") + (shiny ? ' (shiny)' : '') + '">'
+    ? '<img loading="lazy" decoding="async"' + (coverImage ? ' class="rarity-cover-art"' : '') +
+      ' src="' + escapeHtml(image) + '" alt="' + escapeHtml(alt) + '">'
     : '<span class="placeholder-art" aria-hidden="true">' + escapeHtml(placeholder) + '</span>';
 };
 const shinyOverlay = (shiny) => shiny
@@ -206,6 +218,14 @@ async function loadHomeArtwork() {
   } finally {
     renderCategories();
     renderHomeHero();
+    // Covers and unit data load independently. Refresh cards if rarity art arrives later.
+    if (state.units.length) {
+      renderUnits();
+      renderFeatured();
+      renderLastUpdated();
+      renderCalculator();
+      if (!$("unitPickerModal").hidden) renderPicker();
+    }
   }
 }
 
@@ -329,6 +349,7 @@ function renderUnits() {
     return '<article class="unit-card' + (shiny ? ' is-shiny' : '') + enter + '"' + order + '>' +
       '<div class="unit-art"><span class="unit-art-file" aria-hidden="true">NF / UNIT FILE</span>' +
       imageHtml(unit, "★", shiny) + shinyOverlay(shiny) +
+      (rarityCoverForUnit(unit) ? '<span class="unit-art-credit" title="This is a rarity cover, not the unit-specific portrait">RARITY ART</span>' : '') +
       '<button type="button" class="shiny-button ' + (shiny ? 'active' : '') +
       '" data-shiny-id="' + escapeHtml(unit.id) + '" title="' +
       (shinyAvailable ? "Toggle shiny appearance" : "Shiny appearance not listed yet") + '" aria-label="' +
