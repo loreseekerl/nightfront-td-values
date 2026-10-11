@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+"""Export only in-game unit artwork from a public Roblox thumbnail API.
+
+Input is a validated snapshot manifest (62 real Nightfront units, no passes,
+presents, currencies, titles or test units). No Roblox credentials required.
+Only Roblox CDN image responses with valid image signatures are saved.
+"""
+from __future__ import annotations
+
+import concurrent.futures
+import datetime as dt
+import json
+import pathlib
+import re
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from collections import Counter
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+CONFIG = ROOT / "roblox-art-sync.json"
+RESULTS = ROOT / "roblox-art-result.json"
+DEST = ROOT / "assets" / "roblox-units"
+MAX_BYTES = 5 * 1024 * 1024
+IMAGE_RE = re.compile(r"^[0-9]{8,20}$")
+ALLOWED_HOST = re.compile(r"^(?:tr|t[0-9]+)\\.rbxcdn\\.com$", re.I)
+HEADERS = {
+    "User-Agent": "Nightfront-Values-Public-Art-Sync/1.0",
+    "Accept": "application/json,image/png,image/jpeg,image/webp,image/gif;q=0.9,*/*;q=0.5",
+}
+
+
+def http_get(url: str, timeout: float = 20.0) -> bytes:
+    request = urllib.request.Request(url, headers=HEADERS)
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        if response.status != 200:
+            raise RuntimeError(f"HTTP {response.status}")
+        result = response.read(MAX_BYTES + 1)
+        if len(result) > MAX_BYTES:
+            raise RuntimeError("Image exceeds maximum file size")
+        return result
+
+
+def find_image_extension(content: bytes) -> str | None:
+    if content.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+        return ".png"
+    if content.startswith(b"\\xff\\xd8\\xff"):
+        return ".jpg"
+    if content[:4] == b"RIFF" and content[8:12] == b"WEBP":
+        return ".webp"
+    if content.startswith((b"GIF89a", b"GIF87a")):
+        return ".gif"
+    return None
+
+
+def batch_thumbnails(ids: list[str]) -> dict[str, dict]:
+    out: dict[str, dict] = {}
+    for offset in range(0, len(ids), 20):
+        batch = ids[offset:offset + 20]
+        query = urllib.parse.urlencode({
+            "assetIds": ",".join(batch),
+            "size": "420x420",
+            "format": "Png",
+            "isCircular": "false",
+        })
+        url = "https://thumbnails.roblox.com/v1/assets?" + query
+        last_error = None
+        for attempt in range(4):
+            try:
+                obj = json.loads(http_get(url, timeout=25).decode("utf-8"))
+                for row in obj.get("data", []):
+                    asset = str(row.get("targetId", ""))
+                    if asset not in batch:
+                        continue
+                    image_url = row.get("imageUrl")
+                    parsed = urllib.parse.urlparse(str(image_url or ""))
+                    if (row.get("state") == "Completed" and
+                            parsed.scheme == "https" and
+                            ALLOWED_HOST.fullmatch(parsed.hostname or "")):
+                        out[asset] = {"state": "Completed", "image_url": image_url}
+                    else:
+                        out[asset] = {"state": row.get("state", "Unavailable"), "image_url": None}
+                break
+            except (OSError, ValueError, RuntimeError) as exc:
+                last_error = str(exc)[:180]
+                print(f"Batch {offset // 20 + 1}: attempt {attempt + 1} failed: {last_error}")
+                time.sleep(min(2 ** attempt, 8))
+        else:
+            for asset in batch:
+                out[asset] = {"state": "API error: " + str(last_error)[:80], "image_url": None}
+    return out
+
+
+def download_one(item: tuple[str, dict]) -> tuple[str, dict]:
+    asset_id, record = item
+    if record.get("state") != "Completed" or not record.get("image_url"):
+        return asset_id, {"state": record.get("state") or "Unavailable"}
+    existing = [DEST / (asset_id + ext) for ext in (".png", ".jpg", ".webp", ".gif")]
+    for path in existing:
+        if path.exists() and find_image_extension(path.read_bytes()[:20]):
+            return asset_id, {"state": "ready", "path": str(path.relative_to(ROOT)).replace("\\\\", "/")}
+    for attempt in range(3):
+        try:
+            data = http_get(record["image_url"], timeout=25)
+            ext = find_image_extension(data)
+            if not ext:
+                raise RuntimeError("Roblox CDN did not return an image file")
+            target = DEST / (asset_id + ext)
+            target.write_bytes(data)
+            return asset_id, {
+                "state": "ready",
+                "path": target.relative_to(ROOT).as_posix(),
+                "bytes": len(data)
+            }
+        except (OSError, ValueError, RuntimeError) as exc:
+            print(f"Image {asset_id}: attempt {attempt+1} failed: {str(exc)[:160]}")
+            time.sleep(min(2 ** attempt, 4))
+    return asset_id, {"state": "download_failed"}
+
+
+def main() -> None:
+    config = json.loads(CONFIG.read_text("utf-8"))
+    units = config["units"]
+    assert config.get("schemaVersion") == 1
+    assert len(units) >= 1
+    allowed_rarities = {"Common", "Uncommon", "Rare", "Epic", "Mythic", "Secret", "Glitched"}
+    ids: set[str] = set()
+    for unit in units:
+        assert unit["rarity"] in allowed_rarities
+        assert not re.search(r"\\b(?:test|debug|dummy)\\b", unit["name"], re.I)
+        for column in ("image_asset_id", "shiny_image_asset_id"):
+            asset = unit.get(column)
+            if asset is not None:
+                assert isinstance(asset, str) and IMAGE_RE.fullmatch(asset)
+                ids.add(asset)
+    DEST.mkdir(parents=True, exist_ok=True)
+    print(f"Checking {len(ids)} actual Roblox image assets for {len(units)} real units.")
+    thumbnails = batch_thumbnails(sorted(ids))
+    for asset in ids:
+        thumbnails.setdefault(asset, {"state": "No thumbnail found", "image_url": None})
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
+        mapped = dict(executor.map(download_one, sorted(thumbnails.items())))
+    stats = Counter(record["state"] for record in mapped.values())
+    results = {
+        "sourceSnapshotId": config["snapshotId"],
+        "unitsChecked": len(units),
+        "imagesChecked": len(ids),
+        "syncedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "summary": dict(stats),
+        "assets": mapped,
+    }
+    RESULTS.write_text(json.dumps(results, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    print("Result:", json.dumps(results["summary"]))
+    print("Saved public image files to assets/roblox-units and roblox-art-result.json")
+
+
+if __name__ == "__main__":
+    main()
