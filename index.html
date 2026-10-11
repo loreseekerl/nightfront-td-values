@@ -336,7 +336,7 @@
       <div class="page-heading calc-title">
         <span class="eyebrow">NIGHTFRONT TD · TRADE CHECKER</span>
         <h1>W/F/L CALCULATOR</h1>
-        <p>Build both offers using the live unit list, Shiny variants, and enchant bonuses. 1 ticket = 1 value.</p>
+        <p>Compare ticket totals <strong>and</strong> demand. Get low-demand alerts and a trade recommendation based on both sides. 1 ticket = 1 value.</p>
       </div>
 
       <div class="offer-grid">
@@ -376,9 +376,37 @@
           </div>
           <p id="tradeDifference" class="trade-difference">Add units to both sides to compare them.</p>
         </div>
+        <section class="trade-demand-analysis" aria-labelledby="tradeDemandHeading">
+          <div class="trade-demand-heading">
+            <span class="trade-demand-index">02 / TRADE INSIGHT</span>
+            <h2 id="tradeDemandHeading">DEMAND &amp; TRADE RISK</h2>
+            <p>Demand matters alongside ticket values. Normal and shiny have separate demand ratings.</p>
+          </div>
+          <div class="trade-demand-grid">
+            <div class="trade-demand-side">
+              <span class="trade-demand-side-title">YOUR OFFER</span>
+              <strong id="tradeDemandYours">N/A</strong>
+              <small id="tradeDemandYoursDetail">Add units to see demand.</small>
+              <div class="trade-demand-meter" role="img" id="tradeDemandYoursMeter" aria-label="Your offer demand rating"><span id="tradeDemandYoursFill"></span></div>
+            </div>
+            <div class="trade-demand-side">
+              <span class="trade-demand-side-title">THEIR OFFER</span>
+              <strong id="tradeDemandTheirs">N/A</strong>
+              <small id="tradeDemandTheirsDetail">Add units to see demand.</small>
+              <div class="trade-demand-meter" role="img" id="tradeDemandTheirsMeter" aria-label="Their offer demand rating"><span id="tradeDemandTheirsFill"></span></div>
+            </div>
+          </div>
+          <div id="tradeDemandAlerts" class="trade-demand-alerts" aria-live="polite"></div>
+          <div id="tradeRecommendation" class="trade-recommendation" role="status" aria-live="polite">
+            <span id="tradeRecommendationLabel">TRADE RECOMMENDATION</span>
+            <strong id="tradeRecommendationTitle">BUILD A TRADE TO COMPARE</strong>
+            <p id="tradeRecommendationText">Add units on both sides to get a demand-aware recommendation.</p>
+          </div>
+          <p class="trade-demand-disclaimer">Demand ratings are community estimates (0–10). Unrated or N/A demand is never treated as low demand. These are trading clues, not guarantees.</p>
+        </section>
         <div class="trade-actions"><button type="button" id="swapOffers" class="trade-action-button" disabled>⇄ Swap sides</button><button type="button" id="resetTrade" class="trade-action-button" disabled>↺ Clear entire trade</button></div>
       </div>
-      <p class="calc-disclaimer">W = their offer is worth more · F = equal ticket values · L = your offer is worth more. Demand can change the quality of a trade.</p>
+      <p class="calc-disclaimer">W/F/L still reflects <strong>tickets only</strong>. The demand and trade-risk section adds a separate recommendation; unknown ratings cannot prove a trade is safe. Enchant bonuses affect tickets, not demand.</p>
 
       <section class="trade-extras" aria-label="Copy your trade">
         <div class="extras-heading">
