@@ -10,6 +10,7 @@ A community trading value list for Nightfront TD, hosted on GitHub Pages and pow
 - `style.css` — black-and-blue responsive design.
 - `app.js` — reads unit values from Supabase and powers filters and trades.
 - `updates.js` — renders the public database-backed Update History changelog.
+- `suggestions.js` — public value submission form that sends validated suggestions to an owner-only queue.
 - `assets/` — public character artwork.
 - Supabase `public.units` — database table with unit records.
 
@@ -42,6 +43,27 @@ On the private Admin Dashboard's **Units & Images** editor, the **Normal value**
 - Sorting by highest/lowest ticket value puts unpriced units last. History and Update History record N/A as a missing numeric value, while the Value History graph skips missing price points instead of graphing them as zero.
 
 The database migrations made `public.units.value` and `public.unit_value_history.new_value` nullable and removed the normal-value default of 0. The existing nonnegative checks, history trigger, owner-only edit permissions, and all existing ticket values remain unchanged.
+
+## Player value suggestions and owner approval
+
+**Public page:** `#suggestions` (MORE → **Suggest a Value**), plus a shortcut on each All Units card and on the homepage. Players don't need an account. They choose an existing unit, **normal** or **shiny**, and either:
+
+- **Suggest a ticket value** — enter a nonnegative ticket amount and explain the recommendation.
+- **Report an incorrect value** — explain the issue, optionally including a proposed number.
+
+The form shows the current listed value, using **N/A** when no ticket value has been published. This is a submission for review, **not** a live price edit, vote, public discussion board or instantly published change.
+
+**Private owner queue:** Sign into `?admin=1#admin` with the claimed Q&A owner account, then open **VALUE SUGGESTIONS**. The owner sees the unit, rarity, normal/shiny variant, submission timestamp, original ticket value, suggested value, current live value, and written explanation. Search and filter Pending/Approved/Rejected. Optional owner notes are private.
+
+- **APPROVE & APPLY** (when a numeric value was submitted) runs `public.review_unit_value_suggestion`, which verifies the owner in `qa_editors`, checks that the current value has **not changed since the report**, updates only that selected normal or shiny ticket value, and marks the report approved. Existing unit-value-history triggers record real changes.
+- **MARK REVIEWED** approves a report without a proposed number and **does not change the unit**.
+- **REJECT** marks a submission rejected without touching values. Already-reviewed submissions cannot be applied again.
+
+**Database privacy:** `public.unit_value_suggestions` is protected by RLS. **Only the claimed owner can read the queue**; anonymous users cannot select, insert into, update, or delete the table directly. The public RPC `submit_unit_value_suggestion` performs server-side validation before inserting into the private queue. The review RPC is owner-only and runs the approval atomically. No private keys are shipped with the client.
+
+**Abuse safeguards:** A hidden honeypot field, a minimum explanation length, a 500-character cap, numeric limits, a short browser-side cooldown, and a **server-side limit of five submissions per hour per source** help reduce spam. The server stores a salted opaque fingerprint for rate limiting, not the raw visitor IP. Moderation is still advised if the page attracts abuse; stronger CAPTCHA can be added later.
+
+**Shiny/N/A preview fix:** Tapping ★ on All Units now previews the shiny treatment and shows **N/A** even if `shiny_value` is null and no separate shiny image exists. The original portrait is reused when no shiny image is supplied. **Shiny preview is not permission to trade an unpriced unit:** the W/F/L picker still requires a real shiny numeric value. Both variants use ordinary **tickets**.
 
 ## Mobile & UI polish
 
