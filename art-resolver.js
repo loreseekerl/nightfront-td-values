@@ -29,6 +29,9 @@
           ]) {
             const id = item[field];
             if (typeof id !== "string" || !SAFE_ASSET_ID.test(id)) continue;
+            // Same asset for normal and shiny is not distinct shiny artwork.
+            // The normal portrait is already reused with the shiny outline.
+            if (key === "shiny" && id === item.image_asset_id) continue;
             const asset = exported.assets[id];
             const path = asset?.path;
             const match = typeof path === "string" ? path.match(SAFE_IMAGE_PATH) : null;
