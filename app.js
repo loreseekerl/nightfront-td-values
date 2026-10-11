@@ -59,6 +59,11 @@ const demandLabel = value => {
 // W/F/L trading remains restricted by canTradeShiny, which needs a real value.
 const canPreviewShiny = (unit) => !!unit;
 const canTradeShiny = (unit) => hasValue(unit?.shiny_value);
+const confidenceLabel = (unit,shiny=false) => {
+  const value=shiny?unit.shiny_value:unit.value;
+  if(!hasValue(value))return "N/A";
+  return (shiny?unit.shiny_value_status:unit.normal_value_status)==="Verified" ? "Verified" : "Estimated";
+};
 const rarityCoverForUnit = (unit, shiny=false) => {
   // Rarity covers are owner-uploaded gallery illustrations, not verified portraits
   // of this particular unit. Keep the real unit image database field untouched.
@@ -99,7 +104,7 @@ async function loadUnits() {
   setUnitLoading(true);
   renderUnits();
   try {
-    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,value,shiny_value,demand,shiny_demand,image_url,shiny_image_url,created_at,updated_at&order=created_at.desc&limit=1000", {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/units?select=id,name,rarity,value,shiny_value,demand,shiny_demand,normal_value_status,shiny_value_status,created_at,released_on,image_url,shiny_image_url,updated_at&order=created_at.desc&limit=1000", {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache:"no-store"
     });
     if (!res.ok) throw new Error("Database request failed (" + res.status + ")");
@@ -121,6 +126,8 @@ async function loadUnits() {
     state.animateCards = false;
     renderCalculator();
     renderLastUpdated();
+    restoreSharedTrade();
+    window.NightfrontExtras?.onUnitData(state.units);
     if (!$("unitPickerModal").hidden) renderPicker();
   }
 }
@@ -146,6 +153,7 @@ async function loadEnchants() {
   } finally {
     state.enchantsLoading = false;
     if (!$("unitPickerModal").hidden) renderPicker();
+    restoreSharedTrade();
     renderCalculator();
   }
 }
@@ -367,7 +375,10 @@ function renderUnits() {
       '>★</button></div>' +
       '<div class="unit-details"><div class="unit-name-row"><h3>' + escapeHtml(unit.name) + '</h3>' +
       '<span class="unit-variant">' + (shiny ? 'SHINY' : 'NORMAL') + '</span></div>' +
-      '<div class="unit-sub">' + rarityBadge(unit.rarity) + '</div>' +
+      '<div class="unit-sub">' + rarityBadge(unit.rarity) +
+      '<span class="nf-confidence nf-confidence-' + confidenceLabel(unit,shiny).toLowerCase() +
+      '" title="Owner-assigned value confidence; not an independent audit">' +
+      escapeHtml(confidenceLabel(unit,shiny)) + '</span></div>' +
       '<div class="unit-stat-row"><div class="unit-price-block">' +
       '<span class="unit-stat-label">VALUE</span><div class="unit-value">' +
       (hasValue(value) ? fmt(value) + ' <small>tickets</small>' : 'N/A') +
@@ -378,7 +389,12 @@ function renderUnits() {
       '<div class="unit-card-actions"><button type="button" class="unit-history-link" data-history-id="' +
       escapeHtml(unit.id) + '">↗ History</button>' +
       '<button type="button" class="unit-suggestion-link" data-suggest-unit="' +
-      escapeHtml(unit.id) + '">Suggest value ↗</button></div></div></article>';
+      escapeHtml(unit.id) + '">Suggest value ↗</button>' +
+      '<button type="button" class="nf-save-unit" data-watch-toggle="' +
+      escapeHtml(unit.id) + '" aria-pressed="' +
+      Boolean(window.NightfrontExtras?.isSaved(unit.id)) + '" title="Save to personal watchlist">' +
+      (window.NightfrontExtras?.isSaved(unit.id) ? '★ WATCHING' : '☆ SAVE') +
+      '</button></div></div></article>';
   }).join("");
 }
 
@@ -687,6 +703,68 @@ function getTradeText() {
         insight.alerts.map(item=>item.text).join(" ") : "") :
       "");
 }
+// Share only public unit IDs, variant, quantity and enchant ID.
+// No user information or private data is put in the URL.
+let sharedTradeAttempted=false;
+function restoreSharedTrade() {
+  if(sharedTradeAttempted || !state.hasLoadedUnits || state.enchantsLoading || state.loading) return;
+  const raw=new URLSearchParams(location.search).get("trade");
+  if(!raw)return;
+  sharedTradeAttempted=true;
+  const out=$("tradeLinkStatus");
+  try {
+    if(raw.length>3800)throw Error("The shared trade link is too long.");
+    const payload=JSON.parse(raw);
+    if(!payload || payload.v!==1 || !Array.isArray(payload.y) || !Array.isArray(payload.t) ||
+      payload.y.length>20 || payload.t.length>20 || !(payload.y.length+payload.t.length))
+      throw Error("This trade link contains invalid items.");
+    const parseSide=items=>items.map(row=>{
+      if(!Array.isArray(row) || row.length!==4)throw Error("Invalid unit data in link.");
+      const [id,qty,flag,enchantId]=row;
+      const unit=getUnit(id);
+      if(typeof id!=="string"||!unit ||
+        !Number.isInteger(qty) || qty<1 || qty>99 ||
+        (flag!==0&&flag!==1) || typeof enchantId!=="string" ||
+        (enchantId && !getEnchant(enchantId)) ||
+        !hasValue(flag===1?unit.shiny_value:unit.value))
+        throw Error("A linked unit, value, quantity or enchant is no longer available.");
+      return {id:state.nextItemId++,unitId:unit.id,qty,shiny:flag===1,enchantId};
+    });
+    const yours=parseSide(payload.y),theirs=parseSide(payload.t);
+    state.offers.yours=yours;
+    state.offers.theirs=theirs;
+    out.textContent="✓ Shared trade loaded from this link. Values are checked against the current list.";
+    renderCalculator();
+  } catch(error) {
+    out.textContent="Could not load shared trade: "+(error.message||"Invalid link")+
+      " You can still build a trade normally.";
+  }
+}
+async function shareTradeLink(){
+  const out=$("tradeLinkStatus");
+  const pack=entries=>entries.map(e=>[String(e.unitId),Number(e.qty),
+    e.shiny?1:0,String(e.enchantId||"")]);
+  const yours=pack(state.offers.yours),theirs=pack(state.offers.theirs);
+  if(!yours.length&&!theirs.length){
+    out.textContent="Add at least one unit before sharing a trade.";
+    return;
+  }
+  if(yours.length>20||theirs.length>20){
+    out.textContent="Too many units to share in one link (20 per side maximum).";
+    return;
+  }
+  try{
+    const url=new URL(location.href);
+    url.searchParams.delete("admin");
+    url.searchParams.delete("qa");
+    url.searchParams.set("trade",JSON.stringify({v:1,y:yours,t:theirs}));
+    url.hash="calculator";
+    await navigator.clipboard.writeText(url.toString());
+    out.textContent="✓ Link copied! Anyone who opens it can view this trade using the current ticket values.";
+  }catch(error){out.textContent="Couldn't copy the link. Use the Copy Trade button instead.";}
+}
+$("shareTrade").addEventListener("click",shareTradeLink);
+
 function renderCalculator() {
   for (const side of ["yours", "theirs"]) {
     const entries = state.offers[side];
@@ -936,7 +1014,7 @@ function route() {
   // sign-in page so the user can request a new email instead of landing on Home.
   const loginExpired = new URLSearchParams(location.hash.slice(1)).get("error_code") === "otp_expired";
   const page = (hash === "#admin" && privateAdmin) ? "admin" :
-    ["#units", "#calculator", "#about", "#qa", "#history", "#trends", "#updates", "#suggestions"].includes(hash) ? hash.slice(1) :
+    ["#units", "#calculator", "#about", "#qa", "#history", "#trends", "#updates", "#suggestions", "#watchlist", "#rankings", "#releases"].includes(hash) ? hash.slice(1) :
     (loginExpired ? "qa" : privateAdmin ? "admin" : params.get("qa") === "edit" ? "qa" : "home");
   document.querySelectorAll(".view").forEach((view) => view.hidden = view.id !== "view-" + page);
   document.querySelectorAll(".nav a").forEach((link) => link.classList.toggle("active", link.getAttribute("href") === "#" + page));
