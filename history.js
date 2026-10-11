@@ -6,6 +6,10 @@
     ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   const fmt = (value) => Number(value).toLocaleString("en-US",{maximumFractionDigits:2});
   const snapshot = (value) => value === null || value === undefined ? "N/A" : fmt(value) + " tickets";
+  const demandText = value => {
+    const label=String(value ?? "").trim();
+    return !label || /^(unknown|n\/?a)$/i.test(label) ? "N/A" : label;
+  };
   const date = (value) => {
     const parsed = new Date(value);
     return Number.isNaN(parsed.getTime()) ? "Unknown date" :
@@ -35,6 +39,7 @@
     if (type === "normal") return entry.old_value !== entry.new_value;
     if (type === "shiny") return entry.old_shiny_value !== entry.new_shiny_value;
     if (type === "demand") return entry.old_demand !== entry.new_demand;
+    if (type === "shiny-demand") return entry.old_shiny_demand !== entry.new_shiny_demand;
     return true;
   }
   const filteredRows = () => state.rows.filter(row =>
@@ -66,11 +71,19 @@
     }
     if (baseline || row.old_demand !== row.new_demand) {
       const val = baseline
-        ? '<span class="history-current-value">' + escape(row.new_demand || "Unknown") + '</span>'
-        : '<span class="history-before">' + escape(row.old_demand || "Unknown") +
+        ? '<span class="history-current-value">' + escape(demandText(row.new_demand)) + '</span>'
+        : '<span class="history-before">' + escape(demandText(row.old_demand)) +
           '</span><span class="history-arrow">→</span><strong>' +
-          escape(row.new_demand || "Unknown") + '</strong>';
-      changes.push('<div class="history-change-row"><span>Demand</span><div>' + val + '</div></div>');
+          escape(demandText(row.new_demand)) + '</strong>';
+      changes.push('<div class="history-change-row"><span>Normal demand</span><div>' + val + '</div></div>');
+    }
+    if (baseline || row.old_shiny_demand !== row.new_shiny_demand) {
+      const val = baseline
+        ? '<span class="history-current-value">' + escape(demandText(row.new_shiny_demand)) + '</span>'
+        : '<span class="history-before">' + escape(demandText(row.old_shiny_demand)) +
+          '</span><span class="history-arrow">→</span><strong>' +
+          escape(demandText(row.new_shiny_demand)) + '</strong>';
+      changes.push('<div class="history-change-row"><span>Shiny demand ★</span><div>' + val + '</div></div>');
     }
     return changes.join("");
   }
@@ -174,7 +187,7 @@
     if (!state.loaded) $("historyTimeline").innerHTML = '<div class="history-entry-skeleton" aria-hidden="true"></div><div class="history-entry-skeleton" aria-hidden="true"></div><div class="history-entry-skeleton" aria-hidden="true"></div>';
     try {
       const response = await fetch(SUPABASE_URL +
-        "/rest/v1/unit_value_history?select=id,unit_id,unit_name,rarity,event_type,old_value,new_value,old_shiny_value,new_shiny_value,old_demand,new_demand,changed_at" +
+        "/rest/v1/unit_value_history?select=id,unit_id,unit_name,rarity,event_type,old_value,new_value,old_shiny_value,new_shiny_value,old_demand,new_demand,old_shiny_demand,new_shiny_demand,changed_at" +
         "&order=changed_at.desc&limit=400", {headers: {apikey:SUPABASE_PUBLISHABLE_KEY}});
       if (!response.ok) throw new Error("History request failed (" + response.status + ")");
       const entries = await response.json();
