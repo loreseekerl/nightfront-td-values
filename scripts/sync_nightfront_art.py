@@ -111,11 +111,13 @@ def download_one(item: tuple[str, dict]) -> tuple[str, dict]:
     for path in existing:
         if path.exists() and git_blob_sha(path.read_bytes()) in GENERIC_GIT_BLOBS:
             path.unlink()  # Delete the generic image, never a unique portrait.
-    if record.get("state") != "Completed" or not record.get("image_url"):
-        return asset_id, {"state": record.get("state") or "Unavailable"}
+    # Already verified local portrait files remain usable when Roblox's
+    # thumbnail API is temporarily unavailable. Generic files were removed.
     for path in existing:
         if path.exists() and find_image_extension(path.read_bytes()[:20]):
             return asset_id, {"state": "ready", "path": path.relative_to(ROOT).as_posix()}
+    if record.get("state") != "Completed" or not record.get("image_url"):
+        return asset_id, {"state": record.get("state") or "Unavailable"}
     for attempt in range(3):
         try:
             data = http_get(record["image_url"], timeout=25)
@@ -198,11 +200,27 @@ def main() -> None:
                 path.unlink(missing_ok=True)
                 mapped[asset_id] = {"state": "shared_placeholder", "duplicate_count": len(matches)}
     stats = Counter(record["state"] for record in mapped.values())
+    # Keep a stable result file when the same known images are found.
+    # That prevents a daily scheduled retry from generating empty commits
+    # and triggering needless GitHub Pages deployments.
+    previous = {}
+    if RESULTS.is_file():
+        try:
+            previous = json.loads(RESULTS.read_text("utf-8"))
+        except (OSError, ValueError):
+            previous = {}
+    same = (previous.get("sourceSnapshotId") == config["snapshotId"]
+            and previous.get("unitsChecked") == len(units)
+            and previous.get("imagesChecked") == len(ids)
+            and previous.get("summary") == dict(stats)
+            and previous.get("assets") == mapped)
+    synced_at = (previous.get("syncedAt") if same else None) or (
+        dt.datetime.now(dt.timezone.utc).isoformat())
     results = {
         "sourceSnapshotId": config["snapshotId"],
         "unitsChecked": len(units),
         "imagesChecked": len(ids),
-        "syncedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "syncedAt": synced_at,
         "summary": dict(stats),
         "assets": mapped,
     }
