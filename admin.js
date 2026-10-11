@@ -148,8 +148,9 @@
       '<span class="admin-list-art">' + (unit.image_url ?
         '<img alt="" loading="lazy" src="' + safe(unit.image_url) + '">' : '★') + '</span>' +
       '<div class="admin-list-description"><strong>' + safe(unit.name) + '</strong>' +
-      '<small>' + safe(unit.rarity) + ' · ' + Number(unit.value).toLocaleString() +
-      ' tickets · Demand ' + safe(unit.demand || "Unknown") + '</small></div>' +
+      '<small>' + safe(unit.rarity) + ' · ' +
+      (unit.value == null ? 'N/A' : Number(unit.value).toLocaleString() + ' tickets') +
+      ' · Demand ' + safe(unit.demand || "Unknown") + '</small></div>' +
       '<button type="button" class="admin-outline" data-edit-unit="' + safe(unit.id) + '">EDIT</button></div>'
     )).join("") || '<p class="admin-help">No matching units. Use + Add Unit to create one.</p>';
   }
@@ -239,7 +240,7 @@
     $("adminUnitFormTitle").textContent = unit ? "EDIT " + unit.name.toUpperCase() : "ADD A NEW UNIT";
     $("adminUnitName").value = unit?.name || "";
     $("adminUnitRarity").value = unit?.rarity || "Common";
-    $("adminUnitValue").value = unit?.value ?? 0;
+    $("adminUnitValue").value = unit?.value ?? "";
     $("adminUnitShinyValue").value = unit?.shiny_value ?? "";
     $("adminUnitDemand").value = unit?.demand || "";
     $("adminUnitImage").value = unit?.image_url || "";
@@ -270,14 +271,14 @@
     const name = $("adminUnitName").value.trim();
     const rarity = $("adminUnitRarity").value;
     const rawValue = $("adminUnitValue").value.trim();
-    const value = Number(rawValue);
+    const value = rawValue === "" ? null : Number(rawValue);
     const rawShiny = $("adminUnitShinyValue").value.trim();
     const shinyValue = rawShiny === "" ? null : Number(rawShiny);
     const demand = $("adminUnitDemand").value.trim() || "Unknown";
     if (!name || name.length > 100) throw Error("Enter a unit name (up to 100 characters).");
     if (!rarities.includes(rarity)) throw Error("Select a valid rarity.");
-    if (rawValue === "" || !Number.isFinite(value) || value < 0 || value > 1e9)
-      throw Error("Enter a normal ticket value between 0 and 1 billion.");
+    if (rawValue !== "" && (!Number.isFinite(value) || value < 0 || value > 1e9))
+      throw Error("Normal value must be blank (N/A) or between 0 and 1 billion.");
     if (rawShiny !== "" && (!Number.isFinite(shinyValue) || shinyValue < 0 || shinyValue > 1e9))
       throw Error("Shiny value must be blank or between 0 and 1 billion.");
     return {
