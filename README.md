@@ -12,6 +12,7 @@ A community trading value list for Nightfront TD, hosted on GitHub Pages and pow
 - `updates.js` — renders the public database-backed Update History changelog.
 - `extras.js` — watchlists, on-page alerts, top rankings and release entries. Cached personal data stays on the visitor's device.
 - `suggestions.js` — public value submission form that sends validated suggestions to an owner-only queue.
+- `art-resolver.js` — safe matching of future verified Roblox image exports without overwriting existing unit art.
 - `assets/` — public character artwork.
 - Supabase `public.units` — database table with unit records.
 
@@ -47,6 +48,8 @@ The game's own `rbxassetid://` image asset identifiers were exported to proper P
 - `scripts/sync_nightfront_art.py` fetches thumbnails, validates their state and image bytes, and saves only genuine downloadable image data.
 - `.github/workflows/sync-nightfront-art.yml` safely runs the export on future source changes or manual dispatch.
 - `roblox-art-result.json` records which asset thumbnails were exported, blocked, or still pending.
+
+**Automatic artwork retry:** The GitHub Actions export now checks the real Roblox thumbnail asset IDs daily, because some thumbnails initially resolve only to the same generic Roblox placeholder. Existing verified local image files remain usable during Roblox API outages; identical results do not make pointless Git commits. `art-resolver.js` uses the current exported results to automatically display newly verified normal/shiny artwork for matching unit names and rarities on All Units, watchlists, leaderboards, and trends after the site refreshes. The resolver **never replaces the owner's selected portraits** or rewrites ticket values, demand, or the Supabase database. It refuses placeholder/ambiguous IDs and untrusted paths. Roblox's public thumbnail API may still withhold genuine images: those units continue to show the honest fallback until actual artwork becomes available or the owner uploads it.
 
 The latest verified export saved **40 of 70 unique Roblox image assets**. The other **30** IDs returned a duplicated generic Roblox placeholder instead of genuine unit-specific artwork, so those files are deliberately excluded. After auditing and cleaning 33 broken image references, **38 of the 62 units currently have a real normal portrait** (including owner-provided artwork). The other **24** show an explicitly labeled rarity-art fallback, not a misleading or broken character image. Four units also have their own confirmed shiny portrait; when no distinct shiny artwork exists, the normal portrait is reused with the shiny frame. The exporter can retry the same asset IDs after Roblox makes real thumbnails available. Ticket values and owner artwork are untouched by the artwork audit.
 
