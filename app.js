@@ -673,6 +673,14 @@ function renderCalculator() {
         '<span>' + escapeHtml(unit.rarity) + ' · x' + entry.qty + '</span>' +
         (enchant ? '<span class="offer-enchant">✧ ' + escapeHtml(enchant.name) +
         ' (+' + fmt(enchant.bonus_tickets) + '/unit)</span>' : '') +
+        '<span class="offer-item-demand">Demand: '+
+        escapeHtml(demandScore(demandForEntry(entry))===null ?
+          demandLabel(demandForEntry(entry)) + ' · UNRATED' :
+          demandLabel(demandForEntry(entry))) +
+        (demandScore(demandForEntry(entry))!==null &&
+          demandScore(demandForEntry(entry))<=3 ?
+          ' <b class="trade-low-chip">LOW DEMAND</b>' : '') +
+        '</span>' +
         '<small>' + formatTicketTotal(cost) + '</small></div>' +
         '<div class="offer-item-actions">' +
         '<button type="button" class="offer-edit" data-edit="' + entry.id +
@@ -714,6 +722,7 @@ function renderCalculator() {
   const panel = $("tradeResult");
   const differenceText = $("tradeDifference");
   panel.className = "trade-outcome-bar";
+  renderTradeDemand();
   if (!state.offers.yours.length || !state.offers.theirs.length) {
     panel.textContent = "ADD UNITS TO BOTH SIDES";
     differenceText.textContent = "Add at least one unit to both sides for a W/F/L result.";
@@ -825,6 +834,16 @@ function renderPicker() {
   shiny.disabled = !availableShiny;
   if (!availableShiny) shiny.checked = false;
   $("pickerUnitName").textContent = unit ? unit.name : "Choose a unit above";
+  const selectedDemand = unit ? (shiny.checked ? unit.shiny_demand : unit.demand) : null;
+  const parsedDemand = demandScore(selectedDemand);
+  $("pickerDemand").textContent = unit ?
+    "DEMAND: "+demandLabel(selectedDemand) +
+      (parsedDemand===null ? " · UNRATED" :
+       parsedDemand<=3 ? " · LOW-DEMAND ALERT" :
+       parsedDemand>=7 ? " · HIGHER DEMAND" : " · MODERATE DEMAND") :
+    "Demand will appear here when you choose a unit.";
+  $("pickerDemand").className="picker-demand"+
+    (parsedDemand!==null && parsedDemand<=3?" low":"");
   const bonus = enchantBonus(pickerEnchantId);
   const value = unit ? (shiny.checked ? unit.shiny_value : unit.value) : null;
   const known = hasValue(value);
