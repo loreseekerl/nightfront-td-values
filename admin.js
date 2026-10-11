@@ -12,7 +12,7 @@
   const mimeExt = {"image/png":"png","image/jpeg":"jpg","image/webp":"webp","image/gif":"gif"};
   const maxFileSize = 5 * 1024 * 1024;
   const state = {
-    client:null, authorized:false, units:[], enchants:[], homeArt:[], suggestions:[],
+    client:null, authorized:false, units:[], enchants:[], homeArt:[], suggestions:[], gameSync:null,
     editUnitId:null, busy:false, sessionCheck:0, previews:{normal:null,shiny:null},
     coverPreviews:{}, bulkArtworkFiles:[], bulkArtworkMatches:[],
     otpEmail:null, nextEmailAt:0, emailSending:false, verifyingOtp:false
@@ -36,7 +36,7 @@
   }
   async function refreshData() {
     requireOwner();
-    const [u,e,covers,suggestions] = await Promise.all([
+    const [u,e,covers,suggestions,gameSync] = await Promise.all([
       state.client.from("units")
         .select("id,name,rarity,value,shiny_value,demand,shiny_demand,normal_value_status,shiny_value_status,normal_value_evidence,shiny_value_evidence,released_on,image_url,shiny_image_url,updated_at")
         .order("name", {ascending:true}),
@@ -48,7 +48,10 @@
         .order("rarity", {ascending:true}),
       state.client.from("unit_value_suggestions")
         .select("id,unit_id,unit_name,unit_rarity,kind,variant,proposed_value,value_at_submission,reason,status,created_at,reviewed_at,owner_note")
-        .order("created_at", {ascending:false}).limit(300)
+        .order("created_at", {ascending:false}).limit(300),
+      state.client.from("roblox_game_snapshots")
+        .select("id,universe_id,place_id,unit_count,asset_count,object_count,received_at")
+        .order("received_at", {ascending:false}).limit(1)
     ]);
     if (u.error) throw u.error;
     if (e.error) throw e.error;
@@ -58,6 +61,8 @@
     state.enchants = e.data || [];
     state.homeArt = covers.data || [];
     state.suggestions = suggestions.data || [];
+    state.gameSync = gameSync.error ? null : (gameSync.data?.[0] || null);
+    renderGameSync();
     renderUnits();
     renderBulkArtwork();
     renderEnchants();
@@ -147,6 +152,20 @@
     img.alt = (kind === "normal" ? "Normal" : "Shiny") + " preview";
     img.onerror = () => { previewNode.textContent = "IMAGE NOT AVAILABLE"; };
     previewNode.append(img);
+  }
+  function renderGameSync(){
+    const el=$("adminGameSyncStatus");
+    if(!el)return;
+    const snapshot=state.gameSync;
+    if(!snapshot){
+      el.textContent="No recent Roblox game scan is available. Existing unit values and artwork are unchanged.";
+      return;
+    }
+    const stamp=Date.parse(snapshot.received_at);
+    const time=Number.isFinite(stamp)?new Date(stamp).toLocaleString():"Unknown time";
+    el.textContent="ROBLOX SYNC #"+snapshot.id+" · "+time+" · "+
+      snapshot.unit_count+" inventory records · "+snapshot.asset_count+" asset references · "+
+      snapshot.object_count+" object records. Only vetted real units are imported; scanning does not overwrite live prices or artwork.";
   }
   function renderUnits() {
     const query = $("adminSearch").value.toLowerCase().trim();
