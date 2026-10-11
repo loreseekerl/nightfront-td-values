@@ -3,23 +3,34 @@
 (() => {
   "use strict";
   let manifestPromise;
+  const MANIFEST_TIMEOUT_MS = 4000;
   const SAFE_ASSET_ID = /^[0-9]{8,20}$/;
   const SAFE_IMAGE_PATH = /^assets\/roblox-units\/([0-9]{8,20})\.(png|jpg|jpeg|webp|gif)$/;
   const RARITIES = new Set(["Common","Uncommon","Rare","Epic","Mythic","Secret","Glitched"]);
 
-  async function loadManifest() {
-    if (!manifestPromise) {
-      manifestPromise = Promise.all([
-        fetch("./roblox-art-sync.json", {cache:"no-store"}),
-        fetch("./roblox-art-result.json", {cache:"no-store"})
+  async function fetchManifest() {
+    const controller = new AbortController();
+    let timeoutId;
+    const timeout = new Promise((resolve,reject)=>{
+      timeoutId = setTimeout(()=>{
+        controller.abort();
+        reject(new Error("Artwork manifest timed out"));
+      },MANIFEST_TIMEOUT_MS);
+    });
+    try {
+      const request = Promise.all([
+        fetch("./roblox-art-sync.json", {cache:"no-store",signal:controller.signal}),
+        fetch("./roblox-art-result.json", {cache:"no-store",signal:controller.signal})
       ]).then(async ([sourceResponse,exportResponse])=>{
-        if (!sourceResponse.ok || !exportResponse.ok) return new Map();
+        if (!sourceResponse.ok || !exportResponse.ok)
+          throw new Error("Artwork manifest unavailable");
         const [source,exported] = await Promise.all([
           sourceResponse.json(),exportResponse.json()
         ]);
         if (source.schemaVersion !== 1 ||
             String(source.snapshotId) !== String(exported.sourceSnapshotId) ||
-            !Array.isArray(source.units) || !exported.assets) return new Map();
+            !Array.isArray(source.units) || !exported.assets)
+          throw new Error("Artwork manifest does not match its export");
         const lookup = new Map();
         for (const item of source.units) {
           if (typeof item?.name !== "string" || !RARITIES.has(item.rarity)) continue;
@@ -43,7 +54,25 @@
           if (record.normal || record.shiny) lookup.set(item.name,record);
         }
         return lookup;
-      }).catch(()=>new Map());
+      });
+      // Bound both response fetches and JSON body reads. Optional artwork
+      // must not leave the already-fetched unit list waiting indefinitely.
+      return await Promise.race([request,timeout]);
+    } finally {
+      clearTimeout(timeoutId);
+      controller.abort();
+    }
+  }
+
+  async function loadManifest() {
+    if (!manifestPromise) {
+      const pending = fetchManifest().catch(()=>{
+        // A subsequent Refresh values can retry a temporary failure while
+        // concurrent callers continue sharing the same pending request.
+        if (manifestPromise === pending) manifestPromise = undefined;
+        return new Map();
+      });
+      manifestPromise = pending;
     }
     return manifestPromise;
   }
@@ -64,3 +93,4 @@
 
   window.NightfrontArt={hydrate};
 })();
+
