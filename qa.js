@@ -9,7 +9,10 @@
   }[character]));
   const loginExpired = new URLSearchParams(location.hash.slice(1)).get("error_code") === "otp_expired";
   const privateEditLink = new URLSearchParams(location.search).get("qa") === "edit" || loginExpired;
-  const state = { client: null, authorized: false, ownerRows: [], loadingEditor: false, sessionVersion: 0 };
+  const state = {
+    client: null, authorized: false, ownerRows: [], loadingEditor: false, sessionVersion: 0,
+    otpEmail: null, nextEmailAt: 0, emailSending: false, verifyingOtp: false
+  };
 
   // Visitors never see the editor or its claim form on the public Q&A page.
   // A private ?qa=edit URL is needed for signing in before claiming ownership.
@@ -129,6 +132,7 @@
     el("qaNotAuthorized").hidden = true;
     el("qaClaimPanel").hidden = true;
     el("qaLoginForm").hidden = !!session;
+    el("qaEmailCodeForm").hidden = !!session || !state.otpEmail;
     el("qaSessionTools").hidden = !session;
     syncOwnerVisibility();
 
@@ -209,24 +213,122 @@
     if (error) { message(error.message, true); return; }
     await setSession(data?.session ?? null);
   }
+  function readableAuthError(error) {
+    const raw = String(error?.message || "Please try again.");
+    if (/rate limit|too many requests|429/i.test(raw))
+      return "Email rate limit reached. Wait before requesting another code (often about an hour), or sign in with your owner password if you have one.";
+    if (/token.*(expired|invalid)|otp.*(expired|invalid)/i.test(raw))
+      return "That code expired or was already used. Request a new code when the email limit allows, and use only the latest email.";
+    return raw;
+  }
+  const emailRedirect = "https://loreseekerl.github.io/nightfront-td-values/?qa=edit#qa";
   el("qaLoginForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!state.client) return;
     const email = el("qaLoginEmail").value.trim();
+    const password = el("qaLoginPassword").value;
     if (!email) return;
-    const button = event.target.querySelector('button[type="submit"]');
+    if (!password) {
+      message("Enter your password, or use EMAIL ME A SIGN-IN CODE for your first login.", true);
+      el("qaLoginPassword").focus();
+      return;
+    }
+    const button = el("qaPasswordLoginButton");
     button.disabled = true;
-    message("Sending a secure login link…");
-    const redirect = "https://loreseekerl.github.io/nightfront-td-values/?qa=edit";
+    message("Signing in…");
     try {
-      const { error } = await state.client.auth.signInWithOtp({
+      const {data,error} = await state.client.auth.signInWithPassword({email,password});
+      if (error) throw error;
+      el("qaLoginPassword").value = "";
+      if (data?.session) await setSession(data.session);
+      message("Signed in. Checking owner access…");
+    } catch (error) {
+      message("Password login failed: " + readableAuthError(error), true);
+    } finally { button.disabled = false; }
+  });
+  el("qaEmailCodeButton").addEventListener("click", async () => {
+    if (!state.client || state.emailSending) return;
+    const emailInput = el("qaLoginEmail");
+    if (!emailInput.reportValidity()) return;
+    const now = Date.now();
+    if (now < state.nextEmailAt) {
+      message("Please wait before requesting another email. Use the newest code or link already sent.", true);
+      return;
+    }
+    const email = emailInput.value.trim();
+    state.emailSending = true;
+    const button = el("qaEmailCodeButton");
+    button.disabled = true;
+    message("Requesting one sign-in email…");
+    try {
+      const {error} = await state.client.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: redirect, shouldCreateUser: true }
+        options: {emailRedirectTo:emailRedirect, shouldCreateUser:true}
       });
       if (error) throw error;
-      message("Check your email for a Supabase sign-in link. Open it in this browser.");
+      state.otpEmail = email;
+      state.nextEmailAt = Date.now() + 60000;
+      el("qaEmailCodeForm").hidden = false;
+      el("qaEmailCode").value = "";
+      message("Email requested. Enter the six-digit code if one is included, or open the latest sign-in link once. Avoid requesting multiple emails.");
+      el("qaEmailCode").focus();
     } catch (error) {
-      message("Sign-in link failed: " + error.message, true);
+      message("Could not send email: " + readableAuthError(error), true);
+    } finally {
+      state.emailSending = false;
+      // The server has stricter rate limits too; this is just a local guard.
+      if (state.nextEmailAt > Date.now()) {
+        setTimeout(() => { button.disabled = false; },state.nextEmailAt-Date.now());
+      } else button.disabled = false;
+    }
+  });
+  el("qaEmailCodeForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!state.client || !state.otpEmail || state.verifyingOtp) return;
+    const token = el("qaEmailCode").value.trim();
+    if (!/^\d{6}$/.test(token)) {
+      message("Enter the six digits from your newest sign-in email.", true);
+      return;
+    }
+    const button = event.target.querySelector('button[type="submit"]');
+    button.disabled = true;
+    state.verifyingOtp = true;
+    message("Verifying your email code…");
+    try {
+      const {data,error} = await state.client.auth.verifyOtp({
+        email:state.otpEmail,token,type:"email"
+      });
+      if (error) throw error;
+      state.otpEmail = null;
+      el("qaEmailCode").value = "";
+      el("qaEmailCodeForm").hidden = true;
+      if (data?.session) await setSession(data.session);
+    } catch (error) {
+      message("Email code failed: " + readableAuthError(error), true);
+    } finally {
+      state.verifyingOtp = false;
+      button.disabled = false;
+    }
+  });
+  el("qaPasswordForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!state.authorized || !state.client) return;
+    const password = el("qaNewPassword").value;
+    const confirmPassword = el("qaConfirmPassword").value;
+    if (password.length < 12 || password !== confirmPassword) {
+      message("Use at least 12 characters and make sure both passwords match.", true);
+      return;
+    }
+    const button = event.target.querySelector('button[type="submit"]');
+    button.disabled = true;
+    message("Setting your owner password…");
+    try {
+      const {error} = await state.client.auth.updateUser({password});
+      if (error) throw error;
+      event.target.reset();
+      message("Owner password saved! Next time, use the password sign-in option on the private dashboard.");
+    } catch (error) {
+      message("Password setup failed: " + readableAuthError(error), true);
     } finally { button.disabled = false; }
   });
   el("qaClaimForm").addEventListener("submit", async (event) => {
