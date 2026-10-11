@@ -843,7 +843,15 @@ function renderPicker() {
   const query = $("pickerSearch").value.trim().toLowerCase();
   const rarity = $("pickerRarity").value;
   const filtered = state.units.filter((unit) =>
-    unit.name.toLowerCase().includes(query) && (!rarity || unit.rarity === rarity));
+    unit.name.toLowerCase().includes(query) && (!rarity || unit.rarity === rarity))
+    .sort((a,b) => {
+      // All rarities in the trade picker also run from Glitched to Common.
+      const aRank = RARITIES.indexOf(a.rarity);
+      const bRank = RARITIES.indexOf(b.rarity);
+      return (aRank < 0 ? RARITIES.length : aRank) -
+             (bRank < 0 ? RARITIES.length : bRank) ||
+             a.name.localeCompare(b.name);
+    });
   const visible = filtered.slice(0,120);
   $("pickerResults").innerHTML = visible.length ? visible.map((unit) => {
     const selected = String(unit.id) === String(pickerUnitId);
