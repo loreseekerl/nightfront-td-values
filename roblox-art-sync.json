@@ -145,13 +145,13 @@
       "name": "Phone Head Guy",
       "rarity": "Mythic",
       "image_asset_id": "97180357860271",
-      "shiny_image_asset_id": "72785072028996"
+      "shiny_image_asset_id": null
     },
     {
       "name": "Rebuilt Bonnie",
       "rarity": "Mythic",
       "image_asset_id": "88366498889937",
-      "shiny_image_asset_id": "72785072028996"
+      "shiny_image_asset_id": null
     },
     {
       "name": "Royal Bonnie",
@@ -301,7 +301,7 @@
       "name": "Redbear",
       "rarity": "Secret",
       "image_asset_id": "99973415180788",
-      "shiny_image_asset_id": "72785072028996"
+      "shiny_image_asset_id": null
     },
     {
       "name": "Sparky",
@@ -325,7 +325,7 @@
       "name": "The White Rabbit",
       "rarity": "Secret",
       "image_asset_id": "71478729321126",
-      "shiny_image_asset_id": "72785072028996"
+      "shiny_image_asset_id": null
     },
     {
       "name": "TK-01 Krupa",
