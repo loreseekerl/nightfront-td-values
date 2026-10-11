@@ -357,8 +357,10 @@ const getEnchant = (id) => state.enchants.find((enchant) => enchant.id === id);
 const enchantBonus = (id) => Number(getEnchant(id)?.bonus_tickets || 0);
 const entryCost = (entry) => {
   const unit = getEntryUnit(entry);
-  if (!unit) return 0;
+  if (!unit) return null;
   const base = entry.shiny ? unit.shiny_value : unit.value;
+  // Enchants cannot turn an unknown unit value into a known total.
+  if (!hasValue(base)) return null;
   return (Number(base) + enchantBonus(entry.enchantId)) * entry.qty;
 };
 const shortEnchant = (name) => String(name).split(/\s+/).map((part) => part[0]).join("").slice(0,3).toUpperCase();
@@ -398,19 +400,21 @@ function renderEnchantPicker() {
 function offerBreakdown(side) {
   return state.offers[side].reduce((sum, entry) => {
     const unit = getEntryUnit(entry);
-    if (!unit) return sum;
+    if (!unit) { sum.unknown++; return sum; }
     const qty = Number(entry.qty);
-    const unitBase = Number(entry.shiny ? unit.shiny_value : unit.value) || 0;
-    sum.base += unitBase * qty;
+    const base = entry.shiny ? unit.shiny_value : unit.value;
+    if (!hasValue(base)) { sum.unknown++; return sum; }
+    sum.base += Number(base) * qty;
     sum.enchants += enchantBonus(entry.enchantId) * qty;
     sum.count += qty;
     return sum;
-  }, {base:0, enchants:0, count:0});
+  }, {base:0, enchants:0, count:0, unknown:0});
 }
 function totalFor(side) {
-  const {base, enchants} = offerBreakdown(side);
-  return base + enchants;
+  const {base, enchants, unknown} = offerBreakdown(side);
+  return unknown ? null : base + enchants;
 }
+const formatTicketTotal = value => value == null ? "N/A" : fmt(value) + " tickets";
 function offerText(side) {
   const names = state.offers[side].map((entry) => {
     const unit = getEntryUnit(entry);
@@ -423,12 +427,14 @@ function offerText(side) {
 }
 function getTradeText() {
   const yours = totalFor("yours"), theirs = totalFor("theirs");
-  return "Trading:\n" + offerText("yours") + "\nTotal: " + fmt(yours) +
-    " tickets\n\nLooking for:\n" + offerText("theirs") +
-    "\nTotal: " + fmt(theirs) + " tickets" +
+  return "Trading:\n" + offerText("yours") + "\nTotal: " + formatTicketTotal(yours) +
+    "\n\nLooking for:\n" + offerText("theirs") +
+    "\nTotal: " + formatTicketTotal(theirs) +
     (state.offers.yours.length && state.offers.theirs.length ?
-      "\n\nDifference: " + fmt(Math.abs(yours - theirs)) + " tickets (" +
-      (theirs > yours ? "W" : theirs < yours ? "L" : "F") + ")" : "");
+      (yours === null || theirs === null ?
+        "\n\nResult: N/A — a unit value is not available." :
+        "\n\nDifference: " + fmt(Math.abs(yours - theirs)) + " tickets (" +
+        (theirs > yours ? "W" : theirs < yours ? "L" : "F") + ")") : "");
 }
 function renderCalculator() {
   for (const side of ["yours", "theirs"]) {
@@ -445,7 +451,7 @@ function renderCalculator() {
         '<span>' + escapeHtml(unit.rarity) + ' · x' + entry.qty + '</span>' +
         (enchant ? '<span class="offer-enchant">✧ ' + escapeHtml(enchant.name) +
         ' (+' + fmt(enchant.bonus_tickets) + '/unit)</span>' : '') +
-        '<small>' + fmt(cost) + ' tickets</small></div>' +
+        '<small>' + formatTicketTotal(cost) + '</small></div>' +
         '<div class="offer-item-actions">' +
         '<button type="button" class="offer-edit" data-edit="' + entry.id +
         '" data-side="' + side + '" title="Edit unit, amount, shiny and enchant" aria-label="Edit ' +
@@ -455,7 +461,8 @@ function renderCalculator() {
         escapeHtml(unit.name) + ' from offer">×</button></div></li>';
     }).filter(Boolean).join("");
     list.innerHTML = html || '<li class="offer-empty">Press + to add units</li>';
-    $("total-" + side).textContent = fmt(totalFor(side));
+    const total = totalFor(side);
+    $("total-" + side).textContent = total === null ? "N/A" : fmt(total);
     $("clear-" + side).disabled = !entries.length;
     $("open-" + side).disabled = state.loading || !!state.error || !state.units.length;
     $("open-" + side).title = state.loading ? "Loading units" : !state.units.length ? "Add units to the database first" : "Add a unit";
@@ -464,19 +471,21 @@ function renderCalculator() {
   $("lookingForText").textContent = offerText("theirs");
   const yoursInfo = offerBreakdown("yours");
   const theirsInfo = offerBreakdown("theirs");
-  const yours = yoursInfo.base + yoursInfo.enchants;
-  const theirs = theirsInfo.base + theirsInfo.enchants;
-  $("comparisonYours").textContent = fmt(yours) + " tickets";
-  $("comparisonTheirs").textContent = fmt(theirs) + " tickets";
-  $("breakdownYours").textContent = "Base " + fmt(yoursInfo.base) + " + Enchants " +
-    fmt(yoursInfo.enchants) + " = " + fmt(yours) + " tickets";
-  $("breakdownTheirs").textContent = "Base " + fmt(theirsInfo.base) + " + Enchants " +
-    fmt(theirsInfo.enchants) + " = " + fmt(theirs) + " tickets";
-  const scale = Math.max(yours,theirs,1);
-  $("compareBarYours").style.width = (100 * yours / scale).toFixed(2) + "%";
-  $("compareBarTheirs").style.width = (100 * theirs / scale).toFixed(2) + "%";
-  $("compareBarYours").setAttribute("aria-label", "Your offer: " + fmt(yours) + " tickets");
-  $("compareBarTheirs").setAttribute("aria-label", "Their offer: " + fmt(theirs) + " tickets");
+  const yours = totalFor("yours");
+  const theirs = totalFor("theirs");
+  $("comparisonYours").textContent = formatTicketTotal(yours);
+  $("comparisonTheirs").textContent = formatTicketTotal(theirs);
+  $("breakdownYours").textContent = yoursInfo.unknown ? "N/A — a unit value is missing." :
+    "Base " + fmt(yoursInfo.base) + " + Enchants " + fmt(yoursInfo.enchants) +
+    " = " + formatTicketTotal(yours);
+  $("breakdownTheirs").textContent = theirsInfo.unknown ? "N/A — a unit value is missing." :
+    "Base " + fmt(theirsInfo.base) + " + Enchants " + fmt(theirsInfo.enchants) +
+    " = " + formatTicketTotal(theirs);
+  const scale = Math.max(yours ?? 0,theirs ?? 0,1);
+  $("compareBarYours").style.width = yours === null ? "0%" : (100 * yours / scale).toFixed(2) + "%";
+  $("compareBarTheirs").style.width = theirs === null ? "0%" : (100 * theirs / scale).toFixed(2) + "%";
+  $("compareBarYours").setAttribute("aria-label", "Your offer: " + formatTicketTotal(yours));
+  $("compareBarTheirs").setAttribute("aria-label", "Their offer: " + formatTicketTotal(theirs));
   const anyOffers = !!(state.offers.yours.length || state.offers.theirs.length);
   $("resetTrade").disabled = !anyOffers;
   $("swapOffers").disabled = !anyOffers;
@@ -486,6 +495,11 @@ function renderCalculator() {
   if (!state.offers.yours.length || !state.offers.theirs.length) {
     panel.textContent = "ADD UNITS TO BOTH SIDES";
     differenceText.textContent = "Add at least one unit to both sides for a W/F/L result.";
+    return;
+  }
+  if (yours === null || theirs === null) {
+    panel.textContent = "N/A — VALUE UNAVAILABLE";
+    differenceText.textContent = "A unit in this trade has an N/A ticket value. Remove it or wait for a listed value before comparing.";
     return;
   }
   const difference = Math.abs(yours - theirs);
@@ -590,18 +604,23 @@ function renderPicker() {
   if (!availableShiny) shiny.checked = false;
   $("pickerUnitName").textContent = unit ? unit.name : "Choose a unit above";
   const bonus = enchantBonus(pickerEnchantId);
-  const base = unit ? Number(shiny.checked ? unit.shiny_value : unit.value) : 0;
-  $("pickerUnitValue").textContent = unit ?
+  const value = unit ? (shiny.checked ? unit.shiny_value : unit.value) : null;
+  const known = hasValue(value);
+  const base = known ? Number(value) : null;
+  $("pickerUnitValue").textContent = !unit ?
+    "Select a unit to add it to your trade." : !known ?
+    "N/A — this variant does not have a listed ticket value yet." :
     (bonus > 0 ? fmt(base) + " base + " + fmt(bonus) + " enchant = " +
       fmt(base + bonus) + " tickets each" :
-      fmt(base) + " tickets each" + (availableShiny ? " · shiny available" : "")) :
-    "Select a unit to add it to your trade.";
+      fmt(base) + " tickets each" + (availableShiny ? " · shiny available" : ""));
   const quantity = Number($("pickerQty").value);
-  $("pickerExtendedTotal").textContent = unit && Number.isInteger(quantity) && quantity >= 1 && quantity <= 99 ?
-    "TOTAL: " + fmt((base + bonus) * quantity) + " tickets for x" + quantity :
-    (unit ? "Enter a quantity from 1 to 99." : "");
+  $("pickerExtendedTotal").textContent = !unit ? "" : !known ?
+    "TOTAL: N/A — a ticket value is needed for this trade." :
+    Number.isInteger(quantity) && quantity >= 1 && quantity <= 99 ?
+      "TOTAL: " + fmt((base + bonus) * quantity) + " tickets for x" + quantity :
+      "Enter a quantity from 1 to 99.";
   renderEnchantPicker();
-  $("pickerConfirm").disabled = !unit || state.enchantsLoading ||
+  $("pickerConfirm").disabled = !unit || !known || state.enchantsLoading ||
     !Number.isInteger(quantity) || quantity < 1 || quantity > 99;
   $("pickerConfirm").textContent = pickerEditingId === null ? "ADD TO " +
     (pickerSide === "yours" ? "ME" : "YOU") : "SAVE CHANGES";
