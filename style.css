@@ -2850,3 +2850,10 @@ body{overflow-x:clip}
 @media(prefers-reduced-motion:reduce){
   .trade-demand-meter span{transition:none}
 }
+
+.admin-form-grid .admin-demand-guidance{
+  grid-column:1/-1;margin:0;padding:9px 11px;
+  border-left:3px solid #7589bc;background:#172136;
+  color:#b9c6de;font:600 11px/1.65 Arial,Helvetica,sans-serif;
+}
+.admin-form-grid .admin-demand-guidance strong{color:#e1eaff}
