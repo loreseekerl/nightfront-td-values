@@ -424,6 +424,30 @@
     if (!data?.publicUrl) throw Error("Couldn't get the uploaded image URL.");
     return data.publicUrl;
   }
+  function demandInput(value, label) {
+    const raw = String(value ?? "").trim();
+    if (!raw || /^(unknown|n\/?a)$/i.test(raw)) return null;
+    const tooLong = () => Error(label + " must be 50 characters or fewer.");
+    if (raw.length > 50) throw tooLong();
+    const error = () => Error(label + " must be between 0/10 and 10/10, a descriptive label, or blank (N/A).");
+    const match = raw.match(/^\+?(\d+(?:\.\d+)?|\.\d+)(?:\s*\/\s*10)?$/);
+    if (match) {
+      // Compare decimal text exactly: floating point would round a rating
+      // such as 10.0000000000000001 down to 10 or turn tiny scores into 1e-7.
+      const [whole, fraction=""] = match[1].split(".");
+      const integer = (whole || "0").replace(/^0+(?=\d)/, "");
+      const decimal = fraction.replace(/0+$/, "");
+      if (integer.length > 2 || (integer.length === 2 && integer !== "10") ||
+          (integer === "10" && decimal)) throw error();
+      const normalized = integer + (decimal ? "." + decimal : "") + "/10";
+      if (normalized.length > 50) throw tooLong();
+      return normalized;
+    }
+    // Keep existing labels such as Medium; reject malformed numeric ratings,
+    // scientific notation and non-finite values instead of guessing a score.
+    if (/\d/.test(raw) || /^[+-]?(nan|inf(?:inity)?)$/i.test(raw)) throw error();
+    return raw;
+  }
   function unitFields() {
     const name = $("adminUnitName").value.trim();
     const rarity = $("adminUnitRarity").value;
@@ -431,8 +455,8 @@
     const value = rawValue === "" ? null : Number(rawValue);
     const rawShiny = $("adminUnitShinyValue").value.trim();
     const shinyValue = rawShiny === "" ? null : Number(rawShiny);
-    const demand = $("adminUnitDemand").value.trim() || null;
-    const shinyDemand = $("adminUnitShinyDemand").value.trim() || null;
+    const demand = demandInput($("adminUnitDemand").value, "Normal demand");
+    const shinyDemand = demandInput($("adminUnitShinyDemand").value, "Shiny demand");
     const normalStatus = $("adminNormalValueStatus").value;
     const shinyStatus = $("adminShinyValueStatus").value;
     const normalEvidence = $("adminNormalEvidence").value.trim() || null;
