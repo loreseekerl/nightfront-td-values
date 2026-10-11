@@ -50,7 +50,9 @@ const validImage = (url) => {
 };
 const hasValue = (value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
 // Shiny visuals are separate from any future enchantment system.
-const canPreviewShiny = (unit) => hasValue(unit?.shiny_value) || !!validImage(unit?.shiny_image_url);
+// Previewing the shiny style must work even when the shiny price is N/A.
+// W/F/L trading remains restricted by canTradeShiny, which needs a real value.
+const canPreviewShiny = (unit) => !!unit;
 const canTradeShiny = (unit) => hasValue(unit?.shiny_value);
 const imageHtml = (unit, placeholder="★", shiny=false) => {
   const image = (shiny && validImage(unit?.shiny_image_url)) || validImage(unit?.image_url);
@@ -339,8 +341,10 @@ function renderUnits() {
       '<div class="unit-demand"><span class="unit-stat-label">DEMAND</span><b>' +
       escapeHtml(unit.demand || "Unknown") + '</b></div></div>' +
       (window.NightfrontTrends?.cardBadges(unit,shiny) || '') +
-      '<button type="button" class="unit-history-link" data-history-id="' +
-      escapeHtml(unit.id) + '">↗ Value history</button></div></article>';
+      '<div class="unit-card-actions"><button type="button" class="unit-history-link" data-history-id="' +
+      escapeHtml(unit.id) + '">↗ History</button>' +
+      '<button type="button" class="unit-suggestion-link" data-suggest-unit="' +
+      escapeHtml(unit.id) + '">Suggest value ↗</button></div></div></article>';
   }).join("");
 }
 
@@ -658,7 +662,7 @@ function route() {
   // sign-in page so the user can request a new email instead of landing on Home.
   const loginExpired = new URLSearchParams(location.hash.slice(1)).get("error_code") === "otp_expired";
   const page = (hash === "#admin" && privateAdmin) ? "admin" :
-    ["#units", "#calculator", "#about", "#qa", "#history", "#trends", "#updates"].includes(hash) ? hash.slice(1) :
+    ["#units", "#calculator", "#about", "#qa", "#history", "#trends", "#updates", "#suggestions"].includes(hash) ? hash.slice(1) :
     (loginExpired ? "qa" : privateAdmin ? "admin" : params.get("qa") === "edit" ? "qa" : "home");
   document.querySelectorAll(".view").forEach((view) => view.hidden = view.id !== "view-" + page);
   document.querySelectorAll(".nav a").forEach((link) => link.classList.toggle("active", link.getAttribute("href") === "#" + page));
@@ -685,6 +689,11 @@ document.addEventListener("click", (event) => {
   if (pickedUnit) {
     pickerUnitId = pickedUnit.dataset.pickUnit;
     renderPicker();
+    return;
+  }
+  const suggestButton = event.target.closest("[data-suggest-unit]");
+  if (suggestButton) {
+    window.NightfrontSuggestions?.openUnit(suggestButton.dataset.suggestUnit);
     return;
   }
   const historyButton = event.target.closest("[data-history-id]");
