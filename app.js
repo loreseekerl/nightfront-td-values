@@ -110,6 +110,7 @@ async function loadUnits() {
     if (!res.ok) throw new Error("Database request failed (" + res.status + ")");
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error("Unexpected database response");
+    await window.NightfrontArt?.hydrate?.(data);
     state.units = data;
     state.animateCards = !state.hasLoadedUnits;
     state.hasLoadedUnits = true;
