@@ -76,6 +76,20 @@ The form shows the current listed value, using **N/A** when no ticket value has 
 
 **Shiny/N/A preview fix:** Tapping ★ on All Units now previews the shiny treatment and shows **N/A** even if `shiny_value` is null and no separate shiny image exists. The original portrait is reused when no shiny image is supplied. **Shiny preview is not permission to trade an unpriced unit:** the W/F/L picker still requires a real shiny numeric value. Both variants use ordinary **tickets**.
 
+## Smarter W/F/L calculator — demand and trade risk
+
+The **W/F/L CALCULATOR** keeps its original W/F/L labels as **ticket-only comparisons**, then adds a separate **DEMAND & TRADE RISK** panel below the price breakdown. Demand warnings are guidance, **not** promises that a trade will win or be easy to retrade.
+
+- Normal and Shiny demand are independent fields (`units.demand` and `units.shiny_demand`). The chosen variant's rating appears in the unit picker, trade-item list, and new analysis.
+- Supported rating text: `0/10`, `1/10`, …, `10/10` (optional spaces around `/`). Blank, `N/A`, and other labels remain **unrated**, never 0/10. The owner editor suggests the accepted format; clear either field to set N/A.
+- Low-demand alerts flag each incoming unit rated **0–3/10**. The panel also identifies low-demand units you're giving up and warns when some ratings are missing or unrecognized.
+- The separate demand comparison weights **rated units by their base ticket value and quantity** (minimum weight of 1 for a zero-ticket unit). Enchant bonuses are **not** demand and never affect that score. The UI shows the count of rated vs total units, and flags a partial average when there are unknown ratings. Strong side-to-side conclusions require **complete** ratings for both offers.
+- Recommendations consider ticket difference, whether you receive low-demand units, and average demand gaps. High-ticket wins with low demand receive a **caution**; equal-ticket offers with higher/lower rated demand are distinguished; ticket losses with stronger incoming demand are described as a possible tradability tradeoff, **not** reclassified as a ticket win.
+- If any unit has an **N/A ticket value** (for example after its value was cleared), W/F/L is **N/A** and no ticket-based recommendation is invented. Available demand warnings still display. A 0-ticket numeric value remains a real 0.
+- Copy Trade Text now includes the rating for both offers, recommendation, and relevant warnings. Offer cards and the picker show selected Normal/Shiny ratings.
+
+These assessments use owner-published community demand estimates and a rule-based heuristic. They do not consider actual completed market transactions, cash prices, or liquidity measurements; players should still confirm trade conditions themselves.
+
 ## Mobile & UI polish
 
 The public site keeps the handmade Nightfront trading-board style while improving phone usability:
