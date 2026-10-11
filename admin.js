@@ -12,7 +12,7 @@
   const mimeExt = {"image/png":"png","image/jpeg":"jpg","image/webp":"webp","image/gif":"gif"};
   const maxFileSize = 5 * 1024 * 1024;
   const state = {
-    client:null, authorized:false, units:[], enchants:[], homeArt:[],
+    client:null, authorized:false, units:[], enchants:[], homeArt:[], suggestions:[],
     editUnitId:null, busy:false, sessionCheck:0, previews:{normal:null,shiny:null},
     coverPreviews:{}, otpEmail:null, nextEmailAt:0, emailSending:false, verifyingOtp:false
   };
@@ -35,7 +35,7 @@
   }
   async function refreshData() {
     requireOwner();
-    const [u,e,covers] = await Promise.all([
+    const [u,e,covers,suggestions] = await Promise.all([
       state.client.from("units")
         .select("id,name,rarity,value,shiny_value,demand,image_url,shiny_image_url,updated_at")
         .order("name", {ascending:true}),
@@ -44,17 +44,23 @@
         .order("sort_order", {ascending:true}),
       state.client.from("homepage_rarity_artwork")
         .select("rarity,image_url")
-        .order("rarity", {ascending:true})
+        .order("rarity", {ascending:true}),
+      state.client.from("unit_value_suggestions")
+        .select("id,unit_id,unit_name,unit_rarity,kind,variant,proposed_value,value_at_submission,reason,status,created_at,reviewed_at,owner_note")
+        .order("created_at", {ascending:false}).limit(300)
     ]);
     if (u.error) throw u.error;
     if (e.error) throw e.error;
     if (covers.error) throw covers.error;
+    if (suggestions.error) throw suggestions.error;
     state.units = u.data || [];
     state.enchants = e.data || [];
     state.homeArt = covers.data || [];
+    state.suggestions = suggestions.data || [];
     renderUnits();
     renderEnchants();
     renderHomeArt();
+    renderSuggestions();
     status("Owner verified · " + state.units.length + " units · " + state.enchants.length + " enchants");
   }
   async function checkSession(session) {
@@ -351,11 +357,111 @@
       status("Updated " + name + " to +" + bonus.toLocaleString() + " tickets.");
     });
   }
+  const listedTicketValue = value => value == null ? "N/A" :
+    Number(value).toLocaleString("en-US",{maximumFractionDigits:2}) + " tickets";
+  function hasChangedValue(before,after) {
+    return (before == null ? null : Number(before)) !== (after == null ? null : Number(after));
+  }
+  function renderSuggestions() {
+    const pending=state.suggestions.filter(s=>s.status==="pending").length;
+    $("adminSuggestionsBadge").textContent=pending ? " ("+pending+")" : "";
+    const filter=$("adminSuggestionFilter").value;
+    const query=$("adminSuggestionSearch").value.trim().toLowerCase();
+    const filtered=state.suggestions.filter(s=>
+      (filter==="all"||s.status===filter) &&
+      (!query||s.unit_name.toLowerCase().includes(query)));
+    $("adminSuggestionsStatus").textContent=pending+" waiting for review · "+
+      filtered.length+" matching submissions"+(state.suggestions.length===300?" · newest 300 displayed":"");
+    if(!filtered.length) {
+      $("adminSuggestionsList").innerHTML='<div class="admin-suggestions-empty">'+
+        (state.suggestions.length?"No matching submissions for this filter.":
+          "No player suggestions yet. They will appear here automatically.")+'</div>';
+      return;
+    }
+    $("adminSuggestionsList").innerHTML=filtered.map(s=>{
+      const unit=state.units.find(u=>u.id===s.unit_id);
+      const oldValue=listedTicketValue(s.value_at_submission);
+      const live=unit ? (s.variant==="shiny" ? unit.shiny_value : unit.value) : null;
+      const stale=Boolean(unit) && hasChangedValue(live,s.value_at_submission);
+      const missing=(!unit);
+      const proposed=s.proposed_value === null ? null : s.proposed_value;
+      const pending=s.status==="pending";
+      const canApproveValue=pending && proposed !== null && !stale && !missing;
+      const canApproveReport=pending && proposed===null;
+      const note=s.owner_note?'<p class="admin-review-note">Owner note: '+safe(s.owner_note)+'</p>':"";
+      const time=Number.isFinite(Date.parse(s.created_at)) ?
+        new Date(s.created_at).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"}):
+        "Date unknown";
+      return '<article class="admin-suggestion-card" data-suggestion-id="'+safe(s.id)+'">'+
+        '<div class="admin-suggestion-top"><span class="admin-suggestion-status status-'+safe(s.status)+'">'+
+        safe(s.status.toUpperCase())+'</span><span>'+safe(time)+'</span></div>'+
+        '<div class="admin-suggestion-title"><h3>'+safe(s.unit_name)+'</h3><small>'+
+        safe(s.unit_rarity)+' · '+safe(s.variant.toUpperCase())+' · '+
+        (s.kind==="value_suggestion"?"VALUE SUGGESTION":"INCORRECT VALUE REPORT")+'</small></div>'+
+        '<div class="admin-suggestion-values">'+
+          '<div><span>WHEN SUBMITTED</span><strong>'+safe(oldValue)+'</strong></div>'+
+          '<div><span>SUGGESTED</span><strong>'+safe(proposed===null?"No price provided":listedTicketValue(proposed))+'</strong></div>'+
+          '<div><span>LIVE RIGHT NOW</span><strong>'+
+            safe(missing?"UNIT REMOVED":listedTicketValue(live))+'</strong></div>'+
+        '</div>'+
+        '<p class="admin-suggestion-reason">'+safe(s.reason)+'</p>'+
+        (pending && stale?'<p class="admin-suggestion-warning">⚠ The live value changed after this was submitted. Review manually or reject it to avoid overwriting a newer price.</p>':"")+
+        (pending && missing?'<p class="admin-suggestion-warning">⚠ Unit no longer exists. A proposed price cannot be applied.</p>':"")+
+        note+
+        (pending ?
+          '<label class="admin-suggestion-note-label">REVIEW NOTE (OPTIONAL)'+
+            '<input type="text" data-review-note maxlength="300" placeholder="Only visible in the admin dashboard"></label>'+
+          '<div class="admin-suggestion-buttons">'+
+            '<button type="button" class="admin-suggestion-approve" data-review-decision="approved"'+
+              ((canApproveValue||canApproveReport)?"":' disabled title="Cannot apply to an updated or missing unit"')+'>'+
+              (proposed===null?"MARK REVIEWED":"APPROVE & APPLY")+'</button>'+
+            '<button type="button" class="admin-suggestion-reject" data-review-decision="rejected">REJECT</button></div>'
+          :'<p class="admin-suggestion-reviewed">Reviewed'+
+            (s.reviewed_at?" · "+safe(new Date(s.reviewed_at).toLocaleDateString()):"")+'</p>')+
+        '</article>';
+    }).join("");
+  }
+  async function reviewSuggestion(event) {
+    const button=event.target.closest("[data-review-decision]");
+    if(!button || button.disabled || state.busy)return;
+    const card=button.closest("[data-suggestion-id]");
+    const id=card?.dataset.suggestionId;
+    const suggestion=state.suggestions.find(s=>s.id===id);
+    if(!suggestion || suggestion.status!=="pending")return;
+    const decision=button.dataset.reviewDecision;
+    if(!["approved","rejected"].includes(decision))return;
+    const text=decision==="approved" ?
+      (suggestion.proposed_value===null ?
+       "Mark this report as reviewed? No ticket values will change.":
+       "Approve "+suggestion.unit_name+" ("+suggestion.variant+") at "+
+         listedTicketValue(suggestion.proposed_value)+"? This updates the live value list.") :
+      "Reject this submission? It will not change any value.";
+    if(!window.confirm(text))return;
+    const note=card.querySelector("[data-review-note]")?.value.trim()||null;
+    await withBusy(async()=>{
+      status(decision==="approved"?"Approving suggestion…":"Rejecting suggestion…");
+      const {data,error}=await state.client.rpc("review_unit_value_suggestion",{
+        p_suggestion_id:id,p_decision:decision,p_owner_note:note
+      });
+      if(error)throw error;
+      await refreshData();
+      if(data?.applied) {
+        if(typeof window.loadUnits==="function")window.loadUnits();
+        window.NightfrontTrends?.refresh();
+      }
+      status(data?.applied ? "Approved and updated "+suggestion.unit_name+" to "+
+        listedTicketValue(suggestion.proposed_value)+"." :
+        decision==="approved" ? "Report marked reviewed. No ticket values changed." :
+          "Submission rejected. No ticket values changed.");
+    });
+  }
+
   function setTab(tab) {
     $("adminUnitsPanel").hidden = tab !== "units";
     $("adminEnchantsPanel").hidden = tab !== "enchants";
     $("adminHomeArtPanel").hidden = tab !== "homeArt";
-    for (const [id,active] of [["adminUnitsTab",tab==="units"],["adminEnchantsTab",tab==="enchants"],["adminHomeArtTab",tab==="homeArt"]]) {
+    $("adminSuggestionsPanel").hidden = tab !== "suggestions";
+    for (const [id,active] of [["adminUnitsTab",tab==="units"],["adminEnchantsTab",tab==="enchants"],["adminHomeArtTab",tab==="homeArt"],["adminSuggestionsTab",tab==="suggestions"]]) {
       $(id).classList.toggle("active",active);
       $(id).setAttribute("aria-selected",String(active));
     }
@@ -364,6 +470,12 @@
   $("adminUnitsTab").addEventListener("click",()=>setTab("units"));
   $("adminEnchantsTab").addEventListener("click",()=>setTab("enchants"));
   $("adminHomeArtTab").addEventListener("click",()=>setTab("homeArt"));
+  $("adminSuggestionsTab").addEventListener("click",()=>setTab("suggestions"));
+  $("adminSuggestionFilter").addEventListener("change",renderSuggestions);
+  $("adminSuggestionSearch").addEventListener("input",renderSuggestions);
+  $("adminSuggestionsList").addEventListener("click",reviewSuggestion);
+  $("adminSuggestionsReload").addEventListener("click",()=>
+    refreshData().catch(e=>status("Could not reload suggestions: "+e.message,true)));
   $("adminHomeArtList").addEventListener("submit",saveHomeCover);
   $("adminHomeArtList").addEventListener("input",(event)=>{
     const form=event.target.closest("[data-cover-form]");
