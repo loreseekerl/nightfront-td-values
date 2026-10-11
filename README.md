@@ -10,6 +10,7 @@ A community trading value list for Nightfront TD, hosted on GitHub Pages and pow
 - `style.css` — black-and-blue responsive design.
 - `app.js` — reads unit values from Supabase and powers filters and trades.
 - `updates.js` — renders the public database-backed Update History changelog.
+- `extras.js` — watchlists, on-page alerts, top rankings and release entries. Cached personal data stays on the visitor's device.
 - `suggestions.js` — public value submission form that sends validated suggestions to an owner-only queue.
 - `assets/` — public character artwork.
 - Supabase `public.units` — database table with unit records.
@@ -110,6 +111,42 @@ The **W/F/L CALCULATOR** keeps its original W/F/L labels as **ticket-only compar
 - Copy Trade Text now includes the rating for both offers, recommendation, and relevant warnings. Offer cards and the picker show selected Normal/Shiny ratings.
 
 These assessments use owner-published community demand estimates and a rule-based heuristic. They do not consider actual completed market transactions, cash prices, or liquidity measurements; players should still confirm trade conditions themselves.
+
+## Market Suite: watchlists, notifications, leaderboards and sharing
+
+The new features use only public unit values and owner-approved changes. They do not introduce imaginary tiers (there is **no Legendary**), trade prices, or unit artwork.
+
+### 5. Personal unit watchlist
+
+From **ALL UNITS**, use **☆ SAVE** to add an entire real unit (both normal and shiny variants) to **MORE → My Watchlist**. Saved IDs are held in this browser's \`localStorage\`, without an account, and do **not** sync across devices. The page shows both ticket values, variant-specific demand and value-confidence labels.
+
+### 6. Unit-change notifications
+
+When the website loads, regains focus after a break, or the user clicks **CHECK FOR CHANGES**, the watchlist compares normal/shiny prices and normal/shiny demand against that browser's last saved snapshot. **N/A → published** and published → **N/A** are tracked as distinct events; an initial save is only a baseline, not a change alert. Recent alerts are retained locally and can be cleared.
+
+Optional desktop alerts require permission and work **only while the website is open**. No background push service or automatic notification when the browser is closed is claimed. The public database only holds official changes—personal favorites and alerts stay in the user's browser.
+
+### 7. Shareable W/F/L trades
+
+**Share trade link** copies a URL to the current calculator setup (unit IDs, quantities, normal/shiny flags and chosen enchant IDs). Friends who open it see the same offers priced against the **current** shared database. No account, clipboard of private data, or server-side storage is needed. A missing/removed unit, unknown N/A price, invalid enchant, unsafe quantity or malformed URL causes a visible error **without silently substituting prices**. Copy Trade remains available.
+
+### 8. Top 10 leaderboards
+
+**MORE → Top 10 Leaderboards** ranks actual units by normal/shiny ticket value or normal/shiny demand. Missing ratings and prices are excluded, not treated as zero. **Biggest recorded rise/drop** looks at genuine numeric changes in the last 30 days of \`unit_value_history\`, excluding baselines, zero deltas and unknown values. When too little history exists, the page says so rather than inventing movement. All leaderboards are fan-site records, not official Roblox trade volumes.
+
+### 9. Owner-verified ticket values
+
+The **Admin → Units & Images** editor has separate **Estimated** (default) or **Verified** statuses for normal and shiny versions, each with its own evidence field. Verified requires an actual published ticket amount and **at least 8 characters of evidence**. The database check explicitly requires non-null evidence, not just an empty-input check. **N/A** is automatically displayed whenever the corresponding numeric ticket value is NULL regardless of status. Unit cards show the current variant's owner-assigned badge; Verified is not an independent external certification. Game sync cannot automatically mark imported units Verified.
+
+### 10. Real release dates, not invented dates
+
+**MORE → Latest Units** has two separate sections: **Confirmed Game Releases** (the owner explicitly records \`units.released_on\`, if known) and **Recently Added to This Website** (actual \`units.created_at\`). Website import timestamps must not be presented as Roblox release dates. The owner editor allows verified past release dates; blank means unknown.
+
+### Roblox game sync and artwork completeness
+
+The private \`sync_roblox_game_inventory\` endpoint already accepts signed manifests from the developer's published experience and stores validated snapshot metadata, while keeping secrets out of GitHub and the website. **Admin → Units & Images** displays the latest owner-only sync timestamp plus raw inventory/asset/object counts. The Roblox scan includes non-unit inventory data: **101 raw inventory entries does not mean 101 confirmed trading units**.
+
+The current shared list contains **62 vetted Nightfront units** from the real game scan, with **seven approved rarities only**. The artwork export has **40 usable Roblox image assets**, but not every unit has a verified portrait: some Roblox thumbnail calls produced a repeated generic placeholder. Current inventory: **38 normal-image rows and four shiny-image rows**, some of which may share images. The website uses clearly labelled rarity art or placeholders for the rest—never a made-up unit portrait. Missing images need genuine Roblox art to complete; missing values and demand remain N/A until researched or owner-approved.
 
 ## Mobile & UI polish
 
