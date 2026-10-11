@@ -2857,3 +2857,27 @@ body{overflow-x:clip}
   color:#b9c6de;font:600 11px/1.65 Arial,Helvetica,sans-serif;
 }
 .admin-form-grid .admin-demand-guidance strong{color:#e1eaff}
+
+
+/* REAL ROSTER / HONEST ARTWORK FALLBACK
+   Existing owner-uploaded rarity covers are shown only while a specific
+   unit portrait is missing; no cover is recorded as that unit's artwork. */
+.unit-card .unit-art > img.rarity-cover-art,
+.unit-card.is-shiny .unit-art > img.rarity-cover-art {
+  object-fit:contain;
+  padding:9px;
+  opacity:.84;
+  filter:saturate(.88) brightness(.82);
+}
+.unit-art-credit {
+  position:absolute;right:7px;bottom:7px;z-index:4;
+  max-width:calc(100% - 21px);
+  border:1px solid #5e6b88;border-radius:2px;
+  padding:4px 6px;color:#f0effa;background:#090d19e8;
+  font:900 8px/1.15 Consolas,'Courier New',monospace;
+  letter-spacing:.07em;pointer-events:none;
+  box-shadow:0 1px 8px #0009;
+}
+.unit-card.is-shiny .unit-art-credit {
+  color:#e8ddff;border-color:#9582bb;background:#0e0b24e8;
+}
