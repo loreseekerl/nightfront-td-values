@@ -15,6 +15,7 @@
   <script src="./updates.js?v=separate-variant-demand-1" defer></script>
   <script src="./trends.js?v=separate-variant-demand-1" defer></script>
   <script src="./suggestions.js?v=separate-variant-demand-1" defer></script>
+  <script src="./extras.js?v=nightfront-extras-1" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -36,6 +37,9 @@
           <a href="#updates">Update History</a>
           <a href="#trends">Demand &amp; Trends</a>
           <a href="#suggestions">Suggest a Value</a>
+          <a href="#watchlist">My Watchlist</a>
+          <a href="#rankings">Top 10 Leaderboards</a>
+          <a href="#releases">Latest Units</a>
         </div>
       </div>
     </nav>
@@ -93,6 +97,9 @@
           <a href="#updates"><span class="quicklink-number">03</span><strong>Update history</strong><small>New units, values and enchants</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
           <a href="#qa"><span class="quicklink-number">04</span><strong>Developer Q&amp;A</strong><small>Answers from the team</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
           <a href="#suggestions"><span class="quicklink-number">05</span><strong>Suggest a value</strong><small>Help keep the list accurate</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
+          <a href="#watchlist"><span class="quicklink-number">06</span><strong>My watchlist</strong><small>Save units and see updates</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
+          <a href="#rankings"><span class="quicklink-number">07</span><strong>Top 10 units</strong><small>Explore ranked values and demand</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
+          <a href="#releases"><span class="quicklink-number">08</span><strong>Latest units</strong><small>Confirmed releases and site additions</small><span class="quicklink-arrow" aria-hidden="true">↗</span></a>
         </div>
       </section>
     </div>
@@ -412,8 +419,9 @@
       <section class="trade-extras" aria-label="Copy your trade">
         <div class="extras-heading">
           <h2>TRADE TEXT</h2>
-          <button type="button" class="copy-trade-btn" id="copyTrade" aria-label="Copy trade text">▢ <span>Copy</span></button>
+          <div class="nf-share-actions"><button type="button" class="copy-trade-btn" id="copyTrade" aria-label="Copy trade text">▢ <span>Copy</span></button><button type="button" class="copy-trade-btn" id="shareTrade" aria-label="Copy a link to this trade">↗ <span>Share trade link</span></button></div>
         </div>
+        <p id="tradeLinkStatus" class="nf-status-message" role="status" aria-live="polite"></p>
         <div class="trade-text-box">
           <div class="trade-text-group"><strong>Trading:</strong><p id="tradingText">None</p></div>
           <div class="trade-text-group"><strong>Looking for:</strong><p id="lookingForText">None</p></div>
@@ -588,6 +596,22 @@
               <label>Shiny value (tickets, optional) <input id="adminUnitShinyValue" type="number" min="0" max="1000000000" step="any" placeholder="Leave blank for N/A"></label>
               <label>Normal demand (optional) <input id="adminUnitDemand" type="text" maxlength="50" placeholder="e.g. 7/10 or leave blank"></label>
               <label>Shiny demand (optional) <input id="adminUnitShinyDemand" type="text" maxlength="50" placeholder="e.g. 3/10 or leave blank"></label>
+              <label>Normal value confidence
+                <select id="adminNormalValueStatus"><option value="Estimated">Estimated</option><option value="Verified">Verified (needs evidence)</option></select>
+              </label>
+              <label>Shiny value confidence
+                <select id="adminShinyValueStatus"><option value="Estimated">Estimated</option><option value="Verified">Verified (needs evidence)</option></select>
+              </label>
+              <label>Normal verification evidence (optional)
+                <input id="adminNormalEvidence" type="text" maxlength="500" placeholder="Source / trade evidence, required for Verified">
+              </label>
+              <label>Shiny verification evidence (optional)
+                <input id="adminShinyEvidence" type="text" maxlength="500" placeholder="Source / trade evidence, required for Verified">
+              </label>
+              <label>Confirmed game release date (optional)
+                <input id="adminUnitReleaseDate" type="date" aria-describedby="adminReleaseDateHint">
+              </label>
+              <p class="admin-demand-guidance" id="adminReleaseDateHint">Only enter a genuine confirmed release date. Leave blank if unknown. Verified status is owner-assigned and must have a published ticket value and evidence.</p>
               <p class="admin-demand-guidance">Use a demand rating from <strong>0/10 to 10/10</strong> so trade-risk warnings can read it. Blank becomes <strong>N/A</strong>; normal and shiny ratings are separate.</p>
             </div>
             <div class="admin-art-grid">
@@ -735,6 +759,63 @@
           </div>
         </div>
       </details>
+    </div>
+  </section>
+
+  <section class="view" id="view-watchlist" aria-label="My unit watchlist" hidden>
+    <div class="container nf-tools-page">
+      <div class="nf-tools-heading"><span class="eyebrow">PERSONAL UNIT TRACKER / SAVED ON THIS DEVICE</span>
+        <h1>MY WATCHLIST</h1>
+        <p>Star real Nightfront units to keep their normal and shiny ticket values, demand, and recent changes together. Saved in this browser—no sign-in required.</p>
+      </div>
+      <div class="nf-tool-controls">
+        <button type="button" id="watchlistRefresh" class="nf-tool-button">↻ CHECK FOR CHANGES</button>
+        <button type="button" id="watchlistNotify" class="nf-tool-button">ENABLE ON-PAGE ALERTS</button>
+        <button type="button" id="watchlistClearAlerts" class="nf-tool-button nf-tool-quiet">CLEAR ALERTS</button>
+      </div>
+      <p class="nf-tools-note">Alerts appear when you open or refresh the website. Optional desktop notifications work only while this page is open; this is not background push messaging.</p>
+      <p id="watchlistStatus" class="nf-status-message" role="status" aria-live="polite"></p>
+      <div id="watchlistAlerts" class="nf-alert-list" aria-live="polite"></div>
+      <div id="watchlistUnits" class="nf-mini-unit-grid"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-rankings" aria-label="Top 10 value and demand leaderboards" hidden>
+    <div class="container nf-tools-page">
+      <div class="nf-tools-heading"><span class="eyebrow">COMMUNITY MARKET DATA / LIVE FROM SUPABASE</span>
+        <h1>TOP 10 UNITS</h1>
+        <p>Real rankings from published unit values and demand ratings. Missing values stay N/A and are never ranked as zero. Value movers need actual recorded changes.</p>
+      </div>
+      <div class="nf-tool-controls">
+        <label class="nf-tool-field" for="rankingCategory">LEADERBOARD
+          <select id="rankingCategory">
+            <option value="value">Highest ticket value</option>
+            <option value="demand">Highest demand</option>
+            <option value="rise">Biggest recorded rise</option>
+            <option value="fall">Biggest recorded drop</option>
+          </select>
+        </label>
+        <label class="nf-tool-field" for="rankingVariant">VERSION
+          <select id="rankingVariant"><option value="normal">Normal</option><option value="shiny">Shiny ★</option></select>
+        </label>
+        <button type="button" id="rankingsRefresh" class="nf-tool-button">↻ REFRESH</button>
+      </div>
+      <p id="rankingsStatus" class="nf-status-message" role="status" aria-live="polite"></p>
+      <div id="rankingsList" class="nf-ranked-list"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-releases" aria-label="New and recently released Nightfront units" hidden>
+    <div class="container nf-tools-page">
+      <div class="nf-tools-heading"><span class="eyebrow">NIGHTFRONT RELEASE BOARD / VERIFIED DATES ONLY</span>
+        <h1>LATEST UNITS</h1>
+        <p>Confirmed game release dates are shown separately from the date a unit joined this fan value list. We don't invent release dates or artwork.</p>
+      </div>
+      <div class="nf-tools-subhead"><h2>CONFIRMED GAME RELEASES</h2><small>Only units whose release dates were entered by the owner</small></div>
+      <div id="releasesConfirmed" class="nf-mini-unit-grid"></div>
+      <div class="nf-tools-subhead"><h2>RECENTLY ADDED TO THIS VALUE LIST</h2><small>Website listing date—not a game release date</small></div>
+      <div id="releasesListings" class="nf-mini-unit-grid"></div>
+      <p id="releasesStatus" class="nf-status-message" role="status" aria-live="polite"></p>
     </div>
   </section>
 
