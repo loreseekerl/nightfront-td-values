@@ -7,7 +7,7 @@
   <meta name="description" content="Nightfront TD Values — community unit values, demand and a W/F/L trade calculator.">
   <title>Nightfront TD Values</title>
   <link rel="stylesheet" href="./style.css?v=roster-rarity-art-1">
-  <script src="./app.js?v=roster-rarity-art-1" defer></script>
+  <script src="./app.js?v=rarity-highest-first-1" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
   <script src="./qa.js?v=owner-login-upgrade-1" defer></script>
   <script src="./admin.js?v=roster-rarity-art-1" defer></script>
@@ -113,16 +113,17 @@
           </button>
           <div class="rarity-options" id="rarityChoices" role="group" aria-label="Filter units by rarity" hidden>
             <button type="button" data-filter-rarity="" aria-pressed="true">All rarities</button>
-            <button type="button" data-filter-rarity="Common">Common</button>
-            <button type="button" data-filter-rarity="Uncommon">Uncommon</button>
-            <button type="button" data-filter-rarity="Rare">Rare</button>
-            <button type="button" data-filter-rarity="Epic">Epic</button>
-            <button type="button" data-filter-rarity="Mythic">Mythic</button>
-            <button type="button" data-filter-rarity="Secret">Secret</button>
             <button type="button" data-filter-rarity="Glitched">Glitched</button>
+            <button type="button" data-filter-rarity="Secret">Secret</button>
+            <button type="button" data-filter-rarity="Mythic">Mythic</button>
+            <button type="button" data-filter-rarity="Epic">Epic</button>
+            <button type="button" data-filter-rarity="Rare">Rare</button>
+            <button type="button" data-filter-rarity="Uncommon">Uncommon</button>
+            <button type="button" data-filter-rarity="Common">Common</button>
           </div>
         </div>
         <select id="sort" aria-label="Sort units">
+          <option value="rarity" selected>Highest rarity first</option>
           <option value="name">Sort by name</option>
           <option value="highest">Highest value</option>
           <option value="lowest">Lowest value</option>
