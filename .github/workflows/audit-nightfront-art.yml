@@ -39,7 +39,21 @@ jobs:
           git add roblox-art-visual-audit.json assets/roblox-art-audit.jpg
           if ! git diff --cached --quiet; then
             git commit -m "Audit Nightfront unit artwork for near-identical portraits"
-            git push origin HEAD:main
+            # Other approved website edits can land while this audit is running.
+            # Rebase our generated report onto the newest main instead of
+            # overwriting concurrent changes or losing the audit output.
+            for attempt in 1 2 3 4; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then
+                echo "Audit report published."
+                break
+              fi
+              if [ "$attempt" -eq 4 ]; then
+                echo "Could not publish audit after 4 safe retries."
+                exit 1
+              fi
+              sleep 2
+            done
           else
             echo "Artwork audit already up to date."
           fi
