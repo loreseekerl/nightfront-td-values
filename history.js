@@ -34,6 +34,8 @@
   function changed(entry,type) {
     if (entry.event_type !== "updated") {
       if (type === "shiny") return entry.new_shiny_value !== null;
+      if (type === "demand") return entry.new_demand != null && demandText(entry.new_demand) !== "N/A";
+      if (type === "shiny-demand") return entry.new_shiny_demand != null && demandText(entry.new_shiny_demand) !== "N/A";
       return true;
     }
     if (type === "normal") return entry.old_value !== entry.new_value;
